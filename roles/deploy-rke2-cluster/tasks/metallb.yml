@@ -1,0 +1,58 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for apply-manifests
+- name: Wait for k8s nodes with node label 'server=true' to be ready
+  ansible.builtin.command:
+    cmd: "kubectl wait --for=condition=Ready nodes --selector server=true --timeout=600s"
+  register: nodes_ready
+  retries: 120
+  delay: 10
+  changed_when: true
+  become_user: "{{ ansible_user }}"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Apply metallb manifest
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+  become_user: "{{ ansible_user }}"
+  changed_when: true
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Wait for metallb pods to be ready, otherwise we cannot start metallb deployment
+  ansible.builtin.command:
+    cmd: "kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=1800s"
+  changed_when: true
+  become_user: "{{ ansible_user }}"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Copy metallb L2Advertisement to server 1
+  ansible.builtin.template:
+    src: templates/l2Advertisement.yaml.j2
+    dest: /home/{{ ansible_user }}/l2Advertisement.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Copy metallb IPPool to server 1
+  ansible.builtin.template:
+    src: templates/metallb-ippool.j2
+    dest: /home/{{ ansible_user }}/ippool.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Apply metallb ipppool
+  ansible.builtin.command:
+    cmd: kubectl apply -f /home/{{ ansible_user }}/ippool.yaml
+  become_user: "{{ ansible_user }}"
+  changed_when: true
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Apply metallb L2Advertisement
+  ansible.builtin.command:
+    cmd: kubectl apply -f /home/{{ ansible_user }}/l2Advertisement.yaml
+  become_user: "{{ ansible_user }}"
+  changed_when: true
+  when: inventory_hostname == groups['servers'][0]

@@ -1,0 +1,9 @@
+replicas: 3
+ingressClass:  
+  enabled: true
+  isDefaultClass: true
+  name: "traefik-ingress"
+tlsStore:
+  default:
+    defaultCertificate:
+      secretName: wildcard-wolskinet-com-tls

@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-wolskinet-com
+  namespace: traefik
+spec:
+  secretName: wildcard-wolskinet-com-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: wolskinet.com
+  dnsNames:
+  - '*.wolskinet.com'
+  - wolskinet.com

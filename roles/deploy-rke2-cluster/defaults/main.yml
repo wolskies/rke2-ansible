@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for deploy-rke2-cluster
+rke2_install_dir: "/usr/local/bin"
+rke2_version: "v1.33.1+rke2r1"
+
+kube_vip_version: v0.9.1
+vip_interface: eth0
+

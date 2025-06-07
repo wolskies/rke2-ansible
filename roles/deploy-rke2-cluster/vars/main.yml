@@ -1,0 +1,4 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for deploy-rke2-cluster
+rke2_binary_url: "https://github.com/rancher/rke2/releases/download/{{ rke2_version }}/rke2.{{ os }}-{{ 'amd64' if ansible_architecture == 'x86_64' else arch }}"
