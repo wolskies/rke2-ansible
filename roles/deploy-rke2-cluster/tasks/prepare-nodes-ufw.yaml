@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Ensure UFW is installed 
+  ansible.buiiltin.package:
+    name: UFW
+    state: present
+  become: true
+
+- name: Ensure UFW rules are present for RKE2 servers
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+  loop: "{{ ufw_rules_server }}"
+  notify: Reload UFW
+  when: inventory_hostname in groups['servers']
+  become: true
+
+- name: Ensure UFW rules are present for RKE2 agents
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+  loop: "{{ ufw_rules_agent }}"
+  notify: Reload UFW
+  when: inventory_hostname in groups['agents']
+  become: true
+
+- name: Ensure UFW rules are present for CNI
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+  loop: "{{ ufw_rules_canal }}"
+  notify: Reload UFW
+  become: true

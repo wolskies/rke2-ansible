@@ -80,3 +80,8 @@
   ansible.builtin.include_tasks:
     file: metallb.yaml
   when: inventory_hostname in groups['servers'][0]
+
+- name: Configure Calico GlobalNetworkPolicy
+  ansible.builtin.include_tasks:
+    file: calico-firewall.yaml
+  when: firewall == "calico"

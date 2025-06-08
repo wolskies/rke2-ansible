@@ -11,8 +11,8 @@ kube_vip_noinstall: false
 metallb_noinstall: false
 
 disable_networkmanager: true
-disable_firewalld: true
-install_ufw_rules: true
+# Options are 'ufw' or 'calico'
+firewall: ufw
 
 cni_plugin: canal
 
