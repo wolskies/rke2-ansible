@@ -1,8 +1,8 @@
 ## Ansible Collection: rke2_ansible
-This collection includes a number of roles for the creation and management of an RKE2 cluster.
+This collection includes a number of roles for the creation and management of an RKE2 cluster of bare-metal systems.
 
 ## Description
-This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install Metallb, Traefik, Cert-Manager, Rancher and Longhorn.  
+This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install Metallb, Traefik, Cert-Manager, Rancher and Longhorn.  While it can be adapted to other distributions, it is currently tailored to Ubuntu Server 24+
 
 ## Installation
 To install the collection from this repository, refer to [Installing a collection from a Git repository](https://docs.ansible.com/ansible/latest/collections_guide/collections_installing.html).  
@@ -11,7 +11,10 @@ To install the collection from this repository, refer to [Installing a collectio
 ansible-galaxy collection install git+https://github.com/wolskies/rke2-ansible.git
 ```
 
-See the Ansible documentation for more details.  
+See the Ansible documentation for more details on using collections.
+
+# Basic Requirements
+Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements).  This collection is written and tested on `amd64` systems, but should work for `arm64/aarch64`.  It is not intended to support Windows.
 
 ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
