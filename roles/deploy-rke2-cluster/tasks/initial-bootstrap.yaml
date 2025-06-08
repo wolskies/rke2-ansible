@@ -1,3 +1,5 @@
+# SPDX-License-Identifier:  	GPL-3.0-or-later
+---
 # Copy server config to server 1 for bootstrap - we need to change server2 & 3 later with the token
 - name: Deploy RKE2 server Configuration
   ansible.builtin.template:

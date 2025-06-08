@@ -1,9 +1,37 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier:  	GPL-3.0-or-later
 ---
 # tasks file for deploy-rke2-cluster
-- name: Prepare nodes and download RKE2
+- name: Fail when distribution unsupported
+  ansible.builtin.fail:
+    msg: "Unsupported distribution {{ ansible_distribution }}. Supported: {{ supported_os_versions.keys() | list }}"
+  when: ansible_distribution not in supported_os_versions
+
+- name: Fail when version unsupported
+  ansible.builtin.fail:
+    msg: "Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}. Allowed: {{ supported_os_versions[ansible_distribution] }}"
+  when: ansible_distribution_version not in supported_os_versions[ansible_distribution]
+
+- name: Prepare nodes
   ansible.builtin.include_tasks:
     file: prepare-nodes.yaml
+
+- name: Create directory for RKE2 binary
+  ansible.builtin.file:
+    path: "{{ rke2_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download RKE2 binary
+  ansible.builtin.get_url:
+    url: "{{ rke2_binary_url }}"
+    dest: "{{ rke2_install_dir }}/rke2"
+    mode: '0755'
+
+- name: Set executable permissions on the RKE2 binary
+  ansible.builtin.file:
+    path: "{{ rke2_install_dir }}/rke2"
+    mode: '0755'
+    state: file
 
 - name: Install kube-vip manifest
   ansible.buitlin.include_tasks:
@@ -40,4 +68,4 @@
 - name: Install and configure metallb
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when:  inventory_hostname in groups['servers'][0]
+  when: inventory_hostname in groups['servers'][0]

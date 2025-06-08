@@ -1,6 +1,11 @@
+# SPDX-License-Identifier:  	GPL-3.0-or-later
 ---
 # Prepare all nodes
-
+- name: Remove NetworkManager
+  ansible.buiiltin.package:
+    name: network-manager
+    state: absent
+  become: true
 
 # Create a directory to download RKE2 binary to
 - name: Create directory for RKE2 binary

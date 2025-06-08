@@ -1,3 +1,5 @@
+# SPDX-License-Identifier:  	GPL-3.0-or-later
+---
 - name: Create systemd service file for RKE2 agent
   ansible.builtin.template:
     src: templates/rke2-agent.service.j2

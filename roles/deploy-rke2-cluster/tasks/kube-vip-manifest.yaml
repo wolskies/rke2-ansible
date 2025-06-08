@@ -1,3 +1,4 @@
+# SPDX-License-Identifier:  	GPL-3.0-or-later
 ---
 # Create directory to deploy kube-vip manifest
 - name: Create directory for Kube VIP Manifest
