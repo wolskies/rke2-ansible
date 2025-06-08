@@ -3,9 +3,8 @@
   hosts:
     - RKE2
   become: true
-  collections:
-    - wolskinet.rke2_ansible
-  tasks:
-    - name: Import roles
-      ansible.builtin.import_role:
-        name: wolskinet.rke2_ansible.deploy_rke2
+  roles:
+    - role: wolskinet.rke2_ansible.deploy_rke2
+    - role: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname in groups['servers'][0]
+

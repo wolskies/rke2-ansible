@@ -1,34 +1,12 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
-kube_domain: example.com
-
-# Default versions
-kube_vip_version: "v0.9.1"
-vip_interface: "eth0"
-rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.33.1+rke2r1"
-metallb_version: v0.15.2
-helm_version: "3.18.2"
-
-kube_vip_noinstall: false
-metallb_noinstall: false
-certbot_noinstall: false
-traefik_noinstall: false
-
-disable_networkmanager: true
-disable_firewalld: true
-install_ufw_rules: true
-
-cni_plugin: canal
-
-os: "linux"
-
-vip: 192.168.100.30
-
-
-lb_range: 192.168.100.240-192.168.100.254
-lb_pool_name: first-pool
+home_path: /home/{{ ansible_user }}
+traefik_domain: example
 
 kubectl_config: "{{ home_path }}/.kube/config"
+
+# https://github.com/helm/helm/releases
+helm_version: v3.18.2
 
 cert_manager_chart_ref: jetstack/cert-manager
 # https://github.com/cert-manager/cert-manager/releases
