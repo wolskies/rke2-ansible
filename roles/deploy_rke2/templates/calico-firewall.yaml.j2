@@ -39,7 +39,7 @@ spec:
     - action: Allow
       protocol: TCP
       source:
-        nets: [10.0.0.0/24]
+        nets: [{{ management_network }}]
       destination:
         ports: [22]
 

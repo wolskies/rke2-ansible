@@ -1,4 +1,4 @@
-# SPDX-License-Identifier:  	GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
 - name: Deploy RKE2 server Configuration
   ansible.builtin.template:
@@ -18,18 +18,7 @@
     mode: '0644'
   when: inventory_hostname != groups['servers'][0]
 
-# Copy server config with token to all servers except server 1 (this has token)
-- name: Deploy RKE2 server Configuration
-  ansible.builtin.template:
-    src: templates/rke2-server-config.j2
-    dest: /etc/rancher/rke2/config.yaml
-    owner: root
-    group: root
-    mode: '0644'
-  when: inventory_hostname != groups['servers'][0]
-
-# Keep checking the cluster API until it's functioning (deployed)
-- name: Wait for cluster API to be ready (can take 5-10 mins depending on internet/hardware)
+- name: Wait for cluster API to be ready
   ansible.builtin.command:
     cmd: "kubectl get nodes"
   register: kubectl_output
@@ -41,14 +30,12 @@
   become_user: "{{ ansible_user }}"
   when: inventory_hostname == groups['servers'][0]
 
-# Use kubectl to deploy yaml
 - name: Apply kube vip configuration file
   ansible.builtin.command:
     cmd: kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml apply -f https://kube-vip.io/manifests/rbac.yaml
   changed_when: true
   when: inventory_hostname == groups['servers'][0]
 
-# Apply the kube-vip configration
 - name: Apply kube vip configuration file
   ansible.builtin.command:
     cmd: >
@@ -57,7 +44,6 @@
   changed_when: true
   when: inventory_hostname == groups['servers'][0]
 
-# Check that additional servers are restarted
 - name: Ensure additional RKE2 servers are enabled and running
   ansible.builtin.systemd:
     name: rke2-server

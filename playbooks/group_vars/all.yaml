@@ -1,4 +1,5 @@
 ---
+kube_domain: example.com
 # options to change default values
 kube_vip_version: "v0.9.1"
 vip_interface: "eth0"
