@@ -32,7 +32,7 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 
 ### Inventory
 
-Create the ansible inventory as users.  The controller nodes must be in the group "servers" while the worker nodes must be in "agents".  My typical inventory setup is:
+Create the ansible inventory as you would normally do.  The controller nodes must be in the group "servers" while the worker nodes must be in "agents".  My typical inventory setup is:
 ```
 RKE2:
     children:
