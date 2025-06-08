@@ -1,29 +1,51 @@
-# SPDX-License-Identifier:  	GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# Prepare all nodes
+# Remove NetworkManager per https://docs.rke2.io/install/methods
 - name: Remove NetworkManager
   ansible.buiiltin.package:
     name: network-manager
     state: absent
   become: true
 
-# Create a directory to download RKE2 binary to
-- name: Create directory for RKE2 binary
-  ansible.builtin.file:
-    path: "{{ rke2_install_dir }}"
-    state: directory
-    mode: '0755'
+- name: Disable and stop firewalld if present
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: no
+  when: >
+    "'firewalld.service' in ansible_facts.services
+     and ansible_facts.services['firewalld.service'].state == 'running'"
+  become: true
 
-# Download the RKE2 binary
-- name: Download RKE2 binary
-  ansible.builtin.get_url:
-    url: "{{ rke2_binary_url }}"
-    dest: "{{ rke2_install_dir }}/rke2"
-    mode: '0755'
+- name:  Configure UFW rules
+  when: "'ufw.service' in ansible_facts.services"
+  block:
+    - name: Ensure UFW rules are present for RKE2 servers
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+        comment: "{{ item.comment }}"
+      loop: "{{ ufw_rules_server }}"
+      notify: Reload UFW
+      when: inventory_hostname in groups['servers']
 
-# Set permissions on the RKE2 binary
-- name: Set executable permissions on the RKE2 binary
-  ansible.builtin.file:
-    path: "{{ rke2_install_dir }}/rke2"
-    mode: '0755'
-    state: file
+    - name: Ensure UFW rules are present for RKE2 agents
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+        comment: "{{ item.comment }}"
+      loop: "{{ ufw_rules_agent }}"
+      notify: Reload UFW
+      when: inventory_hostname in groups['agents']
+
+    - name: Ensure UFW rules are present for CNI
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+        comment: "{{ item.comment }}"
+      loop: "{{ ufw_rules_canal }}"
+      notify: Reload UFW
+  become: true

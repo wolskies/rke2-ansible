@@ -1,4 +1,4 @@
-# SPDX-License-Identifier:  	GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for deploy-rke2-cluster
 - name: Fail when distribution unsupported
@@ -10,6 +10,17 @@
   ansible.builtin.fail:
     msg: "Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}. Allowed: {{ supported_os_versions[ansible_distribution] }}"
   when: ansible_distribution_version not in supported_os_versions[ansible_distribution]
+
+- name: Register machine architecture
+  ansible.builtin.set_fact:
+    normalized_arch: >-
+      {{ 'amd64' if ansible_architecture == 'x86_64'
+         else 'arm64' if ansible_architecture == 'aarch64'
+         else ansible_architecture }}
+
+- name: Generate RKE2 binary url
+  ansible.builtin.set_fact:
+    rke2_binary_url: "{{ rke2_binary_root }}/{{ rke2_version }}/rke2.{{ os }}-{{ normalized_arch }}"
 
 - name: Prepare nodes
   ansible.builtin.include_tasks:

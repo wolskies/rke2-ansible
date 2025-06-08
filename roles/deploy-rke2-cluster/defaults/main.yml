@@ -1,11 +1,28 @@
-# SPDX-License-Identifier:  	GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # defaults file for deploy-rke2-cluster
+kube_vip_version: "v0.9.1"
+vip_interface: "eth0"
 rke2_install_dir: "/usr/local/bin"
 rke2_version: "v1.33.1+rke2r1"
+metallb_version: v0.15.2
 
-kube_vip_version: v0.9.1
-vip_interface: eth0
+kube_vip_noinstall: false
+metallb_noinstall: false
+
+disable_networkmanager: true
+disable_firewalld: true
+install_ufw_rules: true
+
+cni_plugin: canal
+
+os: "linux"
+
+vip: 192.168.100.30
+
+
+lb_range: 192.168.100.240-192.168.100.254
+lb_pool_name: first-pool
 
 supported_os_versions:
   SLES:
