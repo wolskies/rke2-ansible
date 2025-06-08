@@ -2,7 +2,7 @@
 ---
 # Remove NetworkManager per https://docs.rke2.io/install/methods
 - name: Remove NetworkManager
-  ansible.buiiltin.package:
+  ansible.builtin.package:
     name: network-manager
     state: absent
   become: true
@@ -12,12 +12,13 @@
     name: firewalld
     state: stopped
     enabled: false
-  when: >
-    "'firewalld.service' in ansible_facts.services
-     and ansible_facts.services['firewalld.service'].state == 'running'"
+  when:
+    - ansible_facts.services is defined
+    - "'firewalld.service' in ansible_facts.services"
+    - ansible_facts.services['firewalld.service'].state == 'running'
   become: true
 
 - name: Configure UFW rules
-  ansible.builtin.include_task:
+  ansible.builtin.include_tasks:
     file: prepare-nodes-ufw.yaml
   when: firewall == 'ufw'

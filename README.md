@@ -4,7 +4,7 @@ This collection includes a number of roles for the creation and management of an
 
 ## Description
 
-This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install Metallb, Traefik, Cert-Manager, Rancher and Longhorn.  While it can be adapted to other distributions, it is currently tailored to Ubuntu Server 24+
+This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install Metallb, Traefik, Cert-Manager, Rancher and Longhorn.  While it can be adapted to other distributions, it is currently tailored to Ubuntu Server 24+.
 
 ## Installation
 
@@ -20,17 +20,63 @@ See the Ansible documentation for more details on using collections.
 
 Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements).  This collection is written and tested on `amd64` systems, but should work for `arm64/aarch64`.  It is not intended to support Windows.
 
-* Note 1:  The RKE2 deploy role will fail if the host OS is not one of [RKE2's supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-33/).  This behavior can be changed by modifying the default vars for the `deploy-rke2-cluster` role.*
+* Note 1:  The RKE2 deploy role will fail if the host OS is not one of [RKE2's supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-33/).  This behavior can be changed by modifying the default vars for the `deploy-rke2-cluster` role.
 
-* Note 2: The RKE2 deploy role will remove NetworkManager if it is installed, and disable `firewalld` if it is installed.  Details are in the RKE2 requirements.  UFW will have the appropriate firewall rules included, but will be left in the state (enabled/disabled) that it was found in.*
+* Note 2: The RKE2 deploy role will remove NetworkManager if it is installed.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes.
+
+* Note 3: The RKE2 role will disable `firewalld` if it is installed.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  There is an option to configure UFW or leverage Calico (part of the default Canal CNI) as a firewall.  
+
+* Note 4: If the firewall is set to UFW, the appropriate firewall rules will be installed, but UFW will be left in the state (enabled/disabled) that it was found in.
+
+* Note 5: If the firewall is set to Calico, a GlobalNetworkPolicy will be created and applied to each host.  This will allow RKE2 required communications, but effectively firewall all other incoming traffic to the cluster. (TBD)
+
+### Inventory
+
+Create the ansible inventory as users.  The controller nodes must be in the group "servers" while the worker nodes must be in "agents".  My typical inventory setup is:
+```
+RKE2:
+    children:
+        servers:
+        agents:
+
+servers:
+    hosts:
+        kcontrol01: 
+            ansible_host: 192.168.10.1
+        kcontrol02:
+            ansible_host: 192.168.10.2
+        kcontrol03:
+            ansible_host: 192.168.10.3
+agents:
+    hosts:
+        kworker01:
+            ansible_host: 192.168.10.4
+        kworker02:
+            ansible_host: 192.168.10.5
+```
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+The role contains a sample playbook in the `playbooks` directory along with a sample `group_vars` to customize role defaults.  Assuming you have installed the role as a collection, a typical deployment playbook would look like:
+```
+---
+- name: Deploy RKE2 Cluster
+  hosts:
+    - RKE2
+  become: true
+  collections:
+    - wolskinet.rke2_ansible
+  tasks:
+    - name: Import roles
+      ansible.builtin.import_role:
+        name: wolskinet.rke2_ansible.deploy_rke2
+```
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
 ## Roadmap
+
 I am considering additional roles for services to deploy to the cluster including:
     - Postgres
     - ZenML Dashboard
@@ -45,8 +91,8 @@ It goes without saying that in the open-source community we all stand on the sho
 - Isaac Blum (Space Terran) [Automate Your RKE2 Cluster with Ansible: Helm, Cert-Manager, Traefik, and Rancher Setup Made Easy](https://github.com/SpaceTerran/ansible-rancher-traefik-ssl)
 
 ## License
-For open source projects, say how it is licensed.
+GPL-3
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
 

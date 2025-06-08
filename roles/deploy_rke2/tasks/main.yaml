@@ -45,7 +45,7 @@
     state: file
 
 - name: Install kube-vip manifest
-  ansible.buitlin.include_tasks:
+  ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml
   when: not kube_vip_noinstall
 
