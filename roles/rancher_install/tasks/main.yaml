@@ -2,18 +2,14 @@
 ---
 # tasks file for rancher_install
 - name: Download Helm command line tool
-  ansible.builtin.uri:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-    return_content: true
-  register: helm_installer
+    dest: /home/{{ ansible_user }}
+    mode: '700'
 
 - name: Install Helm
   ansible.builtin.command:
-    cmd: bash
-    stdin: "{{ helm_installer.content }}"
-    creates: /usr/local/bin/helm
-  environment:
-    DESIRED_VERSION: "{{ helm_version | default('') }}"
+    cmd: /home/ed/get_helm.sh
 
 - name: Check if Helm Diff plugin is already installed
   ansible.builtin.command: /usr/local/bin/helm plugin list
@@ -23,6 +19,13 @@
 - name: Install Helm Diff plugin if not present
   ansible.builtin.command: /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
   when: "'diff' not in helm_plugins.stdout"
+
+- name: Install pip/python requirements for Kubernetes
+  ansible.builtin.package:
+    name:
+      - python3-pip
+      - python3-kubernetes
+    state: present
 
 - name: Install Cert-Manager
   ansible.builtin.include_tasks:
@@ -40,20 +43,20 @@
 
 - name: Copy values.yaml to master node
   ansible.builtin.template:
-    src: values.yaml.j2
+    src: values.yaml-rancher.j2
     dest: "{{ rancher_path }}/values.yaml"
     mode: '0644'  # Set file permissions
 
-- name: Copy certificate-wildcard-spaceterran-rancher.yaml to master node
+- name: Copy certificate-wildcard-rancher.yaml to master node
   ansible.builtin.template:
-    src: certificate-wildcard-spaceterran-rancher.yaml.j2
-    dest: "{{ rancher_path }}/certificate-wildcard-spaceterran-rancher.yaml"
+    src: certificate-wildcard-rancher.yaml.j2
+    dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
     mode: '0644'  # Set file permissions
 
 - name: Add Rancher Helm repository
   kubernetes.core.helm_repository:
-    name: rancher-alpha
-    repo_url: https://releases.rancher.com/server-charts/alpha
+    name: rancher-stable
+    repo_url: https://releases.rancher.com/server-charts/stable
     state: present  # Ensure the repository is added
   environment:
     KUBECONFIG: "{{ kubectl_config }}"  # Use the kubectl config environment variable
@@ -70,7 +73,7 @@
 - name: Create wildcard certificate for Rancher
   kubernetes.core.k8s:
     state: present
-    src: "{{ rancher_path }}/certificate-wildcard-spaceterran-rancher.yaml"
+    src: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
   environment:
     KUBECONFIG: "{{ kubectl_config }}"  # Use the kubectl config environment variable
 

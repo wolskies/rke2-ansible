@@ -7,14 +7,14 @@
 
 - name: Copy values.yaml to master node
   ansible.builtin.template:
-    src: values.yaml.j2
+    src: values.yaml-traefik.j2
     dest: "{{ traefik_path }}/values.yaml"
     mode: '0644'  # Set file permissions
 
-- name: Copy certificate-wildcard-spaceterran-traefik.yaml to master node
+- name: Copy certificate-wildcard-traefik.yaml to master node
   ansible.builtin.template:
-    src: certificate-wildcard-spaceterran-traefik.yaml.j2
-    dest: "{{ traefik_path }}/certificate-wildcard-spaceterran-traefik.yaml"
+    src: certificate-wildcard-traefik.yaml.j2
+    dest: "{{ traefik_path }}/certificate-wildcard-traefik.yaml"
     mode: '0644'  # Set file permissions
 
 - name: Add Traefik Helm repository
@@ -37,7 +37,7 @@
 - name: Create wildcard certificate for Traefik
   kubernetes.core.k8s:
     state: present
-    src: "{{ traefik_path }}/certificate-wildcard-spaceterran-traefik.yaml"
+    src: "{{ traefik_path }}/certificate-wildcard-traefik.yaml"
   environment:
     KUBECONFIG: "{{ kubectl_config }}"  # Use the kubectl config environment variable
 
