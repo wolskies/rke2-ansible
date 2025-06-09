@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-{{ traefik_domain }}-longhorn
+  namespace: longhorn-system
+spec:
+  secretName: wildcard-{{ traefik_domain }}-longhorn-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "{{ traefik_domain }}.com"
+  dnsNames:
+  - '*.{{ traefik_domain }}.com'
+  - "{{ traefik_domain }}.com"

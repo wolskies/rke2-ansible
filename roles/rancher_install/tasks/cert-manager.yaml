@@ -1,4 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
+# tasks file for cert-manager
 - name: Create cert-manager directory
   ansible.builtin.file:
     path: "{{ cert_manager_path }}"

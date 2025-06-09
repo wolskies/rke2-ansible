@@ -11,26 +11,61 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+home_path: /home/{{ ansible_user }}
+traefik_domain: example
+
+kubectl_config: "{{ home_path }}/.kube/config"
+
+# https://github.com/helm/helm/releases
+helm_version: v3.18.2
+
+cert_manager_chart_ref: jetstack/cert-manager
+# https://github.com/cert-manager/cert-manager/releases
+cert_manager_chart_version: v1.15.0
+cert_manager_path: "{{ home_path }}/cert-manager"
+cert_manager_email: your_email@your_domain.com
+
+traefik_chart_ref: traefik/traefik
+# https://github.com/traefik/traefik-helm-chart/releases
+traefik_chart_version: 28.3.0
+traefik_path: "{{ home_path }}/traefik"
+
+# https://github.com/rancher/rancher/releases
+rancher_chart_ref: rancher/rancher
+rancher_chart_version: 2.11.2
+rancher_path: "{{ home_path }}/rancher"
+
+longhorn_chart_ref: longhorn/longhorn
+longhorn_chart_version: 1.9.0
+longhorn_path: "{{ home_path }}/longhorn"
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+---
+- name: Deploy RKE2 Cluster
+  hosts:
+    - rke2
+  vars_files:
+    - /home/ed/Ansible/inventory/group_vars/secrets.yaml
+  become: false
+  roles:
+    - name: wolskinet.rke2_ansible.deploy_rke2
+      become: true
+    - name: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname == (groups['servers'] | first)
+      become: false
+```
 
 License
 -------
 
-BSD
+GPL-3.0-or-later
 
 Author Information
 ------------------
