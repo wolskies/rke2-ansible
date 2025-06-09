@@ -2,9 +2,10 @@
 - name: Deploy RKE2 Cluster
   hosts:
     - RKE2
-  become: true
+  become: false
   roles:
     - role: wolskinet.rke2_ansible.deploy_rke2
+      become: true
     - role: wolskinet.rke2_ansible.rancher_install
       when: inventory_hostname in groups['servers'][0]
-
+      become: false

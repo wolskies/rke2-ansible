@@ -1,24 +1,36 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for rancher_install
-- name: Download Helm command line tool
+- name: Ensure user-local bin directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Download Helm installer script
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-    dest: /home/{{ ansible_user }}
-    mode: '700'
+    dest: "{{ ansible_env.HOME }}/get-helm-3.sh"
+    mode: '0755'
+  args:
+    creates: "{{ ansible_env.HOME }}/get-helm-3.sh"
 
-- name: Install Helm
-  ansible.builtin.command:
-    cmd: /home/ed/get_helm.sh
+- name: Install Helm into ~/.local/bin without sudo
+  ansible.builtin.command: >
+    bash {{ ansible_env.HOME }}/get-helm-3.sh --no-sudo
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/helm"
+  environment:
+    HELM_INSTALL_DIR: "{{ ansible_env.HOME }}/.local/bin"
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 
-- name: Check if Helm Diff plugin is already installed
-  ansible.builtin.command: /usr/local/bin/helm plugin list
-  register: helm_plugins
-  changed_when: false
-
-- name: Install Helm Diff plugin if not present
+- name: Ensure Helm Diff plugin is installed
   ansible.builtin.command: /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
-  when: "'diff' not in helm_plugins.stdout"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/share/helm/plugins/helm-diff"
+  environment:
+    HELM_PLUGINS: "{{ ansible_env.HOME }}/.local/share/helm/plugins"
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 
 - name: Install pip/python requirements for Kubernetes
   ansible.builtin.package:
@@ -26,6 +38,7 @@
       - python3-pip
       - python3-kubernetes
     state: present
+  become: true
 
 - name: Install Cert-Manager
   ansible.builtin.include_tasks:
@@ -33,12 +46,12 @@
 
 - name: Install Traefik
   ansible.builtin.include_tasks:
-    file: traefik.yaml 
+    file: traefik.yaml
 
 - name: Create rancher directory
   ansible.builtin.file:
     path: "{{ rancher_path }}"
-    mode: '0644'  # Set directory permissions
+    mode: '0744'  # Set directory permissions
     state: directory  # Ensure the directory exists
 
 - name: Copy values.yaml to master node
@@ -97,7 +110,7 @@
     state: present
     wait: true
     values:
-      devel: true  # Use the development version of Rancher
+      devel: false
     values_files:
       - "{{ rancher_path }}/values.yaml"  # Use values from the specified file
   environment:
