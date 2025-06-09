@@ -12,25 +12,35 @@
     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     dest: "{{ ansible_env.HOME }}/get-helm-3.sh"
     mode: '0755'
-  args:
-    creates: "{{ ansible_env.HOME }}/get-helm-3.sh"
+    force: false
 
-- name: Install Helm into ~/.local/bin without sudo
+- name: Install Helm
   ansible.builtin.command: >
-    bash {{ ansible_env.HOME }}/get-helm-3.sh --no-sudo
+    bash {{ ansible_env.HOME }}/get-helm-3.sh
   args:
-    creates: "{{ ansible_env.HOME }}/.local/bin/helm"
-  environment:
-    HELM_INSTALL_DIR: "{{ ansible_env.HOME }}/.local/bin"
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    creates: /usrlocal/bin/helm
 
-- name: Ensure Helm Diff plugin is installed
-  ansible.builtin.command: /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
+- name: Ensure helm binary is executable
+  ansible.builtin.file:
+    path: /usr/local/bin/helm
+    mode: '0755'
+  become: true
+
+- name: Create helm data & plugin dirs
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    mode: '0755'
+  loop:
+    - "{{ ansible_user_dir }}/.local/share/helm"
+    - "{{ ansible_user_dir }}/.local/share/helm/plugins"
+
+- name: Install Helm Diff plugin
+  ansible.builtin.command: >
+    /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
   args:
-    creates: "{{ ansible_env.HOME }}/.local/share/helm/plugins/helm-diff"
-  environment:
-    HELM_PLUGINS: "{{ ansible_env.HOME }}/.local/share/helm/plugins"
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    creates: "{{ ansible_user_dir }}/.local/share/helm/plugins/helm-diff"
 
 - name: Install pip/python requirements for Kubernetes
   ansible.builtin.package:
@@ -51,20 +61,20 @@
 - name: Create rancher directory
   ansible.builtin.file:
     path: "{{ rancher_path }}"
-    mode: '0744'  # Set directory permissions
-    state: directory  # Ensure the directory exists
+    mode: '0744'
+    state: directory
 
 - name: Copy values.yaml to master node
   ansible.builtin.template:
     src: values.yaml-rancher.j2
     dest: "{{ rancher_path }}/values.yaml"
-    mode: '0644'  # Set file permissions
+    mode: '0644'
 
 - name: Copy certificate-wildcard-rancher.yaml to master node
   ansible.builtin.template:
     src: certificate-wildcard-rancher.yaml.j2
     dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
-    mode: '0644'  # Set file permissions
+    mode: '0644'
 
 - name: Add Rancher Helm repository
   kubernetes.core.helm_repository:

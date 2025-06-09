@@ -1,11 +1,13 @@
 ---
 - name: Deploy RKE2 Cluster
   hosts:
-    - RKE2
+    - rke2
+  vars_files:
+    - /home/ed/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
-    - role: wolskinet.rke2_ansible.deploy_rke2
+    - name: wolskinet.rke2_ansible.deploy_rke2
       become: true
-    - role: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname in groups['servers'][0]
+    - name: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname == (groups['servers'] | first)
       become: false

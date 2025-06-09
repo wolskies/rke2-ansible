@@ -2,20 +2,20 @@
 - name: Create cert-manager directory
   ansible.builtin.file:
     path: "{{ cert_manager_path }}"
-    mode: '0744'
+    mode: "0744"
     state: directory
 
 - name: Copy cloudflare-api-key-secret.yaml to the master node
   ansible.builtin.template:
-    src: cloudflare-api-key-secret.yaml.j2
-    dest: "{{ cert_manager_path }}/cloudflare-api-key-secret.yaml"
-    mode: '0644'
+    src: cloudflare-api-token-secret.yaml.j2
+    dest: "{{ cert_manager_path }}/cloudflare-api-token-secret.yaml"
+    mode: "0644"
 
 - name: Copy clusterissuer-letsencrypt-cloudflare.yaml to the master node
   ansible.builtin.template:
     src: clusterissuer-letsencrypt-cloudflare.yaml.j2
     dest: "{{ cert_manager_path }}/clusterissuer-letsencrypt-cloudflare.yaml"
-    mode: '0644'
+    mode: "0644"
 
 - name: Add Cert-Manager Helm repository
   kubernetes.core.helm_repository:
@@ -37,7 +37,7 @@
 - name: Create Cloudflare secret for Cert-Manager and Issuer
   kubernetes.core.k8s:
     state: present
-    src: "{{ cert_manager_path }}/cloudflare-api-key-secret.yaml"
+    src: "{{ cert_manager_path }}/cloudflare-api-token-secret.yaml"
   environment:
     KUBECONFIG: "{{ kubectl_config }}"
 
