@@ -8,8 +8,6 @@ Requirements
 
 * Ansible 2.9.17 or later
 * Kubernetes.core ansible collection
-* Kubernetes Python client installed on the host that will execute the modules
-
 
 Role Variables
 --------------

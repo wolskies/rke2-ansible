@@ -1,46 +1,50 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for main.yaml
-- name: Ensure user-local bin directory exists
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/bin"
-    state: directory
-    mode: '0755'
+- name: Ensure Helm binary is available
+  tags: helm
+  block:
+    - name: Ensure user-local bin directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/bin"
+        state: directory
+        mode: '0755'
 
-- name: Download Helm installer script
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-    dest: "{{ ansible_env.HOME }}/get-helm-3.sh"
-    mode: '0755'
-    force: false
+    - name: Download Helm installer script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: "{{ ansible_env.HOME }}/get-helm-3.sh"
+        mode: '0755'
+        force: false
 
-- name: Install Helm
-  ansible.builtin.command: >
-    bash {{ ansible_env.HOME }}/get-helm-3.sh
-  args:
-    creates: /usrlocal/bin/helm
+    - name: Install Helm
+      ansible.builtin.command: >
+        bash {{ ansible_env.HOME }}/get-helm-3.sh
+      args:
+        creates: /usrlocal/bin/helm
 
-- name: Ensure helm binary is executable
-  ansible.builtin.file:
-    path: /usr/local/bin/helm
-    mode: '0755'
-  become: true
+    - name: Ensure helm binary is executable
+      ansible.builtin.file:
+        path: /usr/local/bin/helm
+        mode: '0755'
+      become: true
 
-- name: Create helm data & plugin dirs
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    mode: '0755'
-  loop:
-    - "{{ ansible_user_dir }}/.local/share/helm"
-    - "{{ ansible_user_dir }}/.local/share/helm/plugins"
+    - name: Create helm data & plugin dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        mode: '0755'
+      loop:
+        - "{{ ansible_user_dir }}/.local/share/helm"
+        - "{{ ansible_user_dir }}/.local/share/helm/plugins"
 
 - name: Install Helm Diff plugin
   ansible.builtin.command: >
     /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
   args:
     creates: "{{ ansible_user_dir }}/.local/share/helm/plugins/helm-diff"
+  tags: helm-diff
 
 - name: Install pip/python requirements for Kubernetes
   ansible.builtin.package:
@@ -49,10 +53,12 @@
       - python3-kubernetes
     state: present
   become: true
+  tags: python3-kubernetes
 
 - name: Install Cert-Manager
   ansible.builtin.include_tasks:
     file: cert-manager.yaml
+  tags: cert-manager
 
 # RKE2 has a chart to install traefik, this is reflected in the config.yaml
 # - name: Install Traefik
@@ -62,7 +68,9 @@
 - name: Install Rancher
   ansible.builtin.include_tasks:
     file: rancher.yaml
+  tags: rancher
 
 - name: Install Longhorn
   ansible.builtin.include_tasks:
     file: longhorn.yaml
+  tags: longhorn
