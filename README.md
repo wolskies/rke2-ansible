@@ -50,11 +50,11 @@ network:
 ```
 
 #### Installation Notes
-* Note 1:  The `deploy_rke2` role will fail if the host OS is not one of [RKE2's supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-33/).  This behavior can be changed by modifying the default vars for the `deploy_rke2` role.
+* Note 1:  The `deploy_rke2` role will fail if the host OS is not one of [RKE2's supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-33/).  This behavior can be skipped by running the playbook with the `--skip-tags version-check` option.
 
-* Note 2: **The RKE2 deploy role will remove NetworkManager if it is installed**.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes.
+* Note 2: **The RKE2 deploy role will remove NetworkManager if it is installed**.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes. This behavior can be skipped using default vars, or by skipping the `config-firewall` tag.
 
-* Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  Canal can manage firewall rules after installation - see Note 5.
+* Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  Canal can manage firewall rules after installation - see Note 5.  This behavior can be skipped by running the playbook with the `--skip-tags config-firewall` option.
 
 * Note 4: If the firewall is set to UFW, the appropriate firewall rules will be installed, but UFW will be left in the state (enabled/disabled) that it was found in.
 

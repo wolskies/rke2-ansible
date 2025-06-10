@@ -1,4 +1,4 @@
-# SPDX-License-Identifier:  	GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
 - name: Create systemd service file for RKE2 agent
   ansible.builtin.template:
@@ -6,7 +6,7 @@
     dest: /etc/systemd/system/rke2-agent.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname in groups['agents']
 
 - name: Deploy RKE2 Agent Configuration
@@ -15,7 +15,7 @@
     dest: /etc/rancher/rke2/config.yaml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname in groups['agents']
 
 # Check agents have restarted to pick up config

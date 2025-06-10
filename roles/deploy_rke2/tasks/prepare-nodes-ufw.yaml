@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-- name: Ensure UFW is installed 
+- name: Ensure UFW is installed
   ansible.builtin.package:
     name: ufw
     state: present

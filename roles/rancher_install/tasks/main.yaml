@@ -54,9 +54,10 @@
   ansible.builtin.include_tasks:
     file: cert-manager.yaml
 
-- name: Install Traefik
-  ansible.builtin.include_tasks:
-    file: traefik.yaml
+# RKE2 has a chart to install traefik, this is reflected in the config.yaml
+# - name: Install Traefik
+#   ansible.builtin.include_tasks:
+#     file: traefik.yaml
 
 - name: Install Rancher
   ansible.builtin.include_tasks:

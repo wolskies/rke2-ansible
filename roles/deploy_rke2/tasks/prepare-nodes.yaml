@@ -6,6 +6,7 @@
     name: network-manager
     state: absent
   become: true
+  when: disable_networkmanager
 
 - name: Disable and stop firewalld if present
   ansible.builtin.service:

@@ -1,15 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for deploy-rke2-cluster
-- name: Fail when distribution unsupported
-  ansible.builtin.fail:
-    msg: "Unsupported distribution {{ ansible_distribution }}. Supported: {{ supported_os_versions.keys() | list }}"
-  when: ansible_distribution not in supported_os_versions
+- name: Ensure supported architecture
+  tags: version-check
+  block:
+    - name: Fail when distribution unsupported
+      ansible.builtin.fail:
+        msg: "Unsupported distribution {{ ansible_distribution }}. Supported: {{ supported_os_versions.keys() | list }}"
+      when: ansible_distribution not in supported_os_versions
 
-- name: Fail when version unsupported
-  ansible.builtin.fail:
-    msg: "Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}. Allowed: {{ supported_os_versions[ansible_distribution] }}"
-  when: ansible_distribution_version not in supported_os_versions[ansible_distribution]
+    - name: Fail when version unsupported
+      ansible.builtin.fail:
+        msg: "Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}. Allowed: {{ supported_os_versions[ansible_distribution] }}"
+      when: ansible_distribution_version not in supported_os_versions[ansible_distribution]
 
 - name: Register machine architecture
   ansible.builtin.set_fact:
@@ -25,63 +28,72 @@
 - name: Prepare nodes
   ansible.builtin.include_tasks:
     file: prepare-nodes.yaml
+  tags: config-firewall
 
-- name: Create directory for RKE2 binary
-  ansible.builtin.file:
-    path: "{{ rke2_install_dir }}"
-    state: directory
-    mode: '0755'
+- name: Ensure RKE2 binary installed
+  tags: rke2
+  block:
+    - name: Create directory for RKE2 binary
+      ansible.builtin.file:
+        path: "{{ rke2_install_dir }}"
+        state: directory
+        mode: '0755'
 
-- name: Download RKE2 binary
-  ansible.builtin.get_url:
-    url: "{{ rke2_binary_url }}"
-    dest: "{{ rke2_install_dir }}/rke2"
-    mode: '0755'
+    - name: Download RKE2 binary
+      ansible.builtin.get_url:
+        url: "{{ rke2_binary_url }}"
+        dest: "{{ rke2_install_dir }}/rke2"
+        mode: '0755'
 
-- name: Set executable permissions on the RKE2 binary
-  ansible.builtin.file:
-    path: "{{ rke2_install_dir }}/rke2"
-    mode: '0755'
-    state: file
+    - name: Set executable permissions on the RKE2 binary
+      ansible.builtin.file:
+        path: "{{ rke2_install_dir }}/rke2"
+        mode: '0755'
+        state: file
 
-- name: Install kube-vip manifest
+- name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml
   when: not kube_vip_noinstall
+  tags: kube-vip
 
-- name: Create directory for RKE2 config
-  ansible.builtin.file:
-    path: "/etc/rancher/rke2"
-    state: directory
-    mode: '0644'
+- name: Configure and start RKE2 nodes
+  tags: rke2
+  block:
+    - name: Create directory for RKE2 config
+      ansible.builtin.file:
+        path: "/etc/rancher/rke2"
+        state: directory
+        mode: '0644'
 
-- name: Create directory for RKE2 token
-  ansible.builtin.file:
-    path: "/var/lib/rancher/rke2/server"
-    state: directory
-    mode: '0644'
+    - name: Create directory for RKE2 token
+      ansible.builtin.file:
+        path: "/var/lib/rancher/rke2/server"
+        state: directory
+        mode: '0644'
 
-- name: Bootstrap first server
-  ansible.builtin.include_tasks:
-    file: initial-bootstrap.yaml
-  when: inventory_hostname in groups['servers']
+    - name: Bootstrap first server
+      ansible.builtin.include_tasks:
+        file: initial-bootstrap.yaml
+      when: inventory_hostname in groups['servers']
 
-- name: Add additional RKE2 Servers
-  ansible.builtin.include_tasks:
-    file: add-servers.yaml
-  when: inventory_hostname in groups['servers']
+    - name: Add additional RKE2 Servers
+      ansible.builtin.include_tasks:
+        file: add-servers.yaml
+      when: inventory_hostname in groups['servers']
 
-- name: Add additional RKE2 agents
-  ansible.builtin.include_tasks:
-    file: add-agents.yaml
-  when: inventory_hostname in groups['agents']
+    - name: Add additional RKE2 agents
+      ansible.builtin.include_tasks:
+        file: add-agents.yaml
+      when: inventory_hostname in groups['agents']
 
 - name: Install and configure metallb
   ansible.builtin.include_tasks:
     file: metallb.yaml
   when: inventory_hostname in groups['servers'][0]
+  tags: metallb
 
-- name: Configure Calico GlobalNetworkPolicy
-  ansible.builtin.include_tasks:
-    file: calico-firewall.yaml
-  when: firewall == "calico"
+# - name: Configure Calico GlobalNetworkPolicy
+#   ansible.builtin.include_tasks:
+#     file: calico-firewall.yaml
+#   when: firewall == "calico"
