@@ -3,7 +3,7 @@
   hosts:
     - rke2
   vars_files:
-    - /home/ed/Ansible/inventory/group_vars/secrets.yaml
+    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
     - name: wolskinet.rke2_ansible.deploy_rke2

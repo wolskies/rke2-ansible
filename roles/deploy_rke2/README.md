@@ -36,25 +36,25 @@ Tags
 
 The role provides the following tags to control execution:
 
-version-check
-config-firewall
-rke2
-kube-vip
-metallb
+- version-check
+- config-firewall
+- rke2
+- kube-vip
+- metallb
 
 Example Playbook
 ----------------
-
+```
 - name: Deploy RKE2 Cluster
   hosts:
     - rke2
   vars_files:
-    - /home/ed/Ansible/inventory/group_vars/secrets.yaml
+    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
     - name: wolskinet.rke2_ansible.deploy_rke2
       become: true
-
+```
 License
 -------
 
