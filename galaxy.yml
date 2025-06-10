@@ -19,7 +19,6 @@ readme: README.md
 authors:
 - Ed Wolski <ed.wolski2@gmail.com>
 
-
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
 description: A collection of roles to manage an RKE2 cluster
@@ -67,4 +66,3 @@ build_ignore: []
 # 'omit_default_directives' is a boolean that controls whether the default directives are used. Mutually exclusive
 # with 'build_ignore'
 # manifest: null
-

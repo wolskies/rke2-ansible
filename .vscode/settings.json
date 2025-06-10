@@ -2,5 +2,9 @@
     "yaml.schemas": {
         "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/ed/ansible_collections/wolskinet/rke2_ansible/roles/rancher_install/tasks/traefik.yaml"
     },
-    "ansible.python.interpreterPath": "/bin/python3"
+    "ansible.python.interpreterPath": "/bin/python3",
+    "ansible.executionEnvironment.containerEngine": "docker",
+    "ansible.lightspeed.enabled": false,
+    "ansible.lightspeed.suggestions.enabled": false,
+    "editor.defaultFormatter": "redhat.ansible"
 }
