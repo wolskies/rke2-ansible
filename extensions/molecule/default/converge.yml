@@ -1,0 +1,13 @@
+---
+- name: Test deploy_rke2 Collection
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Test deploy_rke2
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.deploy_rke2
+        tasks_from: main.yaml
+    - name: Test rancher_install
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.rancher_install
+        tasks_from: main.yaml
