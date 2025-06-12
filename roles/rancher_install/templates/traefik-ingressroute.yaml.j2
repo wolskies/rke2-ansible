@@ -13,4 +13,4 @@ spec:
         - name: app1-service
           port: 80
   tls:
-    secretName: wildcard-{{ traefik_domain }}-com-tls  # Refers to the wildcard TLS secret
+    secretName: wildcard-{{ traefik_domain }}-app-tls  # Refers to the wildcard TLS secret

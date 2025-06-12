@@ -1,5 +1,6 @@
 ---
 kube_domain: example.com
+letsencrypt_env: production
 
 # Default versions
 kube_vip_version: "v0.9.1"
