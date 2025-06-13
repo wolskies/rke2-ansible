@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+home_path: /home/{{ ansible_user }}
+traefik_domain: example
+
+mysql-operator_chart_ref: mysql-operator/mysql-operator
+mysql-operator_chart_version:
+mysql-operator_path: "{{ home_path }}/mysql-operator"

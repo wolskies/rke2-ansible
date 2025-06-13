@@ -33,12 +33,13 @@
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
 
-    - name: Create wildcard certificate for longhorn
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ longhorn_path }}/certificate-wildcard-longhorn.yaml"
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}"
+    # Accessing Longhorn UI via Rancher doesn't require cert
+    # - name: Create wildcard certificate for longhorn
+    #   kubernetes.core.k8s:
+    #     state: present
+    #     src: "{{ longhorn_path }}/certificate-wildcard-longhorn.yaml"
+    #   environment:
+    #     KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Update the repository cache
       kubernetes.core.helm:

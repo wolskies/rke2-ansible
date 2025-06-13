@@ -1,14 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for main.yaml
-- name: Ensure Helm binary is available
-  ansible.builtin.include_tasks:
-    file: prereqs.yaml
-  tags:
-    - helm
-    - helm-diff
-    - python3-kubernetes
-
 - name: Install Cert-Manager
   ansible.builtin.include_tasks:
     file: cert-manager.yaml

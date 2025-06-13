@@ -7,6 +7,8 @@
   roles:
     - role: wolskinet.rke2_ansible.deploy_rke2
       become: true
+    - role: wolskinet.rke2_ansible.helm_install
+      become: false
     - role: wolskinet.rke2_ansible.rancher_install
       when: inventory_hostname == (groups['servers'] | first)
       become: false

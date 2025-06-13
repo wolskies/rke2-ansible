@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# tasks file for mysql-operator
+- name: Ensure mysql-operator is installed
+  tags: mysql-operator
+  block:
+    - name: Create mysql-operator directory
+      ansible.builtin.file:
+        path: "{{ mysql-operator_path }}"
+        mode: "0744"
+        state: directory
+
+    - name: Add mysql-operator Helm repository
+      kubernetes.core.helm_repository:
+        name: mysql-operator
+        repo_url: https://mysql.github.io/mysql-operator/
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
+
+    - name: Deploy mysql-operator chart inside mysql-operator-system namespace
+      kubernetes.core.helm:
+        name: mysql-operator
+        chart_ref: "{{ mysql-operator_chart_ref }}"
+        release_namespace: mysql-operator
+        create_namespace: true
+        update_repo_cache: true
+        state: present
+        wait: true
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
