@@ -15,14 +15,14 @@
       <<< CONFIGURING DISKS IS DESTRUCTIVE >>
       The playbook will not do it automatically.  To proceed:
       
-      1. cd ~/minio
+      1. cd ~/minio-tenant
       2. kubectl-directpv install # installs directpv to all nodes
       3. kubectl-directpv discover
       4. Edit the "drives.yaml" file created in your current working directory
       5. For ALL drives, ensure nodes.drives.select is "no"
       6. For the drives you want to add, go back and mark "yes" under nodes.drives.select
       7. WARNING:  The next step will reformat the drives.... be careful
-      7. kubectl-directpv init drives.yaml
+      7. kubectl-directpv init drives.yaml --dangerous
 
       If all goes well, enter "yes" to proceed; CTRL+C and A to abort...
 

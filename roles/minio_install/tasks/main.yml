@@ -20,7 +20,7 @@
   ansible.builtin.include_tasks:
     file: direct-pv.yaml
   tags: direct-pv
-  when: minio_csi_driver == "directpv-min-io"
+  when: minio_csi_driver_name == "directpv-min-io"
 
 - name: Install tenant
   ansible.builtin.include_tasks:

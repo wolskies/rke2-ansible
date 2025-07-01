@@ -17,12 +17,12 @@
     - name: Copy base spec
       ansible.builtin.template:
         src: tenant-base.yaml.j2
-        dest: "{{ minio_operator_path }}/tenant-base.yaml"
+        dest: "{{ minio_tenant_path }}/tenant-base.yaml"
         mode: "0644"
 
     - name: Deploy tenant
       kubernetes.core.k8s:
         state: present
-        src: "{{ cert_manager_path }}/tenant-base.yaml"
+        src: "{{ minio_tenant_path }}/tenant-base.yaml"
       environment:
         KUBECONFIG: "{{ kubectl_config }}"

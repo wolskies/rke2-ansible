@@ -68,4 +68,5 @@
     ansible.builtin.shell: kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
     args:
       chdir: "{{ minio_tenant_path }}"
+    ignore_errors: true
   
