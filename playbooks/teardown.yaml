@@ -1,0 +1,9 @@
+- name: Tear Down RKE2 Cluster
+  hosts:
+    - rke2
+  vars_files:
+    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
+  become: false
+  roles:
+    - role: wolskinet.rke2_ansible.teardown
+      become: true

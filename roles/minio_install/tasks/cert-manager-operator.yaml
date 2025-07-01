@@ -25,11 +25,11 @@
 - name: Create CA Issuer for minio-Operator
   tags: cert-manager
   block:
-    - name: Ensure namespace is present
+    - name: Create namespace if it doesn't exist
       kubernetes.core.k8s:
-        name: "{{ minio-operator_namespace }}"
         api_version: v1
         kind: Namespace
+        name: "{{ minio_operator_namespace }}"
         state: present
     - name: Request certificate
       block:
@@ -38,7 +38,6 @@
               src: operator-ca-tls-secret.yaml.j2
               dest: "{{ cert_manager_path }}/operator-ca-tls-secret.yaml"
               mode: "0644"
-
           - name: Create certificate
             kubernetes.core.k8s:
               state: present
@@ -56,7 +55,6 @@
             kubernetes.core.k8s:
               state: present
               src: "{{ cert_manager_path }}/operator-ca-issuer.yaml"
-
 - name: Create TLS certificate
   tags: cert-manager
   block:
@@ -65,7 +63,6 @@
         src: sts-tls-certificate.yaml.j2
         dest: "{{ cert_manager_path }}/sts-tls-certificate.yaml"
         mode: "0644"
-
     - name: Create certificate
       kubernetes.core.k8s:
         state: present

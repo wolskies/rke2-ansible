@@ -1,0 +1,13 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for teardown
+- name: Reboot System
+  ansible.builtin.reboot:
+
+- name: Reload UFW
+  become: true
+  community.general.ufw:
+    state: reloaded
+  when: >
+    "'ufw.service' in ansible_facts.services
+      and ansible_facts.services['ufw.service'].state == 'running'"

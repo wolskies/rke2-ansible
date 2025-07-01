@@ -62,10 +62,10 @@
   - name: Create ca.crt file
     ansible.builtin.shell: kubectl get secrets -n tenant-1 tenant-1-ca-tls -o=jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
     args:
-      chdir: /home/{{ ansible_user }}/{{ minio_tenant_path }}
+      chdir: "{{ minio_tenant_path }}"
       creates: ca.crt
   - name: Create the secret
     ansible.builtin.shell: kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
     args:
-      chdir: /home/{{ ansible_user }}/{{ minio_tenant_path }}
+      chdir: "{{ minio_tenant_path }}"
   

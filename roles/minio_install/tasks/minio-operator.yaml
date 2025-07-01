@@ -23,4 +23,4 @@
     - name: Deploy minio-operator with kustomoze
       ansible.builtin.command: kubectl apply -k minio-operator
       args:
-        chdir: "{{ minio_operator_path }}"
+        chdir: "{{ home_path }}"
