@@ -6,7 +6,7 @@
     state: present
   become: true
 
-- name: Ensure UFW rules are present for RKE2 servers
+- name: Ensure UFW rules are present for RKE2 controllers
   community.general.ufw:
     rule: allow
     port: "{{ item.port }}"
@@ -14,7 +14,7 @@
     comment: "{{ item.comment }}"
   loop: "{{ ufw_rules_server }}"
   notify: Reload UFW
-  when: inventory_hostname in groups['servers']
+  when: inventory_hostname in groups['controllers']
   become: true
 
 - name: Ensure UFW rules are present for RKE2 agents

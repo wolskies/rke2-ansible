@@ -2,9 +2,9 @@
 ---
 # tasks file for apply-manifests
 - name: metallb installation
-  tags: traefik
+  tags: metallb
   block:
-    - name: Create traefik directory
+    - name: Create metallb directory
       ansible.builtin.file:
         path: "{{ metallb_path }}"
         mode: "0744"
@@ -31,7 +31,7 @@
     - name: Copy metallb L2Advertisement to server 1
       ansible.builtin.template:
         src: templates/l2Advertisement.yaml.j2
-        dest: /home/{{ ansible_user }}/{{ metallb_path))/l2Advertisement.yaml
+        dest: "{{ metallb_path }}/l2Advertisement.yaml"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0755'
@@ -39,22 +39,24 @@
     - name: Copy metallb IPPool to server 1
       ansible.builtin.template:
         src: templates/metallb-ippool.j2
-        dest: /home/{{ ansible_user }}/{{ metallb_path))/ippool.yaml
+        dest: "{{ metallb_path }}/ippool.yaml"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0755'
 
     - name: Apply metallb ipppool
-      ansible.builtin.command:
-        cmd: kubectl apply -f /home/{{ ansible_user }}/{{ metallb_path))/ippool.yaml
-      become: true
-      become_user: "{{ ansible_user }}"
-      changed_when: true
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ metallb_path }}/ippool.yaml"
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Apply metallb L2Advertisement
-      ansible.builtin.command:
-        cmd: /home/{{ ansible_user }}/{{ metallb_path))/l2Advertisement.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ metallb_path }}/l2Advertisement.yaml"
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
   become: true
   become_user: "{{ ansible_user }}"
-  changed_when: true
-  when: inventory_hostname == groups['servers'][0]
+  when: inventory_hostname == groups['controllers'][0]

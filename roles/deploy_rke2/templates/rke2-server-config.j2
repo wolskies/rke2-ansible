@@ -1,9 +1,9 @@
 write-kubeconfig-mode: "0644"
 tls-san:
   - {{ vip }}
-  - {{ hostvars[groups['servers'][0]].ansible_host }}
-  - {{ hostvars[groups['servers'][1]].ansible_host }}
-  - {{ hostvars[groups['servers'][2]].ansible_host }}
+  - {{ hostvars[groups['controllers'][0]].ansible_host }}
+  - {{ hostvars[groups['controllers'][1]].ansible_host }}
+  - {{ hostvars[groups['controllers'][2]].ansible_host }}
 node-label:
   - server=true
 disable:

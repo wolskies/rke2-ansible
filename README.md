@@ -62,14 +62,14 @@ network:
 
 #### Inventory
 
-Create the ansible inventory as you would normally do.  The controller nodes must be in the group "servers" while the worker nodes must be in "agents".  The playbook should be relatively insensitive to host names, but I recommend a top-level group (I use `rke2`) to kick it off.  My typical inventory setup is:
+Create the ansible inventory as you would normally do.  The controller nodes must be in the group "controllers" while the worker nodes must be in "agents".  The playbook should be relatively insensitive to host names, but I recommend a top-level group (I use `rke2`) to kick it off.  My typical inventory setup is:
 ```
 rke2:
     children:
-        servers:
+        controllers:
         agents:
 
-servers:
+controllers:
     hosts:
         kcontrol01:
             ansible_host: 192.168.10.1

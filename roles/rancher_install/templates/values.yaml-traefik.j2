@@ -1,6 +1,21 @@
-replicas: 3
-ingressClass:
+deployment:
   enabled: true
+  kind: Deployment
+  replicas: 3
+ingressClass:  # @schema additionalProperties: false
+  enabled: true
+  isDefaultClass: true
+  name: ""
+gateway:
+  enabled: true
+  namespacePolicy: All
+  listeners:
+    web:
+      port: 80
+      protocol: HTTP
+    websecure:
+       port: 443
+       protocol: HTTPS
 ingressRoute:
   dashboard:
     enabled: false
@@ -14,19 +29,28 @@ gateway:
   namespacePolicy: All
 ports:
   web:
-    port: :80
+    port: 8000
+    expose: 
+      default: true
+    exposedPort: 80
+    redirections:
+      to: websecure
+      scheme: https
+      permanent: true
   websecure:
-    port: :443
+    port: 8443
+    expose: 
+      default: true
+    exposedPort: 443
     tls:
       enabled: true
-additionalArguments:
-  - --entryPoints.web.http.redirections.to=websecure
-  - --entryPoints.web.http.redirections.scheme=https
-  - --entryPoints.web.http.redirections.permanent=true
-  - --entryPoints.web.observability.accessLogs=false
-  - --entryPoints.web.observability.metrics=false
-  - --entryPoints.web.observability.tracing=false
+  traefik:
+    port: 8080
+    expose:
+      default: false
+    exposedPort: 8080
 tlsStore:
   default:
     defaultCertificate:
       secretName: wildcard-{{ traefik_domain }}-traefik-tls
+

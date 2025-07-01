@@ -75,12 +75,12 @@
     - name: Bootstrap first server
       ansible.builtin.include_tasks:
         file: initial-bootstrap.yaml
-      when: inventory_hostname in groups['servers']
+      when: inventory_hostname in groups['controllers']
 
     - name: Add additional RKE2 Servers
       ansible.builtin.include_tasks:
         file: add-servers.yaml
-      when: inventory_hostname in groups['servers']
+      when: inventory_hostname in groups['controllers']
 
     - name: Add additional RKE2 agents
       ansible.builtin.include_tasks:
@@ -90,7 +90,7 @@
 - name: Install and configure metallb
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when: inventory_hostname in groups['servers'][0]
+  when: inventory_hostname in groups['controllers'][0]
   tags: metallb
 
 # - name: Configure Calico GlobalNetworkPolicy
