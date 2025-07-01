@@ -1,0 +1,9 @@
+# from: https://min.io/docs/minio/kubernetes/upstream/operations/cert-manager/cert-manager-tenants.html#minio-certmanager-tenants
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{minio_tenant_namespace}}-ca-issuer
+  namespace: {{ minio_tenant_namespace }}
+spec:
+  ca:
+    secretName: {{ minio_tenant_namespace }}-ca-tls

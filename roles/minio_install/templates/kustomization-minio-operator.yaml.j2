@@ -1,0 +1,24 @@
+# https://min.io/docs/minio/kubernetes/upstream/operations/cert-manager/cert-manager-operator.html#minio-certmanager-operator
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- github.com/minio/operator/resources
+
+patches:
+- patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: minio-operator
+      namespace: {{ minio_operator_namespace }}
+    spec:
+      template:
+        spec:
+          containers:
+            - name: minio-operator
+              env:
+                - name: OPERATOR_STS_AUTO_TLS_ENABLED
+                  value: "off"
+                - name: OPERATOR_STS_ENABLED
+                  value: "on"

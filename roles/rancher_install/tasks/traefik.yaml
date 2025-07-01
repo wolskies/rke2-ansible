@@ -19,7 +19,7 @@
     - name: Copy certificate-wildcard-traefik.yaml to master node
       ansible.builtin.template:
         src: certificate-wildcard-traefik.yaml.j2
-        dest: "{{ traefik_path }}/certificate-wildcard-traefik.yaml"
+        dest: "{{ traefik_path }}/certificate-wildcard-{{ traefik_domain }}-traefik.yaml"
         mode: "0644"
 
     - name: Add Traefik Helm repository
@@ -42,7 +42,7 @@
     - name: Create wildcard certificate for Traefik
       kubernetes.core.k8s:
         state: present
-        src: "{{ traefik_path }}/certificate-wildcard-traefik.yaml"
+        src: "{{ traefik_path }}/certificate-wildcard-{{traefik_domain}}-traefik.yaml"
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
 
@@ -56,9 +56,6 @@
         update_repo_cache: true
         state: present
         wait: true
-        values:
-          ingressClass:
-            enabled: true # Enable ingress class
         values_files:
           - "{{ traefik_path }}/values.yaml" # Use values from the specified file
       environment:

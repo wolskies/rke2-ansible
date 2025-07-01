@@ -1,0 +1,26 @@
+- name: Deploy minio-operator
+  tags: minio-operator
+  block:
+    - name: Ensure namespace is present
+      kubernetes.core.k8s:
+        name: "{{ minio_operator_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Create minio-operator directory
+      ansible.builtin.file:
+        path: "{{ minio_operator_path }}"
+        mode: "0744"
+        state: directory
+
+    - name: Copy kustomization
+      ansible.builtin.template:
+        src: kustomization-minio-operator.yaml.j2
+        dest: "{{ minio_operator_path }}/kustomization.yaml"
+        mode: "0644"
+
+    - name: Deploy minio-operator with kustomoze
+      ansible.builtin.command: kubectl apply -k minio-operator
+      args:
+        chdir: "{{ minio_operator_path }}"

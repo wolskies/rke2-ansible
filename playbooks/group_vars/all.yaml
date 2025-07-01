@@ -25,7 +25,7 @@ os: "linux"
 
 vip: 192.168.100.30
 
-
+metallb_path: "{{ home_path }}/metallb"
 lb_range: 192.168.100.240-192.168.100.254
 lb_pool_name: first-pool
 
@@ -46,3 +46,25 @@ traefik_path: "{{ home_path }}/traefik"
 rancher_chart_ref: rancher-alpha/rancher
 rancher_chart_version: 2.9.0-alpha5
 rancher_path: "{{ home_path }}/rancher"
+
+minio_operator_path: "{{ home_path }}/minio-operator"
+minio_operator_namespace: "minio_operator"
+
+minio_tenant_path: "{{ home_path }}/minio-tenant"
+minio_tenant_namespace: "minio_tenant"
+minio_tenant_name: "minio"
+# CSI driver can be "defaut" or "directpv-min-io"
+minio_csi_driver_name: "directpv-min-io"
+direct_pv_version: "4.1.5"
+
+minio_root_user: "minio"
+minio_root_password: "minio123"
+minio_storage_class_standard: "EC:2"
+minio_browser: "on"
+
+console_access_key: "console"
+console_secret_key: "console123"
+
+minio_servers: 3
+minio_volumes_per_server: 1
+minio_storage_requests: "1Ti"

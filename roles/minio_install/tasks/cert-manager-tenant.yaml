@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Create tenant namespace CA issuer
+  tags: cert-manager
+  block:
+    - name: Ensure namespace is present
+      kubernetes.core.k8s:
+        name: "{{ minio_tenant_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Create minio-tenant directory
+      ansible.builtin.file:
+        path: "{{ minio_tenant_path }}"
+        mode: "0744"
+        state: directory
+    - name: Create certificate for CA
+      block: 
+      - name: Copy certificate spec to master node
+        ansible.builtin.template:
+          src: tenant-ca-certificate.yaml.j2
+          dest: "{{ cert_manager_path }}/tenant-ca-certificate.yaml"
+          mode: "0644"
+      - name: Create certificate
+        kubernetes.core.k8s:
+          state: present
+          src: "{{ cert_manager_path }}/tenant-ca-certificate.yaml"
+        environment:
+          KUBECONFIG: "{{ kubectl_config }}"
+    - name: Create the issuer
+      block: 
+      - name: Copy issuer spec to master node
+        ansible.builtin.template:
+          src: tenant-ca-issuer.yaml.j2
+          dest: "{{ cert_manager_path }}/tenant-ca-issuer.yaml"
+          mode: "0644"
+      - name: Create issuer
+        kubernetes.core.k8s:
+          state: present
+          src: "{{ cert_manager_path }}/tenant-ca-issuer.yaml"
+        environment:
+          KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Create certificate for tenant
+  tags: cert-manager
+  block: 
+  - name: Copy certificate spec to master node
+    ansible.builtin.template:
+      src: tenant-minio-certificate.yaml.j2
+      dest: "{{ cert_manager_path }}/tenant-minio-certificate.yaml"
+      mode: "0644"
+  - name: Create issuer
+    kubernetes.core.k8s:
+      state: present
+      src: "{{ cert_manager_path }}/tenant-minio-certificate.yaml"
+    environment:
+      KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Trust tenant CA in operator namespace
+  tags: cert-manager
+  block: 
+  - name: Create ca.crt file
+    ansible.builtin.shell: kubectl get secrets -n tenant-1 tenant-1-ca-tls -o=jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
+    args:
+      chdir: /home/{{ ansible_user }}/{{ minio_tenant_path }}
+      creates: ca.crt
+  - name: Create the secret
+    ansible.builtin.shell: kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
+    args:
+      chdir: /home/{{ ansible_user }}/{{ minio_tenant_path }}
+  

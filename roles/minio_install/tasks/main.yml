@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# tasks file for main.yaml
+- name: Configure cert-manager for operator
+  ansible.builtin.include_tasks:
+    file: cert-manager-operator.yaml
+  tags: cert-manager
+
+- name: Deploy MinIO-Operator
+  ansible.builtin.include_tasks:
+    file: minio-operator.yaml
+  tags: minio-operator
+
+- name: Configure cert-manager for tenant
+  ansible.builtin.include_tasks:
+    file: cert-manager-tenant.yaml
+  tags: cert-manager
+
+- name: Configure CSI Driver
+  ansible.builtin.include_tasks:
+    file: direct-pv.yaml
+  tags: direct-pv
+  when: minio_csi_driver == "directpv-min-io"
+
+- name: Install tenant
+  ansible.builtin.include_tasks:
+    file: minio-tenant.yaml
+  tags: minio-tenant

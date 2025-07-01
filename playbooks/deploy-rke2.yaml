@@ -12,3 +12,6 @@
     - role: wolskinet.rke2_ansible.rancher_install
       when: inventory_hostname == (groups['servers'] | first)
       become: false
+    - role: wolskinet.rke2_ansible.minio_install
+      when: inventory_hostname == (groups['servers'] | first)
+      become: false
