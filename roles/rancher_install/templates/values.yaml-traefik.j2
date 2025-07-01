@@ -18,11 +18,15 @@ gateway:
        protocol: HTTPS
 ingressRoute:
   dashboard:
-    enabled: false
+    enabled: true
     matchRule: Host(`dashboard.localhost`)
     entryPoints:
       - web
 providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    allowExternalNameServices: true
   kubernetesGateway:
     enabled: true
 gateway:
