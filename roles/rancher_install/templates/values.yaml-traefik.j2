@@ -2,26 +2,6 @@ deployment:
   enabled: true
   kind: Deployment
   replicas: 3
-ingressClass:  # @schema additionalProperties: false
-  enabled: true
-  isDefaultClass: true
-  name: ""
-gateway:
-  enabled: true
-  namespacePolicy: All
-  listeners:
-    web:
-      port: 80
-      protocol: HTTP
-    websecure:
-       port: 443
-       protocol: HTTPS
-ingressRoute:
-  dashboard:
-    enabled: true
-    matchRule: Host(`dashboard.localhost`)
-    entryPoints:
-      - web
 providers:
   kubernetesCRD:
     enabled: true
@@ -53,8 +33,5 @@ ports:
     expose:
       default: false
     exposedPort: 8080
-tlsStore:
-  default:
-    defaultCertificate:
-      secretName: wildcard-{{ traefik_domain }}-traefik-tls
+
 

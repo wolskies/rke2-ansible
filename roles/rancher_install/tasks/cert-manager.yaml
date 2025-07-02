@@ -10,13 +10,6 @@
         mode: "0744"
         state: directory
 
-    # This is now included in the ClustgerIssuer yaml
-    # - name: Copy cloudflare-api-key-secret.yaml to the master node
-    #   ansible.builtin.template:
-    #     src: cloudflare-api-token-secret.yaml.j2
-    #     dest: "{{ cert_manager_path }}/cloudflare-api-token-secret.yaml"
-    #     mode: "0644"
-
     - name: Copy clusterissuer-letsencrypt-cloudflare.yaml to the master node
       ansible.builtin.template:
         src: clusterissuer-letsencrypt-cloudflare.yaml.j2

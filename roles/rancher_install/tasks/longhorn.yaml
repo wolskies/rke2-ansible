@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# tasks file for longhorn
 - name: Ensure Longhorn is installed
   tags: longhorn
   block:
@@ -9,12 +8,6 @@
         path: "{{ longhorn_path }}"
         mode: "0744"
         state: directory
-
-    - name: Copy certificate-wildcard-longhorn.yaml to master node
-      ansible.builtin.template:
-        src: certificate-wildcard-longhorn.yaml.j2
-        dest: "{{ longhorn_path }}/certificate-wildcard-longhorn.yaml"
-        mode: "0644"
 
     - name: Add longhorn Helm repository
       kubernetes.core.helm_repository:
@@ -32,14 +25,6 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
-
-    # Accessing Longhorn UI via Rancher doesn't require cert
-    # - name: Create wildcard certificate for longhorn
-    #   kubernetes.core.k8s:
-    #     state: present
-    #     src: "{{ longhorn_path }}/certificate-wildcard-longhorn.yaml"
-    #   environment:
-    #     KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Update the repository cache
       kubernetes.core.helm:

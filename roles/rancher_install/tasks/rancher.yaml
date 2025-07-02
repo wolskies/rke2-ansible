@@ -22,6 +22,12 @@
         dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
         mode: "0644"
 
+    - name: Copy traefik-ingress-rancher.yaml to master node
+      ansible.builtin.template:
+        src: traefik-ingress-rancher.yaml.j2
+        dest: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
+        mode: "0644"
+
     - name: Add Rancher Helm repository
       kubernetes.core.helm_repository:
         name: rancher-stable
@@ -43,6 +49,13 @@
       kubernetes.core.k8s:
         state: present
         src: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}" # Use the kubectl config environment variable
+
+    - name: Create ingress for Rancher
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
       environment:
         KUBECONFIG: "{{ kubectl_config }}" # Use the kubectl config environment variable
 

@@ -1,115 +1,95 @@
 # SPDX-License-Identifier:  	GPL-3.0-or-later
 ---
-# Copy server config to server 1 for bootstrap - we need to change server2 & 3 later with the token
-- name: Deploy RKE2 server Configuration
-  ansible.builtin.template:
-    src: templates/rke2-server-config.j2
-    dest: /etc/rancher/rke2/config.yaml
-    owner: root
-    group: root
-    mode: '0644'
-  when: inventory_hostname in groups['controllers'][0]
+- name: Bootstrap primary server
+  block:
 
-- name: Create systemd service file for RKE2 server
-  ansible.builtin.template:
-    src: templates/rke2-server.service.j2
-    dest: /etc/systemd/system/rke2-server.service
-    owner: root
-    group: root
-    mode: '0644'
-  when: inventory_hostname in groups['controllers'][0]
+  - name: Deploy RKE2 server Configuration
+    ansible.builtin.template:
+      src: templates/rke2-server-config.j2
+      dest: /etc/rancher/rke2/config.yaml
+      owner: root
+      group: root
+      mode: '0644'
 
-# we enable the first server to generate tokens etc, copy this afterwards to other controllers
-- name: Ensure RKE2 server is enabled and running
-  ansible.builtin.systemd:
-    name: rke2-server
-    enabled: true
-    state: restarted
-    daemon_reload: true
-  when: inventory_hostname in groups['controllers'][0]
+  - name: Create systemd service file for RKE2 server
+    ansible.builtin.template:
+      src: templates/rke2-server.service.j2
+      dest: /etc/systemd/system/rke2-server.service
+      owner: root
+      group: root
+      mode: '0644'
+ 
+  - name: Ensure RKE2 server is enabled and running
+    ansible.builtin.systemd:
+      name: rke2-server
+      enabled: true
+      state: restarted
+      daemon_reload: true
+  
+  - name: Wait for node-token
+    ansible.builtin.wait_for:
+      path: /var/lib/rancher/rke2/server/node-token
 
-# wait for node token to be availale so that we can copy it, we need this to join other nodes
-- name: Wait for node-token
-  ansible.builtin.wait_for:
-    path: /var/lib/rancher/rke2/server/node-token
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Wait for kubectl
+    ansible.builtin.wait_for:
+      path: /var/lib/rancher/rke2/bin/kubectl
 
-# wait for kubectl to be downloaded, part of the rke2 installation
-- name: Wait for kubectl
-  ansible.builtin.wait_for:
-    path: /var/lib/rancher/rke2/bin/kubectl
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Copy kubectl to user bin
+    ansible.builtin.copy:
+      src: /var/lib/rancher/rke2/bin/kubectl
+      dest: /usr/local/bin/kubectl
+      mode: '0755'
+      remote_src: true
+    become: true
 
-# copy kubectl to usr bin so that all users can run kubectl commands
-- name: Copy kubectl to user bin
-  ansible.builtin.copy:
-    src: /var/lib/rancher/rke2/bin/kubectl
-    dest: /usr/local/bin/kubectl
-    mode: '0755'
-    remote_src: true
-  become: true
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Wait for kubectl
+    ansible.builtin.wait_for:
+      path: /usr/local/bin/kubectl
 
-# wait for the kubectl copy to complete
-- name: Wait for kubectl
-  ansible.builtin.wait_for:
-    path: /usr/local/bin/kubectl
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Register node-token file access mode
+    ansible.builtin.stat:
+      path: /var/lib/rancher/rke2/server
+    register: p
 
-# modify token access
-- name: Register node-token file access mode
-  ansible.builtin.stat:
-    path: /var/lib/rancher/rke2/server
-  register: p
+  - name: Change file access for node-token
+    ansible.builtin.file:
+      path: /var/lib/rancher/rke2/server
+      mode: "g+rx,o+rx"
 
-- name: Change file access for node-token
-  ansible.builtin.file:
-    path: /var/lib/rancher/rke2/server
-    mode: "g+rx,o+rx"
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Fetch the token from the first server node
+    ansible.builtin.slurp:
+      src: /var/lib/rancher/rke2/server/token
+    register: rke2_token
+    run_once: true
 
-# Save token as variable
-- name: Fetch the token from the first server node
-  ansible.builtin.slurp:
-    src: /var/lib/rancher/rke2/server/token
-  register: rke2_token
-  when: inventory_hostname == groups['controllers'][0]
-  run_once: true
+  - name: Save Master node-token for later
+    ansible.builtin.set_fact:
+      token: "{{ rke2_token.content | b64decode | regex_replace('\n', '') }}"
 
-# convert token to fact
-- name: Save Master node-token for later
-  ansible.builtin.set_fact:
-    token: "{{ rke2_token.content | b64decode | regex_replace('\n', '') }}"
+  - name: Restore node-token file access
+    ansible.builtin.file:
+      path: /var/lib/rancher/rke2/server
+      mode: "{{ p.stat.mode }}"
+  
+  - name: Ensure .kube directory exists in user's home
+    ansible.builtin.file:
+      path: "/home/{{ ansible_user }}/.kube"
+      state: directory
+      mode: '0755'
+    become: true
 
-# revert token file access
-- name: Restore node-token file access
-  ansible.builtin.file:
-    path: /var/lib/rancher/rke2/server
-    mode: "{{ p.stat.mode }}"
-  when: inventory_hostname == groups['controllers'][0]
+  - name: Copy config file to user home directory
+    ansible.builtin.copy:
+      src: /etc/rancher/rke2/rke2.yaml
+      dest: "/home/{{ ansible_user }}/.kube/config"
+      remote_src: true
+      owner: "{{ ansible_user }}"
+      mode: "u=rw,g=,o="
 
-# check .kube folder exists so that we can use kubectl (config resides here)
-- name: Ensure .kube directory exists in user's home
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    mode: '0755'
-  become: true
-
-# copy kubectl config file to .kube folder
-- name: Copy config file to user home directory
-  ansible.builtin.copy:
-    src: /etc/rancher/rke2/rke2.yaml
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    remote_src: true
-    owner: "{{ ansible_user }}"
-    mode: "u=rw,g=,o="
-  when: inventory_hostname == groups['controllers'][0]
-
-# change IP from local to server 1 IP
-- name: Replace IP address with server1
-  ansible.builtin.replace:
-    path: /home/{{ ansible_user }}/.kube/config
-    regexp: '127.0.0.1'
-    replace: "{{ hostvars[groups['controllers'][0]].ansible_host }}"
+  - name: Replace IP address with server1
+    ansible.builtin.replace:
+      path: /home/{{ ansible_user }}/.kube/config
+      regexp: '127.0.0.1'
+      replace: "{{ hostvars[groups['controllers'][0]].ansible_host }}"
+      
   when: inventory_hostname == groups['controllers'][0]

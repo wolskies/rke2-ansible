@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# tasks file for traefik
 - name: Ensure traefik is installed
   tags: traefik
   block:
@@ -16,11 +15,11 @@
         dest: "{{ traefik_path }}/values.yaml"
         mode: "0644"
 
-    - name: Copy certificate-wildcard-traefik.yaml to master node
-      ansible.builtin.template:
-        src: certificate-wildcard-traefik.yaml.j2
-        dest: "{{ traefik_path }}/certificate-wildcard-{{ traefik_domain }}-traefik.yaml"
-        mode: "0644"
+    # - name: Copy certificate-wildcard-traefik.yaml to master node
+    #   ansible.builtin.template:
+    #     src: certificate-wildcard-traefik.yaml.j2
+    #     dest: "{{ traefik_path }}/certificate-wildcard-{{ traefik_domain }}-traefik.yaml"
+    #     mode: "0644"
 
     - name: Add Traefik Helm repository
       kubernetes.core.helm_repository:
@@ -39,18 +38,18 @@
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
 
-    - name: Create wildcard certificate for Traefik
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ traefik_path }}/certificate-wildcard-{{traefik_domain}}-traefik.yaml"
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}"
+    # - name: Create wildcard certificate for Traefik
+    #   kubernetes.core.k8s:
+    #     state: present
+    #     src: "{{ traefik_path }}/certificate-wildcard-{{traefik_domain}}-traefik.yaml"
+    #   environment:
+    #     KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Deploy Traefik chart inside traefik namespace
       kubernetes.core.helm:
         name: traefik
         chart_ref: "{{ traefik_chart_ref }}"
-        chart_version: "{{ traefik_chart_version }}"
+        # chart_version: "{{ traefik_chart_version }}"
         release_namespace: traefik
         create_namespace: true
         update_repo_cache: true
