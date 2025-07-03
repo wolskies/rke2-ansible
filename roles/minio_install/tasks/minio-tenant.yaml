@@ -22,12 +22,12 @@
       loop:
         - src: tenant-base.yaml.j2
           dest: "{{ minio_tenant_path }}/tenant-base.yaml"
-        - src: certificate-wildcard.minio.yaml.j2
-          dest: "{{ minio_tenant_path }}/certificate-wildcard.minio.yaml"
-        - src: traefik-ingress.minio-api.yaml.j2
-          dest: "{{ minio_tenant_path }}/traefik-ingress.minio-api.yaml"
-        - src: traefik-ingress.minio-console.yaml.j2
-          dest: "{{ minio_tenant_path }}/traefik-ingress.minio-console.yaml"
+        - src: certificate-wildcard-minio.yaml.j2
+          dest: "{{ minio_tenant_path }}/certificate-wildcard-minio.yaml"
+        - src: traefik-ingress-minio-api.yaml.j2
+          dest: "{{ minio_tenant_path }}/traefik-ingress-minio-api.yaml"
+        - src: traefik-ingress-minio-console.yaml.j2
+          dest: "{{ minio_tenant_path }}/traefik-ingress-minio-console.yaml"
 
     - name: Deploy tenant
       kubernetes.core.k8s:
@@ -39,7 +39,7 @@
     - name: Create the certificate
       kubernetes.core.k8s:
         state: present
-        src: "{{ minio_tenant_path }}/certificate-wildcard.minio.yaml"
+        src: "{{ minio_tenant_path }}/certificate-wildcard-minio.yaml"
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
 
@@ -48,7 +48,22 @@
         state: present
         src: "{{ item }}"
       loop:
-        - src: traefik-ingress.minio-api.yaml.j2
-        - src: traefik-ingress.minio-console.yaml.j2
+        - src: traefik-ingress-minio-api.yaml.j2
+        - src: traefik-ingress-minio-console.yaml.j2
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Ensure UFW is installed
+  ansible.builtin.package:
+    name: ufw
+    state: present
+  become: true
+
+- name: Ensure UFW rules are present for minio
+  community.general.ufw:
+    rule: allow
+    port: 9000
+    proto: all
+    comment: minio
+  notify: Reload UFW
+  become: true
