@@ -1,20 +1,27 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# tasks file for main.yaml
-- name: Configure cert-manager for operator
-  ansible.builtin.include_tasks:
-    file: cert-manager-operator.yaml
-  tags: cert-manager
+- name: Deploy minio operator
+  tags: minio
+  block:
+    - name: Add MinIO Operator Helm repository
+      kubernetes.core.helm_repository:
+        name: minio-operator
+        repo_url: https://operator.min.io
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
 
-- name: Deploy MinIO-Operator
-  ansible.builtin.include_tasks:
-    file: minio-operator.yaml
-  tags: minio-operator
-
-- name: Configure cert-manager for tenant
-  ansible.builtin.include_tasks:
-    file: cert-manager-tenant.yaml
-  tags: cert-manager
+    - name: Deploy the helm chart
+      kubernetes.core.helm:
+        name: minio-operator
+        chart_ref: minio-operator/operator
+        release_namespace: minio-operator
+        update_repo_cache: true
+        create_namespace: true
+        state: present
+        wait: true
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
 
 - name: Configure CSI Driver
   ansible.builtin.include_tasks:
@@ -22,7 +29,31 @@
   tags: direct-pv
   when: minio_csi_driver_name == "directpv-min-io"
 
-- name: Deploy the tenant
-  ansible.builtin.include_tasks:
-    file: minio-tenant.yaml
-  tags: minio-tenant
+- name: Deploy MinIO Tenant
+  tags: minio
+  block:
+    - name: Create minio-tenant directory
+      ansible.builtin.file:
+        path: "{{ minio_tenant_path_path }}"
+        mode: "0744"
+        state: directory
+
+    - name: Copy values.yaml to master node
+      ansible.builtin.template:
+        src: values.yaml.j2
+        dest: "{{ minio_tenant_path }}/values.yaml"
+        mode: "0644"
+
+    - name: Deploy Minio Tenant chart
+      kubernetes.core.helm:
+        name: minio-tenant
+        chart_ref: minio-operator/tenant
+        release_namespace: {{ minio_tenant_namespace }}
+        create_namespace: true
+        update_repo_cache: true
+        state: present
+        wait: true
+        values_files:
+          - "{{ minio_tenant_path }}/values.yaml" 
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}" 

@@ -1,9 +1,0 @@
-# from https://min.io/docs/minio/kubernetes/upstream/operations/cert-manager/cert-manager-operator.html#minio-certmanager-operator
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: {{ minio_operator_namespace }}-ca-issuer
-  namespace: {{ minio_operator_namespace }}
-spec:
-  ca:
-    secretName: {{ minio_operator_namespace }}-ca-tls
