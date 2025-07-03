@@ -18,6 +18,7 @@ traefik_chart_ref: traefik/traefik
 # https://github.com/traefik/traefik-helm-chart/releases
 traefik_chart_version: 36.0.0
 traefik_path: "{{ home_path }}/traefik"
+traefik_dashboard_expose: false
 
 # https://github.com/rancher/rancher/releases
 rancher_chart_ref: rancher/rancher

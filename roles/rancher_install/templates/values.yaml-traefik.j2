@@ -2,6 +2,12 @@ deployment:
   enabled: true
   kind: Deployment
   replicas: 3
+ingressRoute:
+  dashboard:
+    enabled: {{ traefik_dashboard_expose }}
+    matchRule: Host(`dashboard.{{traefik_domain}}.com`)
+    entryPoints:
+      - web
 providers:
   kubernetesCRD:
     enabled: true
