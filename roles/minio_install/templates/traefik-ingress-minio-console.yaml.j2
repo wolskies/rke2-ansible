@@ -1,8 +1,8 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: minio-console-ingressroute
-  namespace: {{ minio_tenant_namespace }}
+  name: minio-console
+  namespace: minio-tenant
 spec:
   entryPoints:
     - websecure
@@ -11,6 +11,6 @@ spec:
       kind: Rule
       services:
         - name: minio-console
-          port: 9443
+          port: 80
   tls:
-    secretName: wildcard-{{ traefik_domain }}-minio-console-tls 
+    secretName: wildcard-{{ traefik_domain }}-minio-tls 
