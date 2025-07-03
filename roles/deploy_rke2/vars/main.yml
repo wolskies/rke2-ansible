@@ -37,6 +37,17 @@ ufw_rules_canal:
     proto: "tcp"
     comment: "Canal CNI with health checks"
 
+ufw_rules_general:
+  - port: "80"
+    proto: "tcp"
+    comment: "HTTP"
+  - port: "443"
+    proto: "tcp"
+    comment: "HTTPS"
+  - port: "8080"
+    proto: "tcp"
+    comment: "Traefik Dashboard"
+
 supported_os_versions:
   SLES:
     - "15 SP6"

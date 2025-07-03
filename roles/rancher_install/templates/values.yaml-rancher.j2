@@ -1,8 +1,15 @@
 hostname: "rancher.{{ traefik_domain }}.com"
 
 ingress:
-  enabled: false
+  enabled: true
+  includeDefaultExtraAnnotations: true
+  extraAnnotations: {}
+  ingressClassName: ""
+  pathType: ImplementationSpecific
+  path: "/"
+  servicePort: 80
   tls:
-    source: "secret"
+    source: secret
+    secretName: wildcard-{{ traefik_domain }}-rancher-tls
 
 replicas: 3

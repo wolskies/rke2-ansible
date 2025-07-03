@@ -5,33 +5,10 @@ deployment:
 providers:
   kubernetesCRD:
     enabled: true
-    allowCrossNamespace: true
-    allowExternalNameServices: true
   kubernetesGateway:
-    enabled: true
-gateway:
-  namespacePolicy: All
-ports:
-  web:
-    port: 8000
-    expose: 
-      default: true
-    exposedPort: 80
-    redirections:
-      to: websecure
-      scheme: https
-      permanent: true
-  websecure:
-    port: 8443
-    expose: 
-      default: true
-    exposedPort: 443
-    tls:
-      enabled: true
-  traefik:
-    port: 8080
-    expose:
-      default: false
-    exposedPort: 8080
+    enabled: false
+web:
+  redirections:
+    entryPoint: websecure
 
 
