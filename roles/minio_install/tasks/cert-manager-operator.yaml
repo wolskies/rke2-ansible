@@ -1,27 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-- name: Create self-signed ClusterIssuer
-  tags: cert-manager
-  block:
-    - name: Create cert-manager directory
-      ansible.builtin.file:
-        path: "{{ cert_manager_path }}"
-        mode: "0744"
-        state: directory
-
-    - name: Copy ClusterIssuer file to master node
-      ansible.builtin.template:
-        src: selfsigned-root-clusterissuer.yaml.j2
-        dest: "{{ cert_manager_path }}/selfsigned-root-clusterissuer.yaml"
-        mode: "0644"
-
-    - name: Create ClusterIssuer
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ cert_manager_path }}/selfsigned-root-clusterissuer.yaml"
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}"
-
 - name: Create CA Issuer for minio-Operator
   tags: cert-manager
   block:
