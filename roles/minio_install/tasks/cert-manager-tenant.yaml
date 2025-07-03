@@ -14,20 +14,20 @@
         path: "{{ minio_tenant_path }}"
         mode: "0744"
         state: directory
-    - name: Create certificate for CA
+    - name: Request a Certificate for a new Certificate Authority
       block: 
       - name: Copy certificate spec to master node
         ansible.builtin.template:
           src: tenant-ca-certificate.yaml.j2
           dest: "{{ cert_manager_path }}/tenant-ca-certificate.yaml"
           mode: "0644"
-      - name: Create certificate
+      - name: Apply the certificate spec
         kubernetes.core.k8s:
           state: present
           src: "{{ cert_manager_path }}/tenant-ca-certificate.yaml"
         environment:
           KUBECONFIG: "{{ kubectl_config }}"
-    - name: Create the issuer
+    - name: Create the Issuer
       block: 
       - name: Copy issuer spec to master node
         ansible.builtin.template:
@@ -41,7 +41,7 @@
         environment:
           KUBECONFIG: "{{ kubectl_config }}"
 
-- name: Create certificate for tenant
+- name: Create a certificate for the tenant
   tags: cert-manager
   block: 
   - name: Copy certificate spec to master node
@@ -49,7 +49,7 @@
       src: tenant-minio-certificate.yaml.j2
       dest: "{{ cert_manager_path }}/tenant-minio-certificate.yaml"
       mode: "0644"
-  - name: Create issuer
+  - name: Create the certificate
     kubernetes.core.k8s:
       state: present
       src: "{{ cert_manager_path }}/tenant-minio-certificate.yaml"
@@ -59,7 +59,7 @@
 - name: Trust tenant CA in operator namespace
   tags: cert-manager
   block: 
-  - name: Create ca.crt file
+  - name: Create ca.crt file containing the CA
     ansible.builtin.shell: kubectl get secrets -n tenant-1 tenant-1-ca-tls -o=jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
     args:
       chdir: "{{ minio_tenant_path }}"

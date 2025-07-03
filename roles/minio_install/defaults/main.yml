@@ -23,5 +23,5 @@ console_access_key: "console"
 console_secret_key: "console123"
 
 minio_servers: 3
-minio_volumes_per_server: 1
+minio_volumes_per_server: 2
 minio_storage_requests: "1Ti"

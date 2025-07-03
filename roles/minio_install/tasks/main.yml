@@ -22,7 +22,7 @@
   tags: direct-pv
   when: minio_csi_driver_name == "directpv-min-io"
 
-- name: Install tenant
+- name: Deploy the tenant
   ansible.builtin.include_tasks:
     file: minio-tenant.yaml
   tags: minio-tenant
