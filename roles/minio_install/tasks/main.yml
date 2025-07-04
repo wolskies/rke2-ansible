@@ -26,7 +26,7 @@
 - name: Configure CSI Driver
   ansible.builtin.include_tasks:
     file: direct-pv.yaml
-  tags: direct-pv
+  tags: minio
   when: minio_csi_driver_name == "directpv-min-io"
 
 - name: Deploy MinIO Tenant
