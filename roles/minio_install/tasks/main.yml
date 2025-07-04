@@ -34,7 +34,7 @@
   block:
     - name: Create minio-tenant directory
       ansible.builtin.file:
-        path: "{{ minio_tenant_path_path }}"
+        path: "{{ minio_tenant_path }}"
         mode: "0744"
         state: directory
 
@@ -48,7 +48,7 @@
       kubernetes.core.helm:
         name: minio-tenant
         chart_ref: minio-operator/tenant
-        release_namespace: {{ minio_tenant_namespace }}
+        release_namespace: "{{ minio_tenant_namespace }}"
         create_namespace: true
         update_repo_cache: true
         state: present

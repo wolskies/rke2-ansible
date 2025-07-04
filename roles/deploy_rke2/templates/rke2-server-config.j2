@@ -6,5 +6,3 @@ tls-san:
   - {{ hostvars[groups['controllers'][2]].ansible_host }}
 node-label:
   - server=true
-disable:
-  - rke2-ingress-nginx
