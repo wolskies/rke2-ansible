@@ -3,13 +3,12 @@ hostname: "rancher.{{ traefik_domain }}.com"
 ingress:
   enabled: true
   includeDefaultExtraAnnotations: true
-  extraAnnotations: {}
+  extraAnnotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   ingressClassName: ""
   pathType: ImplementationSpecific
   path: "/"
   servicePort: 80
-  tls:
-    source: secret
-    secretName: wildcard-{{ traefik_domain }}-rancher-tls
+  tls: ingress
 
 replicas: 3
