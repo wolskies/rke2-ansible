@@ -8,13 +8,17 @@ ingressRoute:
     matchRule: Host(`dashboard.{{traefik_domain}}.com`)
     entryPoints:
       - web
+ingressClass:  
+  enabled: true
+  isDefaultClass: true
+  name: "traefik"
 providers:
   kubernetesCRD:
     enabled: true
   kubernetesGateway:
-    enabled: false
+    enabled: true
+  kubernetesIngress:
+    enabled: true
 web:
   redirections:
     entryPoint: websecure
-
-

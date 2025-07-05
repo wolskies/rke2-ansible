@@ -5,10 +5,10 @@
     - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
-    - role: wolskinet.rke2_ansible.deploy_rke2
-      become: true
     - role: wolskinet.rke2_ansible.helm_install
       become: false
+    - role: wolskinet.rke2_ansible.deploy_rke2
+      become: true
     - role: wolskinet.rke2_ansible.rancher_install
       when: inventory_hostname == (groups['controllers'] | first)
       become: false
