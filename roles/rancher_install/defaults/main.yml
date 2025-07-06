@@ -2,6 +2,7 @@
 ---
 home_path: /home/{{ ansible_user }}
 traefik_domain: example
+letsencrypt_env: production
 
 kubectl_config: "{{ home_path }}/.kube/config"
 

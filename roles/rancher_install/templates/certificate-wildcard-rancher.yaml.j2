@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: wildcard-{{ traefik_domain }}-rancher-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-{{ letsencrypt_env }}
     kind: ClusterIssuer
   commonName: "{{ traefik_domain }}.com"
   dnsNames:
