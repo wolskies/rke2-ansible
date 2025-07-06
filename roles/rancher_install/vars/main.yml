@@ -2,8 +2,4 @@
 ---
 # vars file for cluster_tools
 # choose between “production” or “staging” (testing)
-letsencrypt_env: production
 
-letsencrypt_endpoints:
-  production: "https://acme-v02.api.letsencrypt.org/directory"
-  staging: "https://acme-staging-v02.api.letsencrypt.org/directory"
