@@ -12,7 +12,7 @@
 
     - name: Copy clusterissuer-letsencrypt-cloudflare-{{ letsencrypt_env }}.yaml to the master node
       ansible.builtin.template:
-        src: clusterissuer-letsencrypt-cloudflare.yaml.j2
+        src: clusterissuer-letsencrypt-cloudflare-{{ letsencrypt_env }}.yaml.j2
         dest: "{{ cert_manager_path }}/clusterissuer-letsencrypt-cloudflare-{{ letsencrypt_env }}.yaml"
         mode: "0644"
 
