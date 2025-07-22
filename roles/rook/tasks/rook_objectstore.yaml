@@ -1,0 +1,51 @@
+---
+- name: Deploy CephObjectStore and optional bucket StorageClass
+  block:
+
+    - name: Create CephObjectStore
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: ceph.rook.io/v1
+          kind: CephObjectStore
+          metadata:
+            name: "{{ rook_ceph_objectstore_name }}"
+            namespace: "{{ rook_ceph_namespace }}"
+          spec:
+            metadataPool:
+              replicated:
+                size: {{ rook_ceph_replica_size }}
+            dataPool:
+              replicated:
+                size: {{ rook_ceph_replica_size }}
+            gateway:
+              type: s3
+              sslCertificateRef: ""
+              port: {{ rook_ceph_objectstore_gateway_port }}
+              instances: {{ rook_ceph_objectstore_replicas }}
+              placement:
+                topologySpreadConstraints: []
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "256Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "1Gi"
+      tags: rook_objectstore
+
+    - name: Create StorageClass for Ceph Object Buckets (optional)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: storage.k8s.io/v1
+          kind: StorageClass
+          metadata:
+            name: "{{ rook_ceph_objectstore_storage_class }}"
+          provisioner: rook-ceph.ceph.rook.io/bucket
+          parameters:
+            objectStoreName: "{{ rook_ceph_objectstore_name }}"
+            objectStoreNamespace: "{{ rook_ceph_namespace }}"
+      tags: rook_objectstore
+
+  when: rook_ceph_enable_objectstore | bool

@@ -1,0 +1,58 @@
+---
+- name: Check Kernel Version and RBD Module Support
+  block:
+    - name: Check Linux kernel version (>= 4.17)
+      fail:
+        msg: "Rook requires at least Linux kernel 4.17. Detected version: {{ ansible_kernel }}"
+      when: ansible_kernel is version('4.17', '<')
+
+    - name: Check if rbd kernel module is loaded
+      ansible.builtin.shell: lsmod | grep '^rbd'
+      register: rbd_module
+      changed_when: false
+      failed_when: false
+
+    - name: Attempt to load rbd module if not loaded
+      ansible.builtin.command: modprobe rbd
+      when: rbd_module.stdout == ""
+      register: modprobe_rbd
+      changed_when: modprobe_rbd.rc == 0
+      failed_when: modprobe_rbd.rc != 0
+
+    - name: Fail if rbd module could not be loaded
+      fail:
+        msg: "The RBD kernel module is not available. Rook requires RBD support."
+      when: modprobe_rbd is failed
+  tags: kernel_check
+
+- name: Check Kubernetes Version (v1.28 – v1.33)
+  block:
+    - name: Get Kubernetes version
+      ansible.builtin.command: kubectl version --short --client=false
+      register: kubectl_version
+      changed_when: false
+
+    - name: Extract Kubernetes server version
+      set_fact:
+        k8s_server_version: >-
+          {{ kubectl_version.stdout_lines
+             | select('match', '^Server Version:')
+             | list | first
+             | regex_replace('^Server Version:\\s*v', '') }}
+
+    - name: Fail if Kubernetes version is not in supported range (1.28–1.33)
+      fail:
+        msg: "Unsupported Kubernetes version {{ k8s_server_version }}. Rook requires Kubernetes >= 1.28 and < 1.34."
+      when:
+        - k8s_server_version is not version('1.28', '>=')
+        - k8s_server_version is not version('1.34', '<')
+  tags: k8s_check
+
+- name: Ensure LVM2 package is installed (required by Rook Ceph)
+  ansible.builtin.package:
+    name: "{{ lvm_package }}"
+    state: present
+  vars:
+    lvm_package: >-
+      {{ 'lvm2' if ansible_facts.os_family in ['Debian', 'RedHat', 'Rocky', 'AlmaLinux', 'Suse'] else 'lvm2' }}
+  tags: lvm_check

@@ -1,0 +1,33 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for rook
+rook_ceph_namespace: rook-ceph
+rook_ceph_operator_chart_version: "1.17.6"
+rook_ceph_min_device_capacity: "5Ti"
+rook_ceph_version: "v18.2.2"
+
+rook_ceph_mon_count: 3
+rook_ceph_replica_size: 1
+rook_ceph_pool_name: replicapool
+rook_ceph_storage_class_name: rook-ceph-block
+rook_ceph_make_storage_class_default: true
+
+rook_ceph_enable_filesystem: false  # Set to true to deploy CephFS + StorageClass
+rook_ceph_filesystem_name: "cephfs"
+rook_ceph_fs_storage_class: "rook-cephfs"
+rook_ceph_fs_make_default: false
+
+rook_ceph_enable_objectstore: false
+rook_ceph_objectstore_name: "ceph-objectstore"
+rook_ceph_objectstore_storage_class: "rook-ceph-bucket"
+rook_ceph_objectstore_gateway_port: 80
+rook_ceph_objectstore_replicas: 1
+
+rook_ceph_operator_values:
+  crds:
+    enabled: true
+  csi:
+    enableCephFS: true
+    enableRBD: true
+  monitoring:
+    enabled: false

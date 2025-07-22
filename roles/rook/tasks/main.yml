@@ -1,0 +1,18 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Run Rook Ceph preflight checks
+  ansible.builtin.include_tasks: rook_prereqs.yaml
+
+- name: Install Rook Ceph operator via Helm
+  ansible.builtin.include_tasks: rook_operator.yaml
+
+- name: Deploy Rook CephCluster and default block storage
+  ansible.builtin.include_tasks: rook_cluster.yaml
+
+- name: Deploy Rook CephFilesystem and StorageClass (if enabled)
+  ansible.builtin.include_tasks: rook_filesystem.yaml
+  when: rook_ceph_enable_filesystem | bool
+
+- name: Deploy Rook CephObjectStore and bucket provisioning (if enabled)
+  ansible.builtin.include_tasks: rook_objectstore.yaml
+  when: rook_ceph_enable_objectstore | bool
