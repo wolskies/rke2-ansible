@@ -8,7 +8,6 @@ spec:
   issuerRef:
     name: letsencrypt-{{ letsencrypt_env }}
     kind: ClusterIssuer
-  commonName: "{{ traefik_domain }}.com"
+  commonName: "*.{{ traefik_domain }}.com"
   dnsNames:
-  - '*.{{ traefik_domain }}.com'
-  - "{{ traefik_domain }}.com"
+  - "*.{{ traefik_domain }}.com"

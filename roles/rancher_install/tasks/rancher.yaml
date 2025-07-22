@@ -16,17 +16,17 @@
         dest: "{{ rancher_path }}/values.yaml"
         mode: "0644"
 
-    - name: Copy certificate-wildcard-rancher.yaml to master node
-      ansible.builtin.template:
-        src: certificate-wildcard-rancher.yaml.j2
-        dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
-        mode: "0644"
+    # - name: Copy certificate-wildcard-rancher.yaml to master node
+    #   ansible.builtin.template:
+    #     src: certificate-wildcard-rancher.yaml.j2
+    #     dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
+    #     mode: "0644"
 
-    - name: Copy traefik-ingress-rancher.yaml to master node
-      ansible.builtin.template:
-        src: traefik-ingress-rancher.yaml.j2
-        dest: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
-        mode: "0644"
+    # - name: Copy traefik-ingress-rancher.yaml to master node
+    #   ansible.builtin.template:
+    #     src: traefik-ingress-rancher.yaml.j2
+    #     dest: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
+    #     mode: "0644"
 
     - name: Add Rancher Helm repository
       kubernetes.core.helm_repository:
@@ -45,13 +45,14 @@
       environment:
         KUBECONFIG: "{{ kubectl_config }}" 
 
-    - name: Create wildcard certificate for Rancher
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}" 
-      tags: cert-manager
+    # Using wildcard TLS associated with Gateway listener
+    # - name: Create wildcard certificate for Rancher
+    #   kubernetes.core.k8s:
+    #     state: present
+    #     src: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
+    #   environment:
+    #     KUBECONFIG: "{{ kubectl_config }}" 
+    #   tags: cert-manager
 
     # Not required - using Rancher native ingress configured via Helm Chart
     # - name: Create ingress for Rancher

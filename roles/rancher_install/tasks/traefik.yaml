@@ -22,6 +22,14 @@
         mode: "0644"
       when: traefik_dashboard_expose|default(false)|bool == true
 
+    - name: Create wildcard certificate for Traefik
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ traefik_path }}/certificate-wildcard-{{ traefik_domain }}-com.yaml"
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}" 
+      tags: traefik
+
     - name: Add Traefik Helm repository
       kubernetes.core.helm_repository:
         name: traefik
@@ -38,14 +46,6 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
-
-    - name: Create wildcard certificate for Traefik
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ traefik_path }}/certificate-wildcard-{{traefik_domain}}-com.yaml"
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}"
-      when: traefik_dashboard_expose|default(false)|bool == true
 
     - name: Deploy Traefik chart inside traefik namespace
       kubernetes.core.helm:

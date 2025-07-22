@@ -26,7 +26,7 @@
         state: present
 
     - name: Ensure Rook Helm repo is added
-      community.kubernetes.helm_repository:
+      kubernetes.core.helm_repository:
         name: rook-release
         repo_url: https://charts.rook.io/release
 
