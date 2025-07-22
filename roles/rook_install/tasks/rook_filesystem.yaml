@@ -14,10 +14,10 @@
           spec:
             metadataPool:
               replicated:
-                size: {{ rook_ceph_replica_size }}
+                size: "{{ rook_ceph_replica_size }}"
             dataPools:
               - replicated:
-                  size: {{ rook_ceph_replica_size }}
+                  size: "{{ rook_ceph_replica_size }}"
       tags: rook_filesystem
 
     - name: Create StorageClass for CephFS

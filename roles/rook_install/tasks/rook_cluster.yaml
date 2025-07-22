@@ -13,7 +13,7 @@
           image: "quay.io/ceph/ceph:{{ rook_ceph_version }}"
         dataDirHostPath: /var/lib/rook
         mon:
-          count: {{ rook_ceph_mon_count }}
+          count: "{{ rook_ceph_mon_count }}"
           allowMultiplePerNode: false
         dashboard:
           enabled: true
@@ -49,7 +49,7 @@
         namespace: "{{ rook_ceph_namespace }}"
       spec:
         replicated:
-          size: {{ rook_ceph_replica_size }}
+          size: "{{ rook_ceph_replica_size }}"
         failureDomain: host
   tags: rook_cluster
 
