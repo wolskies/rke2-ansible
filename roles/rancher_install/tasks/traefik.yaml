@@ -20,6 +20,14 @@
         src: certificate-wildcard.yaml.j2
         dest: "{{ traefik_path }}/certificate-wildcard.yaml"
         mode: "0644"
+    - name: Create Traefik namespace
+      kubernetes.core.k8s:
+        name: traefik
+        api_version: v1
+        kind: Namespace
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Create wildcard certificate for Traefik
       kubernetes.core.k8s:
@@ -33,15 +41,6 @@
       kubernetes.core.helm_repository:
         name: traefik
         repo_url: https://helm.traefik.io/traefik
-        state: present
-      environment:
-        KUBECONFIG: "{{ kubectl_config }}"
-
-    - name: Create Traefik namespace
-      kubernetes.core.k8s:
-        name: traefik
-        api_version: v1
-        kind: Namespace
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
