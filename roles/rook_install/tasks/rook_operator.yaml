@@ -46,5 +46,4 @@
     chart_version: "{{ rook_ceph_operator_chart_version }}"
     state: present
     wait: true
-    wait_timeout: 300
   tags: rook_operator
