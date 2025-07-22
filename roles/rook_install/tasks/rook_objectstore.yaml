@@ -14,15 +14,15 @@
           spec:
             metadataPool:
               replicated:
-                size: {{ rook_ceph_replica_size }}
+                size: "{{ rook_ceph_replica_size }}"
             dataPool:
               replicated:
-                size: {{ rook_ceph_replica_size }}
+                size: "{{ rook_ceph_replica_size }}"
             gateway:
               type: s3
               sslCertificateRef: ""
-              port: {{ rook_ceph_objectstore_gateway_port }}
-              instances: {{ rook_ceph_objectstore_replicas }}
+              port: "{{ rook_ceph_objectstore_gateway_port }}"
+              instances: "{{ rook_ceph_objectstore_replicas }}"
               placement:
                 topologySpreadConstraints: []
               resources:
