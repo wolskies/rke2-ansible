@@ -37,7 +37,7 @@
   tags: rook_operator
 
 - name: Install or Upgrade Rook Ceph Operator
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: rook-ceph
     chart_ref: rook-release/rook-ceph
     release_namespace: "{{ rook_ceph_namespace }}"
