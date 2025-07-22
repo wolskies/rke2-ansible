@@ -1,9 +1,5 @@
 # Root key for MinIO Tenant Chart
 tenant:
-  ###
-  # The Tenant name
-  #
-  # Change this to match your preferred MinIO Tenant name.
   name: {{ minio_tenant_name }}
 
   image:
@@ -19,7 +15,8 @@ tenant:
     - servers: {{ minio_servers }}
       name: pool-0
       volumesPerServer: {{ minio_volumes_per_server }}
-      size: {{ minio_capacity_per_tenant }}
+      storageClassName: {{ minio_csi_driver_name }}
+      size: {{ minio_storage_requests }}
   requestAutoCert: true
 ingress:
   api:

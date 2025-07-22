@@ -17,7 +17,7 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     email: {{ cert_manager_email }}
     privateKeySecretRef:
-      name: letsencrypt-prod
+      name: letsencrypt-production
     solvers:
     - dns01:
         cloudflare:
