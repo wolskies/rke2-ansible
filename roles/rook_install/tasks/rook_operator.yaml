@@ -43,7 +43,7 @@
     release_namespace: "{{ rook_ceph_namespace }}"
     create_namespace: false
     values: "{{ rook_ceph_operator_values }}"
-    version: "{{ rook_ceph_operator_chart_version }}"
+    chart_version: "{{ rook_ceph_operator_chart_version }}"
     state: present
     wait: true
     wait_timeout: 300
