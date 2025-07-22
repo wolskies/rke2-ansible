@@ -20,7 +20,6 @@
         src: certificate-wildcard.yaml.j2
         dest: "{{ traefik_path }}/certificate-wildcard.yaml"
         mode: "0644"
-      when: traefik_dashboard_expose|default(false)|bool == true
 
     - name: Create wildcard certificate for Traefik
       kubernetes.core.k8s:
