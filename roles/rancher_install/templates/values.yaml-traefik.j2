@@ -1,13 +1,14 @@
 # Only use Gateway API, disable Ingress
 providers:
   kubernetesIngress:
-    enabled: false
+    enabled: true
   kubernetesGateway:
     enabled: true 
 
-# Disable legacy IngressClass behavior
 ingressClass:
-  enabled: false
+  enabled: true
+  isDefaultClass: true
+  name: "traefik"
 
 ports:
   web:

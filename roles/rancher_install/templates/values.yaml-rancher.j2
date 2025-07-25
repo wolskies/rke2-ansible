@@ -1,6 +1,6 @@
 hostname: "rancher.{{ traefik_domain }}.com"
 ingress:
-  enabled: false
+  enabled: true
   tls:
     source: secret
 
@@ -10,5 +10,5 @@ replicas: 3
 
 secrets:
   tlsSecret:
-    name: wildcard-{{ traefik_domain }}-com-tls
+    name: wildcard-{{ traefik_domain }}-tls
     namespace: cattle-system
