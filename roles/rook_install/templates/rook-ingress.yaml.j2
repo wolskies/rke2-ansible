@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+  name: rook-dashboard
+  namespace: rook-ceph
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: ceph.{{ traefik_domain }}.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: rook-ceph-mgr-dashboard
+                port:
+                  number: 7000
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - wildcard-{{ traefik_domain }}-com

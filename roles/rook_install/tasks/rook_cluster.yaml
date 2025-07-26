@@ -15,6 +15,10 @@
         mon:
           count: "{{ rook_ceph_mon_count }}"
           allowMultiplePerNode: false
+          tolerations:
+            - key: "CriticalAddonsOnly"
+              operator: "Exists"
+              effect: "NoSchedule"
         dashboard:
           enabled: true
         network:
