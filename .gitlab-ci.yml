@@ -176,7 +176,7 @@ security:ansible-content:
     - ansible-content-scanner scan .
   artifacts:
     reports:
-      security: security-report.json
+      # security: security-report.json
     when: always
     expire_in: 1 week
   allow_failure: true
