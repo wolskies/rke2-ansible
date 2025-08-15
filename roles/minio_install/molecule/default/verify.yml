@@ -4,7 +4,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check if Helm is available
       ansible.builtin.command: helm version --short

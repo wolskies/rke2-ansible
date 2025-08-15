@@ -1,3 +1,4 @@
+---
 - name: Tear Down RKE2 Cluster
   hosts:
     - rke2

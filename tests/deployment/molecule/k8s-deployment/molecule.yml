@@ -29,7 +29,7 @@ platforms:
       - rke2
     networks:
       - name: k8s-network
-        
+
   - name: rke2-agent
     image: geerlingguy/docker-ubuntu2404-ansible:latest
     pre_build_image: true
@@ -63,29 +63,29 @@ provisioner:
         vip_interface: "eth0"
         lb_range: "172.30.0.50-172.30.0.60"
         management_network: "172.30.0.0/16"
-        
+
         # Enable core components for deployment testing
         install_metallb: true
         install_kube_vip: true
         install_helm: true
-        
+
         # Disable complex components that don't work well in containers
         install_rancher: false
         install_longhorn: false
         install_minio: false
         install_rook: false
         install_mysql_operator: false
-        
+
         # Container-specific overrides
         skip_firewall_configuration: true
         test_deployment_mode: true
         container_runtime_endpoint: "unix:///var/run/containerd/containerd.sock"
-        
+
         # Component versions
         helm_version: "v3.18.4"
         kube_vip_version: "v0.8.14"
         metallb_version: "0.15.0"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

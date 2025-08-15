@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# defaults file for deploy-rke2-cluster
+
+# Versions:
+kube_vip_version: "v0.9.1"
+rke2_version: "v1.33.3+rke2r1"
+metallb_version: v0.15.2
+metallb_path: /home/{{ ansible_user }}/metallb
+
+# Options:
+
+rke2_install_dir: "/usr/local/bin"
+kube_vip_noinstall: false
+metallb_noinstall: false
+disable_networkmanager: true
+# Options are 'ufw' or 'calico'
+firewall: ufw
+rke2_os: "linux"
+
+# Networking:
+# cni_plugin: canal
+vip_interface: "eth0"
+vip: 192.168.100.30
+management_network: "192.168.100.0/24"
+lb_range: 192.168.100.240-192.168.100.254
+lb_pool_name: first-pool
+
+# Test mode configuration
+test_mode: false
+skip_rke2_installation: false
+skip_firewall_configuration: false
+skip_network_manager_configuration: false
+skip_kube_vip_installation: false
+skip_metallb_installation: false

@@ -3,7 +3,7 @@
 - name: Converge
   hosts: all
   become: true
-  
+
   tasks:
     - name: Include deploy_rke2 role
       ansible.builtin.include_role:

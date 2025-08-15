@@ -14,14 +14,14 @@
 
       <<< CONFIGURING DISKS IS DESTRUCTIVE >>
       The playbook will not do it automatically.  To proceed:
-      
+
       1. kubectl-directpv install # installs directpv to all nodes
       2. kubectl-directpv discover
       3. Edit the "drives.yaml" file created in your current working directory
       4. For the drives you do not want formatted (all data lost), delete the entire entry for them (safest),
-         or mark "no" under nodes.drive.select
+        or mark "no" under nodes.drive.select
       5. The remaining drives are marked "yes" under nodes.drives.select - directpv will reformat them
-      WARNING:  The next step will reformat the drives.... be careful
+      WARNING: The next step will reformat the drives.... be careful
       6. kubectl-directpv init drives.yaml --dangerous
 
       If all goes well, enter "yes" to proceed; CTRL+C and A to abort...
@@ -32,4 +32,3 @@
   ansible.builtin.debug:
     msg: "User chose to continue"
   when: user_response.user_input == "yes"
-

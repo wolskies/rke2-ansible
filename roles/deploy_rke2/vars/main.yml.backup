@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# vars file for deploy-rke2-cluster
+rke2_binary_root: "https://github.com/rancher/rke2/releases/download"
+rke2_os: "linux"
+
+ufw_rules_server:
+  - port: "6443"
+    proto: "tcp"
+    comment: "RKE2 Kubernetes API"
+  - port: "9345"
+    proto: "tcp"
+    comment: "RKE2 Supervisor API"
+  - port: "10250"
+    proto: "tcp"
+    comment: "RKE2 kubelet metrics"
+  - port: "2379:2381"
+    proto: "tcp"
+    comment: "RKE2 etc client/peer/metrics ports"
+  - port: "30000:32767"
+    proto: "tcp"
+    comment: "RKE2 NodePort port range"
+
+ufw_rules_agent:
+  - port: "10250"
+    proto: "tcp"
+    comment: "RKE2 kubelet metrics"
+  - port: "30000:32767"
+    proto: "tcp"
+    comment: "RKE2 NodePort port range"
+
+ufw_rules_canal:
+  - port: "8472"
+    proto: "udp"
+    comment: "Canal CNI with VXLAN"
+  - port: "9099"
+    proto: "tcp"
+    comment: "Canal CNI with health checks"
+
+ufw_rules_general:
+  - port: "80"
+    proto: "tcp"
+    comment: "HTTP"
+  - port: "443"
+    proto: "tcp"
+    comment: "HTTPS"
+  - port: "8080"
+    proto: "tcp"
+    comment: "Traefik Dashboard"
+
+supported_os_versions:
+  SLES:
+    - "15 SP6"
+    - "15 SP5"
+    - "15 SP4"
+    - "15 SP3"
+  Oracle:
+    - "9.5"
+    - "9.4"
+    - "9.3"
+    - "9.2"
+    - "8.10"
+    - "8.9"
+    - "8.8"
+  RedHat:
+    - "9.5"
+    - "9.4"
+    - "9.3"
+    - "9.2"
+    - "8.10"
+    - "8.9"
+    - "8.8"
+    - "8.7"
+  Rocky:
+    - "9.5"
+    - "9.4"
+    - "9.3"
+    - "9.2"
+    - "8.10"
+    - "8.9"
+    - "8.8"
+    - "8.7"
+  Amazon:
+    - "2"
+    - "2023"
+  Ubuntu:
+    - "25.04"
+    - "24.04"
+    - "22.04"
+    - "20.04"

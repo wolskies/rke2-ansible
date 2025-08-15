@@ -30,7 +30,7 @@ variables:
     - linux
     - self-hosted
   cache:
-    key: 
+    key:
       files:
         - test-requirements.txt
     paths:
@@ -57,7 +57,7 @@ variables:
     - uv pip install -r test-requirements.txt
 
 # Quick lint jobs (run in parallel)
-lint:yaml:
+lint: yaml:
   <<: *ansible_lint_job
   stage: lint
   script:
@@ -67,7 +67,7 @@ lint:yaml:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
 
-lint:ansible:
+lint: ansible:
   <<: *ansible_lint_job
   stage: lint
   script:
@@ -82,7 +82,7 @@ lint:ansible:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
 
-lint:syntax-all:
+lint: syntax-all:
   <<: *ansible_lint_job
   stage: lint
   script:
@@ -92,7 +92,7 @@ lint:syntax-all:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 # Fast unit tests
-test:unit:
+test: unit:
   <<: *ansible_lint_job
   stage: unit-test
   script:
@@ -102,7 +102,7 @@ test:unit:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 # Build and test collection
-build:collection:
+build: collection:
   <<: *ansible_lint_job
   stage: build
   script:
@@ -118,7 +118,7 @@ build:collection:
     - if: '$CI_COMMIT_TAG'
 
 # Security scanning (self-hosted specific)
-security:secrets:
+security: secrets:
   <<: *self_hosted
   image: trufflesecurity/trufflehog:latest
   stage: security-scan
@@ -135,7 +135,7 @@ security:secrets:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # GitHub sync job (self-hosted specific)
-sync:github:
+sync: github:
   <<: *self_hosted
   image: alpine/git:latest
   stage: sync
@@ -161,7 +161,7 @@ sync:github:
   when: manual
 
 # Release to Galaxy (manual)
-release:galaxy:
+release: galaxy:
   <<: *ansible_lint_job
   stage: deploy-test
   script:
@@ -179,7 +179,7 @@ release:galaxy:
     url: https://galaxy.ansible.com/wolskinet/rke2_ansible
 
 # Optional: Full molecule tests (resource intensive)
-test:molecule:full:
+test: molecule:full:
   <<: *self_hosted
   image: quay.io/ansible/ansible-runner:latest
   stage: integration-test

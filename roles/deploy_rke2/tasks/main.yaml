@@ -17,8 +17,8 @@
   ansible.builtin.set_fact:
     normalized_arch: >-
       {{ 'amd64' if ansible_architecture == 'x86_64'
-         else 'arm64' if ansible_architecture == 'aarch64'
-         else ansible_architecture }}
+        else 'arm64' if ansible_architecture == 'aarch64'
+        else ansible_architecture }}
 
 - name: Generate RKE2 binary url
   ansible.builtin.set_fact:
@@ -75,8 +75,8 @@
 - name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml
-  when: 
-    - rke2_install_kubevip | default(true) 
+  when:
+    - rke2_install_kubevip | default(true)
     - not kube_vip_noinstall
     - not (skip_kube_vip_installation | default(false))
   tags: [kube-vip, rke2-network]
@@ -138,9 +138,9 @@
 - name: Install and configure MetalLB
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when: 
+  when:
     - inventory_hostname in groups['controllers'][0]
-    - rke2_install_metallb | default(true) 
+    - rke2_install_metallb | default(true)
     - not metallb_noinstall
     - not (skip_metallb_installation | default(false))
   tags: [metallb, rke2-network]
@@ -152,12 +152,12 @@
       - "Version: {{ metallb_version }}"
       - "Load balancer range: {{ lb_range }}"
       - "Pool name: {{ lb_pool_name }}"
-  when: 
+  when:
     - skip_metallb_installation | default(false)
     - inventory_hostname in groups['controllers'][0]
   tags: [metallb, rke2-network]
 
 # - name: Configure Calico GlobalNetworkPolicy
-#   ansible.builtin.include_tasks:
-#     file: calico-firewall.yaml
+# ansible.builtin.include_tasks:
+# file: calico-firewall.yaml
 #   when: firewall == "calico"

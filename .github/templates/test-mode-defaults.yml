@@ -3,6 +3,7 @@
 # Add these variables to enable test mode support
 
 # Test mode configuration - allows roles to skip operations that don't work in containers
+---
 test_mode: false
 
 # Skip flags for specific operations (customize per role)

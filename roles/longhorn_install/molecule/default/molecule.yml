@@ -36,18 +36,18 @@ provisioner:
         longhorn_chart_version: "1.9.1"
         longhorn_namespace: "longhorn-system"
         longhorn_path: "/root/longhorn"
-        
+
         # Test mode overrides
         test_mode: true
         skip_kubernetes_operations: true
         skip_helm_operations: true
-        
+
         # Component installation flags
         longhorn_install_system: true
-        
+
         # Required for Helm dependency
         helm_version: "v3.18.4"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

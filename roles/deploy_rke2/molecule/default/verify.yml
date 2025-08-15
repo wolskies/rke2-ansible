@@ -4,7 +4,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check RKE2 config directory exists
       ansible.builtin.stat:
@@ -23,7 +23,7 @@
   hosts: controllers
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check RKE2 server config file
       ansible.builtin.stat:
@@ -65,7 +65,7 @@
   hosts: agents
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check RKE2 agent config file
       ansible.builtin.stat:

@@ -1,3 +1,4 @@
+---
 - name: Deploy RKE2 Cluster
   hosts:
     - rke2
@@ -29,17 +30,17 @@
     # Rook/Ceph - distributed storage alternative
     # - role: wolskinet.rke2_ansible.rook_install
     #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: rook
+    # become: false
+    # tags: rook
 
     # MinIO - object storage
     # - role: wolskinet.rke2_ansible.minio_install
     #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: minio
+    # become: false
+    # tags: minio
 
     # MySQL Operator - database operator
     # - role: wolskinet.rke2_ansible.mysql_operator
     #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: mysql
+    # become: false
+    # tags: mysql

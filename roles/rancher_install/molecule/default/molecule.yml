@@ -37,29 +37,29 @@ provisioner:
         cert_manager_email: "admin@test.local"
         letsencrypt_env: "staging"
         rancher_bootstrap_password: "test-password-123"
-        
+
         # Component versions
         rancher_version: "2.11.3"
         cert_manager_version: "v1.17.2"
         traefik_version: "32.1.1"
         longhorn_version: "1.8.1"
-        
+
         # Test mode overrides
         skip_rancher_installation: true
         skip_cert_manager_installation: true
         skip_traefik_installation: true
         skip_longhorn_installation: true
         test_mode: true
-        
+
         # Component installation flags
         install_cert_manager: true
         install_traefik: true
         install_rancher: false
         install_longhorn: false
-        
+
         # Required for Helm dependency
         helm_version: "v3.18.4"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

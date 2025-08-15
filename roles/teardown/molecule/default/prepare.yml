@@ -3,7 +3,7 @@
 - name: Prepare
   hosts: all
   become: true
-  
+
   tasks:
     - name: Create fake RKE2 directories for teardown testing
       ansible.builtin.file:

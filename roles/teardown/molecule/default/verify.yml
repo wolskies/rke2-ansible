@@ -4,7 +4,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check that RKE2 config directory was removed
       ansible.builtin.stat:

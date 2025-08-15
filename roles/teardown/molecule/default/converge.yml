@@ -3,7 +3,7 @@
 - name: Converge
   hosts: all
   become: true
-  
+
   tasks:
     - name: Include teardown role
       ansible.builtin.include_role:

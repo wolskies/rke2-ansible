@@ -19,10 +19,10 @@ edit_on_github:
 #
 # Also note that some links are automatically added from information in galaxy.yml.
 # The following are automatically added:
-#   1. A link to the issue tracker (if `issues` is specified);
-#   2. A link to the homepage (if `homepage` is specified and does not equal the
-#      `documentation` or `repository` link);
-#   3. A link to the collection's repository (if `repository` is specified).
+# 1. A link to the issue tracker (if `issues` is specified);
+# 2. A link to the homepage (if `homepage` is specified and does not equal the
+# `documentation` or `repository` link);
+# 3. A link to the collection's repository (if `repository` is specified).
 
 extra_links:
   - description: Report an issue

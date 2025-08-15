@@ -59,16 +59,16 @@ provisioner:
         vip_interface: "eth0"
         lb_range: "192.168.100.50-192.168.100.60"
         management_network: "192.168.0.0/16"
-        
+
         # Disable actual installation in containers
         skip_rke2_installation: true
         skip_firewall_configuration: true
-        
+
         # Component versions
         helm_version: "v3.18.4"
         kube_vip_version: "v0.8.14"
         metallb_version: "0.15.0"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

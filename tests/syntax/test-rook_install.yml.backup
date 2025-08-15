@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Syntax test for rook_install role
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Include rook_install role for syntax checking
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.rook_install
+      vars:
+        rook_ceph_chart_version: "v1.17.3"
+        rook_ceph_cluster_chart_version: "v1.17.3"
+        rook_namespace: "rook-ceph"
+        rook_cluster_namespace: "rook-ceph"
+        syntax_check_only: true

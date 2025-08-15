@@ -4,7 +4,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Verify Helm is installed on all nodes
       ansible.builtin.command: helm version --short
@@ -22,7 +22,7 @@
   hosts: controllers
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check for controller-specific configurations
       ansible.builtin.debug:
@@ -32,7 +32,7 @@
   hosts: agents
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check for agent-specific configurations
       ansible.builtin.debug:
@@ -42,7 +42,7 @@
   hosts: controllers[0]
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Verify role dependency chain worked
       ansible.builtin.debug:

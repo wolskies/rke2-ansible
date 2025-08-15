@@ -4,7 +4,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check Helm installation
       ansible.builtin.command: helm version --short
@@ -22,7 +22,7 @@
   hosts: controllers
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check RKE2 server configuration exists
       ansible.builtin.stat:
@@ -64,7 +64,7 @@
   hosts: agents
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check RKE2 agent configuration exists
       ansible.builtin.stat:
@@ -94,7 +94,7 @@
   hosts: all
   become: true
   gather_facts: false
-  
+
   tasks:
     - name: Check for systemd service files
       ansible.builtin.find:

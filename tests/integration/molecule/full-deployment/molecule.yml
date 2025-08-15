@@ -97,7 +97,7 @@ provisioner:
         vip_interface: "eth0"
         lb_range: "192.168.100.50-192.168.100.60"
         management_network: "192.168.0.0/16"
-        
+
         # Component installation flags
         install_metallb: true
         install_kube_vip: true
@@ -106,17 +106,17 @@ provisioner:
         install_rancher: false
         install_minio: false
         install_rook: false
-        
+
         # Test-specific overrides
         skip_actual_k8s_deployment: true
         test_mode: true
-        
+
         # Component versions
         helm_version: "v3.18.4"
         kube_vip_version: "v0.8.14"
         metallb_version: "0.15.0"
         mysql_operator_chart_version: "2.2.5"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

@@ -39,19 +39,19 @@ provisioner:
         minio_tenant_name: "test-tenant"
         minio_capacity_per_tenant: "10Gi"
         minio_operator_timeout: "600s"
-        
+
         # Test mode overrides
         skip_minio_installation: true
         test_mode: true
-        
+
         # Component installation flags
         install_minio_operator: true
         install_minio_tenant: false
         install_directpv: false
-        
+
         # Required for Helm dependency
         helm_version: "v3.18.4"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

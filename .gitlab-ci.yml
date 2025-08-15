@@ -33,7 +33,7 @@ variables:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   cache:
-    key: 
+    key:
       files:
         - test-requirements.txt
     paths:
@@ -45,7 +45,7 @@ variables:
     - docker  # Use your self-hosted runners with docker tag
 
 # Linting Stage
-lint:ansible-lint:
+lint: ansible-lint:
   <<: *ansible_job
   stage: lint
   script:
@@ -58,7 +58,7 @@ lint:ansible-lint:
     expire_in: 1 week
   allow_failure: false
 
-lint:yaml:
+lint: yaml:
   <<: *ansible_job
   stage: lint
   script:
@@ -66,7 +66,7 @@ lint:yaml:
     - yamllint -c .yamllint.yml .
   allow_failure: false
 
-lint:galaxy:
+lint: galaxy:
   <<: *ansible_job
   stage: lint
   script:
@@ -79,7 +79,7 @@ lint:galaxy:
     expire_in: 1 week
 
 # Unit Testing Stage
-test:syntax:
+test: syntax:
   <<: *ansible_job
   stage: unit-test
   script:
@@ -92,7 +92,7 @@ test:syntax:
     matrix:
       - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator, rancher_install, rook_install, teardown]
 
-test:molecule:
+test: molecule:
   <<: *ansible_job
   stage: unit-test
   services:
@@ -115,7 +115,7 @@ test:molecule:
     expire_in: 1 week
 
 # Integration Testing Stage
-test:integration:basic:
+test: integration:basic:
   <<: *ansible_job
   stage: integration-test
   services:
@@ -131,7 +131,7 @@ test:integration:basic:
     - main
     - merge_requests
 
-test:integration:full-stack:
+test: integration:full-stack:
   <<: *ansible_job
   stage: integration-test
   services:
@@ -154,7 +154,7 @@ test:integration:full-stack:
     - tags
 
 # Build Stage
-build:collection:
+build: collection:
   <<: *ansible_job
   stage: build
   script:
@@ -169,7 +169,7 @@ build:collection:
     - tags
 
 # Security Scanning Stage
-security:ansible-content:
+security: ansible-content:
   <<: *ansible_job
   stage: security-scan
   script:
@@ -182,7 +182,7 @@ security:ansible-content:
     expire_in: 1 week
   allow_failure: true
 
-security:secrets:
+security: secrets:
   image: trufflesecurity/trufflehog:latest
   stage: security-scan
   script:
@@ -219,7 +219,7 @@ deploy-test:k8s-cluster:
   when: manual
 
 # Release Job (Manual)
-release:galaxy:
+release: galaxy:
   <<: *ansible_job
   stage: deploy-test
   script:

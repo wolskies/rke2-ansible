@@ -17,14 +17,14 @@
         mode: "0644"
 
     # - name: Copy certificate-wildcard-rancher.yaml to master node
-    #   ansible.builtin.template:
-    #     src: certificate-wildcard-rancher.yaml.j2
+    # ansible.builtin.template:
+    # src: certificate-wildcard-rancher.yaml.j2
     #     dest: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
     #     mode: "0644"
 
     # - name: Copy traefik-ingress-rancher.yaml to master node
-    #   ansible.builtin.template:
-    #     src: traefik-ingress-rancher.yaml.j2
+    # ansible.builtin.template:
+    # src: traefik-ingress-rancher.yaml.j2
     #     dest: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
     #     mode: "0644"
 
@@ -34,7 +34,7 @@
         repo_url: https://releases.rancher.com/server-charts/stable
         state: present # Ensure the repository is added
       environment:
-        KUBECONFIG: "{{ kubectl_config }}" 
+        KUBECONFIG: "{{ kubectl_config }}"
 
     - name: Create Rancher namespace
       kubernetes.core.k8s:
@@ -43,23 +43,23 @@
         kind: Namespace
         state: present # Ensure the namespace exists
       environment:
-        KUBECONFIG: "{{ kubectl_config }}" 
+        KUBECONFIG: "{{ kubectl_config }}"
 
     # Using wildcard TLS associated with Gateway listener
     # - name: Create wildcard certificate for Rancher
-    #   kubernetes.core.k8s:
-    #     state: present
+    # kubernetes.core.k8s:
+    # state: present
     #     src: "{{ rancher_path }}/certificate-wildcard-rancher.yaml"
-    #   environment:
-    #     KUBECONFIG: "{{ kubectl_config }}" 
-    #   tags: cert-manager
+    # environment:
+    #     KUBECONFIG: "{{ kubectl_config }}"
+    # tags: cert-manager
 
     # Not required - using Rancher native ingress configured via Helm Chart
     # - name: Create ingress for Rancher
-    #   kubernetes.core.k8s:
-    #     state: present
+    # kubernetes.core.k8s:
+    # state: present
     #     src: "{{ rancher_path }}/traefik-ingress-rancher.yaml"
-    #   environment:
+    # environment:
     #     KUBECONFIG: "{{ kubectl_config }}" # Use the kubectl config environment variable
 
     - name: Update the repository cache

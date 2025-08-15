@@ -38,21 +38,21 @@ provisioner:
         rook_namespace: "rook-ceph"
         rook_cluster_namespace: "rook-ceph"
         rook_operator_timeout: "600s"
-        
+
         # Test mode overrides
         test_mode: true
         skip_kubernetes_operations: true
         skip_helm_operations: true
-        
+
         # Component installation flags
         install_rook_operator: true
         install_rook_cluster: false
         install_rook_filesystem: false
         install_rook_objectstore: false
-        
+
         # Required for Helm dependency
         helm_version: "v3.18.4"
-  
+
   config_options:
     defaults:
       interpreter_python: auto_silent

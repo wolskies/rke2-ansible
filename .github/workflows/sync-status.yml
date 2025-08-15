@@ -22,19 +22,19 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 📢 Repository Sync Notice
-              
+              body: ` # # 📢 Repository Sync Notice
+
               This is a **synced repository** from a self-hosted GitLab instance.
-              
+
               **For contributions:**
               - 🔄 Changes made here will be synced back to GitLab
               - 🚀 Primary CI/CD runs on GitLab self-hosted runners
               - ✅ GitHub Actions provide validation and community compliance
-              
+
               **CI Status:**
               - **GitLab CI**: Full test suite, security scans, deployment tests
               - **GitHub Actions**: Community validation, collection verification
-              
+
               Thank you for your contribution! 🙏`
             });
 
@@ -47,20 +47,20 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 🔄 Synced Repository PR
-              
+              body: ` # # 🔄 Synced Repository PR
+
               **CI Pipeline Status:**
               - ✅ **GitHub Actions**: Community validation & basic tests
               - 🚀 **GitLab CI**: Full test suite (self-hosted)
-              
+
               **What runs where:**
               - **GitHub**: Fast validation, community compliance, collection verification
               - **GitLab**: Complete test matrix, security scans, Molecule tests, deployment validation
-              
+
               **Merge Process:**
               1. GitHub Actions must pass ✅
               2. PR will be synced to GitLab for full testing
               3. Manual merge after GitLab CI completion
-              
+
               *This repository is automatically synced from GitLab self-hosted.*`
             });

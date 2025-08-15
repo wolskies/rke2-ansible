@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Syntax test for minio_install role
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Include minio_install role for syntax checking
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.minio_install
+      vars:
+        minio_namespace: "minio-operator"
+        minio_operator_chart_version: "6.0.6"
+        minio_tenant_chart_version: "6.0.6"
+        minio_tenant_name: "test-tenant"
+        minio_capacity_per_tenant: "10Gi"
+        syntax_check_only: true

@@ -3,7 +3,7 @@
 - name: Prepare deployment test environment
   hosts: all
   become: true
-  
+
   tasks:
     - name: Install container runtime dependencies
       ansible.builtin.package:
@@ -40,7 +40,7 @@
           state = "/run/containerd"
         dest: /etc/containerd/config.toml
         mode: '0644'
-      
+
     - name: Create mock systemctl for testing
       ansible.builtin.copy:
         content: |
