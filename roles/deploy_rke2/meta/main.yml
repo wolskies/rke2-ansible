@@ -18,23 +18,33 @@ galaxy_info:
     - name: Debian
       versions:
         - bookworm
-        - trixie
+        - buster
     - name: EL
       versions:
-        - all
+        - "9"
+        - "8"
     - name: Rocky
       versions:
-        - all
-    - name: Oracle
+        - "9.2"
+        - "8.8"
+        - "8.7"
+    - name: OracleLinux
       versions:
-        - all
+        - "9.4"
+        - "9.3"
+        - "9.2"
+        - "8.10"
+        - "8.9"
+        - "8.8"
     - name: SLES
       versions:
-        - 15
+        - "15SP6"
+        - "15SP5"
+        - "15SP4"
+        - "15SP3"
     - name: Amazon
       versions:
-        - 2023
-        - 2
+        - all
 
   galaxy_tags:
     - kubernetes
