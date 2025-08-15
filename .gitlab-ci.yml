@@ -108,13 +108,13 @@ test:molecule:
   <<: *ansible_job
   stage: unit-test
   services:
-    - name: docker:24.0.5-dind
-      command: ["--tls=false"]
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
-    DOCKER_DRIVER: overlay2
+    # Use standard GitLab CI Docker-in-Docker setup
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -124,8 +124,9 @@ test:molecule:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 10  # Give docker:dind time to start
-    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker daemon..."
+    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
     - docker info  # Show docker status for debugging
     - |
       roles="deploy_rke2 helm_install longhorn_install minio_install"
@@ -148,13 +149,13 @@ test:integration:basic:
   <<: *ansible_job
   stage: integration-test
   services:
-    - name: docker:24.0.5-dind
-      command: ["--tls=false"]
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
-    DOCKER_DRIVER: overlay2
+    # Use standard GitLab CI Docker-in-Docker setup
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -164,8 +165,9 @@ test:integration:basic:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 10  # Give docker:dind time to start
-    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker daemon..."
+    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
     - docker info  # Show docker status for debugging
     - molecule test --scenario-name integration
   only:
@@ -176,13 +178,13 @@ test:integration:full-stack:
   <<: *ansible_job
   stage: integration-test
   services:
-    - name: docker:24.0.5-dind
-      command: ["--tls=false"]
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
-    DOCKER_DRIVER: overlay2
+    # Use standard GitLab CI Docker-in-Docker setup
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -192,8 +194,9 @@ test:integration:full-stack:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 10  # Give docker:dind time to start
-    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker daemon..."
+    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
     - docker info  # Show docker status for debugging
     - cd tests/integration
     - molecule test --scenario-name full-deployment
@@ -252,13 +255,13 @@ deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
   services:
-    - name: docker:24.0.5-dind
-      command: ["--tls=false"]
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
-    DOCKER_DRIVER: overlay2
+    # Use standard GitLab CI Docker-in-Docker setup
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -268,8 +271,9 @@ deploy-test:k8s-cluster:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 10  # Give docker:dind time to start
-    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker daemon..."
+    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
     - docker info  # Show docker status for debugging
     - cd tests/deployment
     - molecule test --scenario-name k8s-deployment
