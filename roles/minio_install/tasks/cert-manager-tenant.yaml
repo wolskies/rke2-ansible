@@ -60,13 +60,16 @@
   tags: cert-manager
   block:
     - name: Create ca.crt file containing the CA
-      ansible.builtin.shell: >
+      ansible.builtin.shell: |
+        set -o pipefail
         kubectl get secrets -n tenant-1 tenant-1-ca-tls -o=jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
       args:
         chdir: "{{ minio_tenant_path }}"
         creates: ca.crt
     - name: Create the secret
-      ansible.builtin.shell: kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
+      ansible.builtin.shell: |
+        set -o pipefail
+        kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
       args:
         chdir: "{{ minio_tenant_path }}"
       ignore_errors: true

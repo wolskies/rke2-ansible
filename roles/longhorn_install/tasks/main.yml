@@ -40,7 +40,7 @@
         KUBECONFIG: "{{ kubectl_config }}"
       when: not (skip_kubernetes_operations or skip_helm_operations)
 
-    - name: Deploy longhorn chart inside {{ longhorn_namespace }} namespace
+    - name: Deploy longhorn chart
       kubernetes.core.helm:
         name: longhorn
         chart_ref: "{{ longhorn_chart_ref }}"

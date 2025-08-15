@@ -9,7 +9,7 @@
   tags: direct-pv
 
 - name: Pause for user input
-  pause:
+  ansible.builtin.pause:
     prompt: |
       The Direct PV binary has been install at ~/.local/bin/kubectl-directpv
 
