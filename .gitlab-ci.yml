@@ -108,11 +108,12 @@ test:molecule:
   <<: *ansible_job
   stage: unit-test
   services:
-    - docker:dind
+    - docker:24.0.5-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -122,7 +123,9 @@ test:molecule:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - until docker info; do sleep 1; done
+    - sleep 10  # Give docker:dind time to start
+    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - docker info  # Show docker status for debugging
     - |
       roles="deploy_rke2 helm_install longhorn_install minio_install"
       roles="$roles mysql_operator rancher_install rook_install teardown"
@@ -144,11 +147,12 @@ test:integration:basic:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:dind
+    - docker:24.0.5-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -158,7 +162,9 @@ test:integration:basic:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - until docker info; do sleep 1; done
+    - sleep 10  # Give docker:dind time to start
+    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - docker info  # Show docker status for debugging
     - molecule test --scenario-name integration
   only:
     - main
@@ -168,11 +174,12 @@ test:integration:full-stack:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:dind
+    - docker:24.0.5-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -182,7 +189,9 @@ test:integration:full-stack:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - until docker info; do sleep 1; done
+    - sleep 10  # Give docker:dind time to start
+    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - docker info  # Show docker status for debugging
     - cd tests/integration
     - molecule test --scenario-name full-deployment
   artifacts:
@@ -240,11 +249,12 @@ deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
   services:
-    - docker:dind
+    - docker:24.0.5-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -254,7 +264,9 @@ deploy-test:k8s-cluster:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - until docker info; do sleep 1; done
+    - sleep 10  # Give docker:dind time to start
+    - timeout 60 sh -c 'until docker info >/dev/null 2>&1; do echo "Waiting..."; sleep 2; done' || echo "Docker timeout"
+    - docker info  # Show docker status for debugging
     - cd tests/deployment
     - molecule test --scenario-name k8s-deployment
   artifacts:
