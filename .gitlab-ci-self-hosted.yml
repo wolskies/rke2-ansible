@@ -33,6 +33,7 @@ variables:
     key:
       files:
         - test-requirements.txt
+        - .ansible-lint
     paths:
       - .cache/pip/
       - .cache/uv/
@@ -115,7 +116,7 @@ build:collection:
     expire_in: 1 month
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
 
 # Security scanning (self-hosted specific)
 security:secrets:
@@ -157,7 +158,7 @@ sync:github:
       fi
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
   when: manual
 
 # Release to Galaxy (manual)
@@ -172,7 +173,7 @@ release:galaxy:
       - "*.tar.gz"
     expire_in: 1 month
   rules:
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
   when: manual
   environment:
     name: galaxy
