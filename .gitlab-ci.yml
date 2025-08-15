@@ -107,28 +107,67 @@ test:syntax:
 test:molecule:
   <<: *ansible_job
   stage: unit-test
+  services:
+    - name: docker:24.0.7-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Molecule tests temporarily disabled due to Docker connectivity issues"
-    - echo "All roles use test_mode with skip flags that bypass real functionality testing"
-    - echo "Consider implementing alternative testing strategy without Docker dependency"
+    - echo "Waiting for Docker daemon..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - docker info
     - |
-      echo "Roles with molecule tests:"
-      for role in roles/*/; do
-        if [ -d "$role/molecule" ]; then
-          echo "- $(basename $role)"
-        fi
+      roles="deploy_rke2 helm_install longhorn_install minio_install"
+      roles="$roles mysql_operator rancher_install rook_install teardown"
+      for role in $roles; do
+        echo "Testing role: $role"
+        cd roles/$role
+        molecule test --scenario-name default || true
+        cd ../..
       done
+  artifacts:
+    paths:
+      - roles/*/molecule/default/
+    when: always
+    expire_in: 1 week
   allow_failure: true
 
 # Integration Testing Stage
 test:integration:basic:
   <<: *ansible_job
   stage: integration-test
+  services:
+    - name: docker:24.0.7-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Integration tests disabled - require Docker-in-Docker which fails in Kubernetes runners"
-    - echo "Docker-in-Docker needs privileged containers not allowed in secure K8s environments"
-    - echo "Consider using dedicated Docker runners with 'docker' tags for container-based testing"
-  allow_failure: true
+    - echo "Waiting for Docker daemon..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - docker info
+    - molecule test --scenario-name integration
   only:
     - main
     - merge_requests
@@ -136,11 +175,33 @@ test:integration:basic:
 test:integration:full-stack:
   <<: *ansible_job
   stage: integration-test
+  services:
+    - name: docker:24.0.7-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Full-stack integration tests disabled - require Docker-in-Docker"
-    - echo "Kubernetes runners don't support privileged containers needed for DinD"
-    - echo "Use dedicated Docker runners or implement K8s-native testing approach"
-  allow_failure: true
+    - echo "Waiting for Docker daemon..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - docker info
+    - cd tests/integration
+    - molecule test --scenario-name full-deployment
+  artifacts:
+    paths:
+      - tests/integration/molecule/full-deployment/ansible.log
+    when: always
+    expire_in: 1 week
   only:
     - main
     - tags
@@ -190,9 +251,33 @@ security:secrets:
 deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
+  services:
+    - name: docker:24.0.7-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "K8s cluster deployment tests disabled - require Docker-in-Docker"
-  allow_failure: true
+    - echo "Waiting for Docker daemon..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - docker info
+    - cd tests/deployment
+    - molecule test --scenario-name k8s-deployment
+  artifacts:
+    paths:
+      - tests/deployment/molecule/k8s-deployment/ansible.log
+    when: always
+    expire_in: 1 week
   only:
     - main
     - tags
