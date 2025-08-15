@@ -113,11 +113,6 @@ test:molecule:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     DOCKER_TLS_VERIFY: ""
-  script:
-    - until docker info; do sleep 1; done  # Wait for docker to be ready
-    - echo "Testing role: $ROLE"
-    - cd roles/$ROLE
-    - molecule test --scenario-name default
   parallel:
     matrix:
       - ROLE:
@@ -131,12 +126,17 @@ test:molecule:
             rook_install,
             teardown,
           ]
+  script:
+    - until docker info; do sleep 1; done  # Wait for docker to be ready
+    - echo "Testing role: $ROLE"
+    - cd roles/$ROLE
+    - molecule test --scenario-name default
   artifacts:
     paths:
       - roles/*/molecule/default/
     when: always
     expire_in: 1 week
-    allow_failure: true
+  allow_failure: true
 
 # Integration Testing Stage
 test:integration:basic:
