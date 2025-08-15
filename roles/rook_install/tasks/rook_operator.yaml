@@ -45,8 +45,6 @@
           - "Helm repository would be added: https://charts.rook.io/release"
       when: skip_kubernetes_operations or skip_helm_operations
 
-  tags: rook_operator
-
 - name: Install or Upgrade Rook Ceph Operator
   kubernetes.core.helm:
     name: rook-ceph
