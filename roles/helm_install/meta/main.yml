@@ -6,23 +6,25 @@ galaxy_info:
   description: Install Helm package manager for Kubernetes clusters
   company: wolskinet
   license: GPL-3.0-or-later
-  min_ansible_version: '2.12'
+  min_ansible_version: "2.12"
+
   platforms:
     - name: Ubuntu
       versions:
-    - noble
+        - noble
         - jammy
         - focal
     - name: Debian
       versions:
-        - trixie
         - bookworm
+        - trixie
     - name: EL
       versions:
         - all
     - name: Rocky
       versions:
         - all
+
   galaxy_tags:
     - helm
     - kubernetes
@@ -36,4 +38,7 @@ galaxy_info:
     - charts
     - management
     - tools
+
 dependencies: []
+
+

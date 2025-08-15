@@ -3,21 +3,22 @@
 galaxy_info:
   role_name: deploy_rke2
   author: Ed Wolski
-  description: Deploy a bare-metal RKE2 Kubernetes cluster with kube-vip HA and MetalLB
-    load balancer
+  description: >
+    Deploy a bare-metal RKE2 Kubernetes cluster with kube-vip HA and MetalLB load balancer
   company: wolskinet
   license: GPL-3.0-or-later
-  min_ansible_version: '2.12'
+  min_ansible_version: "2.12"
+
   platforms:
     - name: Ubuntu
       versions:
-    - noble
+        - noble
         - jammy
         - focal
     - name: Debian
       versions:
-        - trixie
         - bookworm
+        - trixie
     - name: EL
       versions:
         - all
@@ -27,18 +28,14 @@ galaxy_info:
     - name: Oracle
       versions:
         - all
-        - all
     - name: SLES
       versions:
-        - all
-        - '15'
-        - '12'
+        - 15
     - name: Amazon
       versions:
-        - all
-        - '2023'
-        - all
-        - Candidate
+        - 2023
+        - 2
+
   galaxy_tags:
     - kubernetes
     - rke2
@@ -46,7 +43,7 @@ galaxy_info:
     - baremetal
     - metallb
     - kubevip
-  - networking
+    - networking
     - container
     - orchestration
     - infrastructure
@@ -59,4 +56,7 @@ galaxy_info:
     - highavailability
     - firewall
     - security
+
 dependencies: []
+
+

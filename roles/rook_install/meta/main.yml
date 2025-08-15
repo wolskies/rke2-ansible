@@ -3,27 +3,29 @@
 galaxy_info:
   role_name: rook_install
   author: Ed Wolski
-  description: Deploy Rook Ceph storage operator with cluster, filesystem, and object
-    store support
+  description: >
+    Deploy Rook Ceph storage operator with cluster, filesystem, and object store support
   company: wolskinet
   license: GPL-3.0-or-later
-  min_ansible_version: '2.12'
+  min_ansible_version: "2.12"
+
   platforms:
     - name: Ubuntu
       versions:
-    - noble
+        - noble
         - jammy
         - focal
     - name: Debian
       versions:
-        - trixie
         - bookworm
+        - trixie
     - name: EL
       versions:
         - all
     - name: Rocky
       versions:
         - all
+
   galaxy_tags:
     - storage
     - ceph
@@ -43,6 +45,9 @@ galaxy_info:
     - data
     - block
     - distributed
+
 dependencies:
-- role: wolskinet.rke2_ansible.helm_install
-  when: ansible_os_family != "Windows"
+  - role: wolskinet.rke2_ansible.helm_install
+    when: ansible_os_family != "Windows"
+
+

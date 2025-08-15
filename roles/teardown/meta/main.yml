@@ -6,23 +6,25 @@ galaxy_info:
   description: Complete teardown and cleanup of RKE2 clusters and components
   company: wolskinet
   license: GPL-3.0-or-later
-  min_ansible_version: '2.12'
+  min_ansible_version: "2.12"
+
   platforms:
     - name: Ubuntu
       versions:
-    - noble
+        - noble
         - jammy
         - focal
     - name: Debian
       versions:
-        - trixie
         - bookworm
+        - trixie
     - name: EL
       versions:
         - all
     - name: Rocky
       versions:
         - all
+
   galaxy_tags:
     - cleanup
     - teardown
@@ -38,4 +40,7 @@ galaxy_info:
     - firewall
     - configuration
     - cluster
+
 dependencies: []
+
+

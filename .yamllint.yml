@@ -63,3 +63,5 @@ ignore: |
   *.tar.gz
   changelogs/fragments/
   tests/output/
+  ansible_collections/
+  .ansible/
