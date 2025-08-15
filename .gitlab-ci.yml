@@ -110,11 +110,10 @@ test:molecule:
   services:
     - name: docker:24.0.7-dind
       alias: docker
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -124,8 +123,8 @@ test:molecule:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Waiting for Docker daemon..."
-    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - echo "Waiting for Docker daemon to start..."
+    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
     - docker info
     - |
       roles="deploy_rke2 helm_install longhorn_install minio_install"
@@ -150,11 +149,10 @@ test:integration:basic:
   services:
     - name: docker:24.0.7-dind
       alias: docker
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -164,8 +162,8 @@ test:integration:basic:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Waiting for Docker daemon..."
-    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - echo "Waiting for Docker daemon to start..."
+    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
     - docker info
     - molecule test --scenario-name integration
   only:
@@ -178,11 +176,10 @@ test:integration:full-stack:
   services:
     - name: docker:24.0.7-dind
       alias: docker
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -192,8 +189,8 @@ test:integration:full-stack:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Waiting for Docker daemon..."
-    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - echo "Waiting for Docker daemon to start..."
+    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
     - docker info
     - cd tests/integration
     - molecule test --scenario-name full-deployment
@@ -254,11 +251,10 @@ deploy-test:k8s-cluster:
   services:
     - name: docker:24.0.7-dind
       alias: docker
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -268,8 +264,8 @@ deploy-test:k8s-cluster:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - echo "Waiting for Docker daemon..."
-    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
+    - echo "Waiting for Docker daemon to start..."
+    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
     - docker info
     - cd tests/deployment
     - molecule test --scenario-name k8s-deployment
