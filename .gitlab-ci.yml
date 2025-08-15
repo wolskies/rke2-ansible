@@ -123,6 +123,17 @@ test:molecule:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
+    - echo "Debugging Docker setup..."
+    - echo "DOCKER_HOST=$DOCKER_HOST"
+    - echo "DOCKER_TLS_CERTDIR=$DOCKER_TLS_CERTDIR"
+    - ps aux | grep docker || true
+    - netstat -tulpn | grep 2375 || true
+    - sleep 10
+    - echo "Checking Docker daemon logs..."
+    - docker logs docker 2>/dev/null || true
+    - echo "Testing Docker connection directly..."
+    - docker version || true
+    - docker info || true
     - echo "Waiting for Docker daemon..."
     - timeout 60 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 2; done"
     - |
