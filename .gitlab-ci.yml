@@ -25,6 +25,7 @@ variables:
   image: python:3.13-slim-bookworm
   before_script:
     # Use uv for faster package installation
+    - cp .ansible-lint /
     - apt update && apt install curl -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - source $HOME/.local/bin/env
@@ -42,7 +43,7 @@ variables:
       - .cache/molecule/
       - .venv/
   tags:
-    - docker  # Use your self-hosted runners with docker tag
+    - docker # Use your self-hosted runners with docker tag
 
 # Linting Stage
 lint:ansible-lint:
@@ -82,7 +83,6 @@ lint:yaml:
     - yamllint -c .yamllint.yml .
   allow_failure: false
 
-
 # Unit Testing Stage
 test:syntax:
   <<: *ansible_job
@@ -95,8 +95,17 @@ test:syntax:
       done
   parallel:
     matrix:
-      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator,
-               rancher_install, rook_install, teardown]
+      - ROLE:
+          [
+            deploy_rke2,
+            helm_install,
+            longhorn_install,
+            minio_install,
+            mysql_operator,
+            rancher_install,
+            rook_install,
+            teardown,
+          ]
 
 test:molecule:
   <<: *ansible_job
@@ -113,8 +122,17 @@ test:molecule:
     - molecule test --scenario-name default
   parallel:
     matrix:
-      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator,
-               rancher_install, rook_install, teardown]
+      - ROLE:
+          [
+            deploy_rke2,
+            helm_install,
+            longhorn_install,
+            minio_install,
+            mysql_operator,
+            rancher_install,
+            rook_install,
+            teardown,
+          ]
   artifacts:
     reports:
       junit: roles/*/molecule/default/junit.xml
@@ -224,4 +242,3 @@ deploy-test:k8s-cluster:
     - main
     - tags
   when: manual
-
