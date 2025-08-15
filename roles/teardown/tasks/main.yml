@@ -5,7 +5,7 @@
   tags: [cleanup-rke2, always]
   block:
     - name: Download RKE2 uninstaller
-      ansible.builtin.shell:  curl -sfL https://get.rke2.io | sh -
+      ansible.builtin.shell: curl -sfL https://get.rke2.io | sh -
       become: true
 
     - name: Run RKE2 uninstaller

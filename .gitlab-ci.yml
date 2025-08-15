@@ -50,7 +50,8 @@ lint:ansible-lint:
   stage: lint
   script:
     - ansible-lint --version
-    - ansible-lint roles/ playbooks/ --exclude ansible_collections/ --exclude .ansible/ --format json
+    - rm -rf ansible_collections .ansible 2>/dev/null || true
+    - ansible-lint roles/ playbooks/ --format json
   artifacts:
     reports:
       codequality: ansible-lint-report.json
@@ -79,7 +80,8 @@ test:syntax:
       done
   parallel:
     matrix:
-      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator, rancher_install, rook_install, teardown]
+      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator,
+               rancher_install, rook_install, teardown]
 
 test:molecule:
   <<: *ansible_job
@@ -96,7 +98,8 @@ test:molecule:
     - molecule test --scenario-name default
   parallel:
     matrix:
-      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator, rancher_install, rook_install, teardown]
+      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator,
+               rancher_install, rook_install, teardown]
   artifacts:
     reports:
       junit: roles/*/molecule/default/junit.xml

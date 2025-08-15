@@ -54,7 +54,8 @@
 
     - name: Set Kubernetes server version fact
       set_fact:
-        k8s_server_version: "{{ (kubectl_version_json.stdout | from_json).serverVersion.gitVersion | regex_replace('^v', '') }}"
+        k8s_server_version: >
+          {{ (kubectl_version_json.stdout | from_json).serverVersion.gitVersion | regex_replace('^v', '') }}
       when:
         - kubectl_version_json is defined
         - not kubectl_version_json.skipped | default(false)

@@ -2,7 +2,8 @@
 ---
 - name: Install direct-pv binary on master node
   ansible.builtin.get_url:
-    url: https://github.com/minio/directpv/releases/download/v{{direct_pv_version}}/kubectl-directpv_{{direct_pv_version}}_linux_amd64
+    url: >
+      https://github.com/minio/directpv/releases/download/v{{direct_pv_version}}/kubectl-directpv_{{direct_pv_version}}_linux_amd64
     dest: /home/{{ ansible_user }}/.local/bin/kubectl-directpv
     mode: a+x
   tags: direct-pv

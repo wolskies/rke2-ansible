@@ -162,5 +162,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ` # # GitHub Tests Status\n\n${status}\n\n**Note**: This is a synced repository. Main CI runs on GitLab.`
+              body: ` # # GitHub Tests Status\n\n${status}\n\n**Note**: Synced repo. Main CI on GitLab.`
             });
