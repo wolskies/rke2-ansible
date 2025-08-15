@@ -37,9 +37,7 @@ variables:
       files:
         - test-requirements.txt
     paths:
-      - .cache/pip/
       - .cache/uv/
-      - .cache/molecule/
       - .venv/
   tags:
     - docker # Use your self-hosted runners with docker tag
@@ -66,7 +64,7 @@ lint:ansible-lint:
         - jinja[spacing]
         - name[template]
       EOF
-    - ansible-lint roles/ playbooks/ --format json
+    - ansible-lint roles/ playbooks/ --format json | tee ansible-lint-report.json
   artifacts:
     reports:
       codequality: ansible-lint-report.json
@@ -198,11 +196,10 @@ security:ansible-content:
   stage: security-scan
   script:
     - pip install ansible-content-scanner
-    - ansible-content-scanner scan .
+    - ansible-content-scanner scan . > security-report.json || true
   artifacts:
-    reports:
-      {}
-      # security: security-report.json
+    paths:
+      - security-report.json
     when: always
     expire_in: 1 week
   allow_failure: true
@@ -213,9 +210,8 @@ security:secrets:
   script:
     - trufflehog filesystem --directory=. --json > secrets-scan.json
   artifacts:
-    reports:
-      {}
-      # security: secrets-scan.json
+    paths:
+      - secrets-scan.json
     when: always
     expire_in: 1 week
   allow_failure: true

@@ -49,7 +49,7 @@
       tags: rook_filesystem
 
     - name: Gather all StorageClasses for filesystem default cleanup
-      community.kubernetes.k8s_info:
+      kubernetes.core.k8s_info:
         api_version: storage.k8s.io/v1
         kind: StorageClass
       register: fs_storageclasses
@@ -57,7 +57,7 @@
       tags: rook_filesystem
 
     - name: Remove default annotation from other SCs (if setting fs as default)
-      community.kubernetes.k8s:
+      kubernetes.core.k8s:
         api_version: storage.k8s.io/v1
         kind: StorageClass
         name: "{{ item.metadata.name }}"
@@ -74,7 +74,7 @@
       tags: rook_filesystem
 
     - name: Set CephFS StorageClass as default (if requested)
-      community.kubernetes.k8s:
+      kubernetes.core.k8s:
         api_version: storage.k8s.io/v1
         kind: StorageClass
         name: "{{ rook_ceph_fs_storage_class }}"

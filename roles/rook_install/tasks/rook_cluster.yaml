@@ -88,7 +88,7 @@
   tags: rook_cluster
 
 - name: Gather all StorageClasses
-  community.kubernetes.k8s_info:
+  kubernetes.core.k8s_info:
     api_version: storage.k8s.io/v1
     kind: StorageClass
   register: all_storageclasses
@@ -98,7 +98,7 @@
   tags: rook_cluster
 
 - name: Remove 'default' annotation from other StorageClasses
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     api_version: storage.k8s.io/v1
     kind: StorageClass
     name: "{{ item.metadata.name }}"

@@ -13,7 +13,7 @@ This role installs and configures [Rook](https://rook.io) to deploy a full Ceph 
 ## Requirements
 
 - Helm 3 installed
-- `community.kubernetes` collection
+- `kubernetes.core` collection
 - Kubernetes cluster running (v1.28–v1.33)
 
 ## Role Variables
