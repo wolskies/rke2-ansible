@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 - name: Deploy CephObjectStore and optional bucket StorageClass
+  when: rook_ceph_enable_objectstore | bool
   block:
-
     - name: Create CephObjectStore
       kubernetes.core.k8s:
         state: present
@@ -62,5 +62,3 @@
           - "Storage Class: {{ rook_ceph_objectstore_storage_class }}"
       when: skip_kubernetes_operations or skip_helm_operations
       tags: rook_objectstore
-
-  when: rook_ceph_enable_objectstore | bool

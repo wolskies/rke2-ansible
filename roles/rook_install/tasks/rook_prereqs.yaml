@@ -47,13 +47,13 @@
 - name: Check Kubernetes Version (v1.28 – v1.33)
   block:
     - name: Get full Kubernetes version info
-      command: kubectl version -o json
+      ansible.builtin.command: kubectl version -o json
       register: kubectl_version_json
       changed_when: false
       when: not (test_mode | default(false))
 
     - name: Set Kubernetes server version fact
-      set_fact:
+      ansible.builtin.set_fact:
         k8s_server_version: >
           {{ (kubectl_version_json.stdout | from_json).serverVersion.gitVersion | regex_replace('^v', '') }}
       when:

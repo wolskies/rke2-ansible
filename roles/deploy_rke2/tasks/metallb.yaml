@@ -3,6 +3,9 @@
 # tasks file for apply-manifests
 - name: Metallb installation
   tags: metallb
+  become: true
+  become_user: "{{ ansible_user }}"
+  when: inventory_hostname == groups['controllers'][0]
   block:
     - name: Create metallb directory
       ansible.builtin.file:
@@ -38,7 +41,7 @@
         dest: "{{ metallb_path }}/l2Advertisement.yaml"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: '0755'
+        mode: "0755"
 
     - name: Copy metallb IPPool to server 1
       ansible.builtin.template:
@@ -46,7 +49,7 @@
         dest: "{{ metallb_path }}/ippool.yaml"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: '0755'
+        mode: "0755"
 
     - name: Apply metallb ipppool
       kubernetes.core.k8s:
@@ -61,6 +64,3 @@
         src: "{{ metallb_path }}/l2Advertisement.yaml"
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
-  become: true
-  become_user: "{{ ansible_user }}"
-  when: inventory_hostname == groups['controllers'][0]
