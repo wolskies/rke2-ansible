@@ -1,76 +1,46 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Template prepare.yml for Molecule testing
+# Copy this file to roles/{role_name}/molecule/default/prepare.yml
 ---
-- name: Prepare
+- name: Prepare test environment
   hosts: all
   become: true
+  gather_facts: false
   
   tasks:
-    - name: Install Helm (dependency)
-      ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.helm_install
-
-    - name: Create mock kubectl
-      ansible.builtin.copy:
-        content: |
-          #!/bin/bash
-          echo "Mock kubectl: $@"
-          case "$1" in
-            get)
-              if [[ "$*" == *"namespace"* ]]; then
-                echo "NAME          STATUS   AGE"
-                echo "kube-system   Active   1d"
-                echo "default       Active   1d"
-              elif [[ "$*" == *"node"* ]]; then
-                echo "NAME     STATUS   ROLES                  AGE   VERSION"
-                echo "node-1   Ready    control-plane,master   1d    v1.33.3"
-              else
-                echo "Mock resource found"
-              fi
-              exit 0
-              ;;
-            apply|create)
-              echo "Mock resource created"
-              exit 0
-              ;;
-            delete)
-              echo "Mock resource deleted"
-              exit 0
-              ;;
-            wait)
-              echo "Mock wait completed"
-              exit 0
-              ;;
-            *)
-              exit 0
-              ;;
-          esac
-        dest: /usr/local/bin/kubectl
-        mode: '0755'
-
-    - name: Create kubeconfig directory
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      
+    - name: Install basic dependencies for testing
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - python3-pip
+          - python3-setuptools
+          - git
+        state: present
+        
+    - name: Ensure required directories exist
       ansible.builtin.file:
-        path: /etc/rancher/rke2
+        path: "{{ item }}"
         state: directory
         mode: '0755'
-
-    - name: Create mock kubeconfig
-      ansible.builtin.copy:
-        content: |
-          apiVersion: v1
-          clusters:
-          - cluster:
-              server: https://127.0.0.1:6443
-            name: default
-          contexts:
-          - context:
-              cluster: default
-              user: default
-            name: default
-          current-context: default
-          kind: Config
-          users:
-          - name: default
-            user:
-              token: mock-token
-        dest: /etc/rancher/rke2/rke2.yaml
-        mode: '0600'
+      loop:
+        - /usr/local/bin
+        - /opt
+        - /etc/systemd/system
+        
+    # Add role-specific dependencies here
+    # For example:
+    # - name: Install kubectl dependencies
+    #   ansible.builtin.apt:
+    #     name:
+    #       - apt-transport-https
+    #     state: present
+    #   when: role_needs_kubectl | default(false)

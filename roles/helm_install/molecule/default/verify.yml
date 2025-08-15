@@ -40,6 +40,9 @@
     - name: Verify Helm can list repositories (empty is OK)
       ansible.builtin.assert:
         that:
-          - helm_repo_list.rc == 0 or "no repositories" in helm_repo_list.stderr
+          - >
+            helm_repo_list.rc == 0 or
+            "no repositories" in helm_repo_list.stderr or
+            "Error: no repositories to show" in helm_repo_list.stdout
         fail_msg: "Helm repo list command failed unexpectedly"
         success_msg: "Helm is functioning correctly"

@@ -39,3 +39,8 @@ rook_ceph_operator_values:
     enableRBD: true
   monitoring:
     enabled: false
+
+# Test mode configuration
+test_mode: false
+skip_kubernetes_operations: false
+skip_helm_operations: false

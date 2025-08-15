@@ -11,6 +11,7 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Deploy the helm chart
       kubernetes.core.helm:
@@ -23,6 +24,16 @@
         wait: true
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
+
+    - name: Display MinIO Operator configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "MinIO Operator would be deployed with:"
+          - "Chart: minio-operator/operator"
+          - "Namespace: minio-operator"
+          - "Repository: https://operator.min.io"
+      when: skip_kubernetes_operations or skip_helm_operations
 
 - name: Configure DirectPV CSI Driver
   ansible.builtin.include_tasks:
@@ -58,4 +69,17 @@
         values_files:
           - "{{ minio_tenant_path }}/values.yaml" 
       environment:
-        KUBECONFIG: "{{ kubectl_config }}" 
+        KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
+
+    - name: Display MinIO Tenant configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "MinIO Tenant would be deployed with:"
+          - "Chart: minio-operator/tenant"
+          - "Namespace: {{ minio_tenant_namespace }}"
+          - "Tenant Name: {{ minio_tenant_name }}"
+          - "Servers: {{ minio_servers }}"
+          - "Volumes per server: {{ minio_volumes_per_server }}"
+          - "Capacity: {{ minio_capacity_per_tenant }}"
+      when: skip_kubernetes_operations or skip_helm_operations 

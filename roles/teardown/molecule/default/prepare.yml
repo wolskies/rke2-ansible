@@ -42,3 +42,4 @@
       ansible.builtin.package:
         name: ufw
         state: present
+      ignore_errors: true

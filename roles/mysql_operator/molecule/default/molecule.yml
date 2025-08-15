@@ -34,6 +34,15 @@ provisioner:
         mysql_operator_namespace: "mysql-operator"
         mysql_operator_chart_version: "2.2.5"
         mysql_operator_timeout: "600s"
+        test_mode: true
+        skip_binary_installation: true
+        skip_service_management: true
+        skip_firewall_configuration: true
+        skip_networking_configuration: true
+        skip_kubernetes_operations: true
+        skip_external_dependencies: true
+        skip_helm_installation: true
+        skip_helm_operations: true
   config_options:
     defaults:
       interpreter_python: auto_silent

@@ -57,6 +57,7 @@ ignore: |
   .git/
   .gitlab-ci/
   .tox/
+  .venv/
   molecule/
   .vagrant/
   *.tar.gz

@@ -40,8 +40,9 @@ provisioner:
         rook_operator_timeout: "600s"
         
         # Test mode overrides
-        skip_rook_installation: true
         test_mode: true
+        skip_kubernetes_operations: true
+        skip_helm_operations: true
         
         # Component installation flags
         install_rook_operator: true

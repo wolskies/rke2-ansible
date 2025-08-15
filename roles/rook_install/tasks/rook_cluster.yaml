@@ -41,6 +41,7 @@
             requests:
               cpu: "100m"
               memory: "128Mi"
+  when: not (skip_kubernetes_operations or skip_helm_operations)
   tags: rook_cluster
 
 - name: Create CephBlockPool
@@ -56,6 +57,7 @@
         replicated:
           size: "{{ rook_ceph_replica_size }}"
         failureDomain: host
+  when: not (skip_kubernetes_operations or skip_helm_operations)
   tags: rook_cluster
 
 - name: Create Rook Ceph StorageClass
@@ -82,6 +84,7 @@
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       volumeBindingMode: Immediate
+  when: not (skip_kubernetes_operations or skip_helm_operations)
   tags: rook_cluster
 
 - name: Gather all StorageClasses
@@ -89,7 +92,9 @@
     api_version: storage.k8s.io/v1
     kind: StorageClass
   register: all_storageclasses
-  when: rook_ceph_make_storage_class_default | bool
+  when: 
+    - rook_ceph_make_storage_class_default | bool
+    - not (skip_kubernetes_operations or skip_helm_operations)
   tags: rook_cluster
 
 - name: Remove 'default' annotation from other StorageClasses
@@ -104,8 +109,11 @@
   loop: "{{ all_storageclasses.resources }}"
   when:
     - rook_ceph_make_storage_class_default | bool
+    - all_storageclasses is defined
+    - not all_storageclasses.skipped | default(false)
     - item.metadata.name != rook_ceph_storage_class_name
     - item.metadata.annotations['storageclass.kubernetes.io/is-default-class'] | default('false') == 'true'
+    - not (skip_kubernetes_operations or skip_helm_operations)
   tags: rook_cluster
 
 - name: Patch StorageClass to set as default
@@ -117,5 +125,22 @@
       metadata:
         annotations:
           storageclass.kubernetes.io/is-default-class: "true"
-  when: rook_ceph_make_storage_class_default | bool
+  when: 
+    - rook_ceph_make_storage_class_default | bool
+    - not (skip_kubernetes_operations or skip_helm_operations)
+  tags: rook_cluster
+
+- name: Display Rook Ceph Cluster configuration (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "Rook Ceph Cluster would be deployed with:"
+      - "Cluster Name: rook-ceph"
+      - "Namespace: {{ rook_ceph_namespace }}"
+      - "Ceph Version: {{ rook_ceph_version }}"
+      - "Monitor Count: {{ rook_ceph_mon_count }}"
+      - "Pool Name: {{ rook_ceph_pool_name }}"
+      - "Replica Size: {{ rook_ceph_replica_size }}"
+      - "Storage Class: {{ rook_ceph_storage_class_name }}"
+      - "Make Default Storage Class: {{ rook_ceph_make_storage_class_default }}"
+  when: skip_kubernetes_operations or skip_helm_operations
   tags: rook_cluster

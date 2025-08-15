@@ -25,15 +25,25 @@
         kind: Namespace
         name: "{{ rook_ceph_namespace }}"
         state: present
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Ensure Rook Helm repo is added
       kubernetes.core.helm_repository:
         name: rook-release
         repo_url: https://charts.rook.io/release
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Update Helm repo cache
       ansible.builtin.command: helm repo update
       changed_when: false
+      when: not (skip_kubernetes_operations or skip_helm_operations)
+
+    - name: Display Rook Ceph namespace configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "Rook Ceph namespace would be created: {{ rook_ceph_namespace }}"
+          - "Helm repository would be added: https://charts.rook.io/release"
+      when: skip_kubernetes_operations or skip_helm_operations
 
   tags: rook_operator
 
@@ -47,4 +57,16 @@
     chart_version: "{{ rook_ceph_operator_chart_version }}"
     state: present
     wait: true
+  when: not (skip_kubernetes_operations or skip_helm_operations)
+  tags: rook_operator
+
+- name: Display Rook Ceph Operator configuration (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "Rook Ceph Operator would be deployed with:"
+      - "Chart: rook-release/rook-ceph"
+      - "Version: {{ rook_ceph_operator_chart_version }}"
+      - "Namespace: {{ rook_ceph_namespace }}"
+      - "Values: {{ rook_ceph_operator_values | to_nice_yaml }}"
+  when: skip_kubernetes_operations or skip_helm_operations
   tags: rook_operator

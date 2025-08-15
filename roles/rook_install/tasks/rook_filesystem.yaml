@@ -19,6 +19,7 @@
             dataPools:
               - replicated:
                   size: "{{ rook_ceph_replica_size }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
       tags: rook_filesystem
 
     - name: Create StorageClass for CephFS
@@ -43,6 +44,7 @@
           reclaimPolicy: Delete
           allowVolumeExpansion: true
           volumeBindingMode: Immediate
+      when: not (skip_kubernetes_operations or skip_helm_operations)
       tags: rook_filesystem
 
     - name: Gather all StorageClasses for filesystem default cleanup
@@ -50,6 +52,7 @@
         api_version: storage.k8s.io/v1
         kind: StorageClass
       register: fs_storageclasses
+      when: not (skip_kubernetes_operations or skip_helm_operations)
       tags: rook_filesystem
 
     - name: Remove default annotation from other SCs (if setting fs as default)
@@ -66,6 +69,7 @@
         - rook_ceph_fs_make_default | bool
         - item.metadata.name != rook_ceph_fs_storage_class
         - item.metadata.annotations['storageclass.kubernetes.io/is-default-class'] | default('') == 'true'
+        - not (skip_kubernetes_operations or skip_helm_operations)
       tags: rook_filesystem
 
     - name: Set CephFS StorageClass as default (if requested)
@@ -77,7 +81,21 @@
           metadata:
             annotations:
               storageclass.kubernetes.io/is-default-class: "true"
-      when: rook_ceph_fs_make_default | bool
+      when: 
+        - rook_ceph_fs_make_default | bool
+        - not (skip_kubernetes_operations or skip_helm_operations)
+      tags: rook_filesystem
+
+    - name: Display CephFilesystem configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "CephFilesystem would be deployed with:"
+          - "Filesystem Name: {{ rook_ceph_filesystem_name }}"
+          - "Namespace: {{ rook_ceph_namespace }}"
+          - "Replica Size: {{ rook_ceph_replica_size }}"
+          - "Storage Class: {{ rook_ceph_fs_storage_class }}"
+          - "Make Default: {{ rook_ceph_fs_make_default }}"
+      when: skip_kubernetes_operations or skip_helm_operations
       tags: rook_filesystem
 
   when: rook_ceph_enable_filesystem | bool

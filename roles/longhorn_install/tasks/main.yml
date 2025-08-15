@@ -18,6 +18,7 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Create longhorn namespace
       kubernetes.core.k8s:
@@ -27,6 +28,7 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Update the repository cache
       kubernetes.core.helm:
@@ -36,6 +38,7 @@
         update_repo_cache: true
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Deploy longhorn chart inside {{ longhorn_namespace }} namespace
       kubernetes.core.helm:
@@ -49,4 +52,18 @@
         wait: true
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
-      when: longhorn_install_system | default(true)
+      when: 
+        - longhorn_install_system | default(true)
+        - not (skip_kubernetes_operations or skip_helm_operations)
+
+    - name: Display Longhorn configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "Longhorn would be deployed with:"
+          - "Chart: {{ longhorn_chart_ref }}"
+          - "Version: {{ longhorn_chart_version }}"
+          - "Namespace: {{ longhorn_namespace }}"
+          - "Repository: https://charts.longhorn.io"
+          - "Replica Count: {{ longhorn_replica_count }}"
+          - "Storage Class: {{ longhorn_storage_class_name }}"
+      when: skip_kubernetes_operations or skip_helm_operations

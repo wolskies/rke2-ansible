@@ -25,3 +25,11 @@ vip: 192.168.100.30
 management_network: "192.168.100.0/24"
 lb_range: 192.168.100.240-192.168.100.254
 lb_pool_name: first-pool
+
+# Test mode configuration
+test_mode: false
+skip_rke2_installation: false
+skip_firewall_configuration: false
+skip_network_manager_configuration: false
+skip_kube_vip_installation: false
+skip_metallb_installation: false

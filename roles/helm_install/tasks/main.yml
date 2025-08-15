@@ -2,6 +2,7 @@
 ---
 - name: Ensure Helm binary is available
   tags: helm
+  when: not skip_helm_installation
   block:
     - name: Ensure user-local bin directory exists
       ansible.builtin.file:
@@ -20,7 +21,7 @@
       ansible.builtin.command: >
         bash {{ ansible_env.HOME }}/get-helm-3.sh
       args:
-        creates: /usrlocal/bin/helm
+        creates: /usr/local/bin/helm
 
     - name: Ensure helm binary is executable
       ansible.builtin.file:
@@ -38,12 +39,31 @@
         - "{{ ansible_user_dir }}/.local/share/helm"
         - "{{ ansible_user_dir }}/.local/share/helm/plugins"
 
+- name: Create mock Helm binary for test mode
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      # Mock Helm binary for testing
+      if [[ "$1" == "version" ]]; then
+        echo "{{ helm_version }}"
+      elif [[ "$1" == "repo" && "$2" == "list" ]]; then
+        echo "Error: no repositories to show"
+        exit 1
+      else
+        echo "Mock helm command: $*"
+      fi
+    dest: /usr/local/bin/helm
+    mode: '0755'
+  become: true
+  when: test_mode and skip_helm_installation
+
 - name: Install Helm Diff plugin
   ansible.builtin.command: >
     /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
   args:
     creates: "{{ ansible_user_dir }}/.local/share/helm/plugins/helm-diff"
   tags: helm-diff
+  when: not test_mode
 
 - name: Install pip/python requirements for Kubernetes
   ansible.builtin.package:

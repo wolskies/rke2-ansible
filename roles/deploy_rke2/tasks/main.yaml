@@ -27,10 +27,22 @@
 - name: Prepare nodes
   ansible.builtin.include_tasks:
     file: prepare-nodes.yaml
+  when: not (skip_firewall_configuration | default(false))
+  tags: config-firewall
+
+- name: Display node preparation (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "Node preparation would configure:"
+      - "- Firewall rules for RKE2"
+      - "- Network interface configuration"
+      - "- System prerequisites"
+  when: skip_firewall_configuration | default(false)
   tags: config-firewall
 
 - name: Ensure RKE2 binary installed
   tags: rke2
+  when: not (skip_rke2_installation | default(false))
   block:
     - name: Create directory for RKE2 binary
       ansible.builtin.file:
@@ -50,14 +62,38 @@
         mode: '0755'
         state: file
 
+- name: Display RKE2 binary installation (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "RKE2 binary would be installed:"
+      - "Version: {{ rke2_version }}"
+      - "URL: {{ rke2_binary_url }}"
+      - "Install directory: {{ rke2_install_dir }}"
+  when: skip_rke2_installation | default(false)
+  tags: rke2
+
 - name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml
-  when: rke2_install_kubevip | default(true) and not kube_vip_noinstall
+  when: 
+    - rke2_install_kubevip | default(true) 
+    - not kube_vip_noinstall
+    - not (skip_kube_vip_installation | default(false))
+  tags: [kube-vip, rke2-network]
+
+- name: Display kube-vip configuration (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "Kube-vip would be configured:"
+      - "VIP: {{ vip }}"
+      - "Interface: {{ vip_interface }}"
+      - "Version: {{ kube_vip_version }}"
+  when: skip_kube_vip_installation | default(false)
   tags: [kube-vip, rke2-network]
 
 - name: Configure and start RKE2 nodes
   tags: rke2
+  when: not (skip_rke2_installation | default(false))
   block:
     - name: Create directory for RKE2 config
       ansible.builtin.file:
@@ -89,10 +125,36 @@
       when: inventory_hostname in groups['agents']
       tags: [rke2-agents]
 
+- name: Display RKE2 cluster configuration (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "RKE2 cluster would be configured:"
+      - "Controllers: {{ groups['controllers'] | length if 'controllers' in groups else 0 }}"
+      - "Agents: {{ groups['agents'] | length if 'agents' in groups else 0 }}"
+      - "Current node role: {{ 'controller' if inventory_hostname in groups.get('controllers', []) else 'agent' if inventory_hostname in groups.get('agents', []) else 'unknown' }}"
+  when: skip_rke2_installation | default(false)
+  tags: rke2
+
 - name: Install and configure MetalLB
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when: inventory_hostname in groups['controllers'][0] and rke2_install_metallb | default(true) and not metallb_noinstall
+  when: 
+    - inventory_hostname in groups['controllers'][0]
+    - rke2_install_metallb | default(true) 
+    - not metallb_noinstall
+    - not (skip_metallb_installation | default(false))
+  tags: [metallb, rke2-network]
+
+- name: Display MetalLB configuration (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "MetalLB would be configured:"
+      - "Version: {{ metallb_version }}"
+      - "Load balancer range: {{ lb_range }}"
+      - "Pool name: {{ lb_pool_name }}"
+  when: 
+    - skip_metallb_installation | default(false)
+    - inventory_hostname in groups['controllers'][0]
   tags: [metallb, rke2-network]
 
 # - name: Configure Calico GlobalNetworkPolicy

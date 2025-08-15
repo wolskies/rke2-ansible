@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare test environment
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      
+    - name: Install required dependencies for testing
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+        state: present
+        
+    - name: Ensure /usr/local/bin exists
+      ansible.builtin.file:
+        path: /usr/local/bin
+        state: directory
+        mode: '0755'

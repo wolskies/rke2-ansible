@@ -33,6 +33,7 @@
                 limits:
                   cpu: "500m"
                   memory: "1Gi"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
       tags: rook_objectstore
 
     - name: Create StorageClass for Ceph Object Buckets (optional)
@@ -47,6 +48,19 @@
           parameters:
             objectStoreName: "{{ rook_ceph_objectstore_name }}"
             objectStoreNamespace: "{{ rook_ceph_namespace }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
+      tags: rook_objectstore
+
+    - name: Display CephObjectStore configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "CephObjectStore would be deployed with:"
+          - "ObjectStore Name: {{ rook_ceph_objectstore_name }}"
+          - "Namespace: {{ rook_ceph_namespace }}"
+          - "Gateway Port: {{ rook_ceph_objectstore_gateway_port }}"
+          - "Replicas: {{ rook_ceph_objectstore_replicas }}"
+          - "Storage Class: {{ rook_ceph_objectstore_storage_class }}"
+      when: skip_kubernetes_operations or skip_helm_operations
       tags: rook_objectstore
 
   when: rook_ceph_enable_objectstore | bool

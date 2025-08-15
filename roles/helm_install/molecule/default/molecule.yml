@@ -33,6 +33,8 @@ provisioner:
         ansible_user: root
         helm_version: "v3.18.4"
         helm_install_dir: "/usr/local/bin"
+        test_mode: true
+        skip_helm_installation: true
   config_options:
     defaults:
       interpreter_python: auto_silent

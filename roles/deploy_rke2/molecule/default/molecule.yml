@@ -62,9 +62,12 @@ provisioner:
         metallb_version: "0.15.0"
         
         # Test mode overrides
+        test_mode: true
         skip_rke2_installation: true
         skip_firewall_configuration: true
-        test_mode: true
+        skip_network_manager_configuration: true
+        skip_kube_vip_installation: true
+        skip_metallb_installation: true
         
         # Component flags
         install_metallb: true

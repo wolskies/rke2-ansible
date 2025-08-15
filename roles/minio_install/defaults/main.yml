@@ -33,3 +33,8 @@ console_secret_key: "console123"
 minio_servers: 4
 minio_volumes_per_server: 1
 minio_capacity_per_tenant: "1Ti"
+
+# Test mode configuration
+test_mode: false
+skip_kubernetes_operations: false
+skip_helm_operations: false

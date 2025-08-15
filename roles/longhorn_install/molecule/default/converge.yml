@@ -3,6 +3,6 @@
 - name: Converge
   hosts: all
   tasks:
-    - name: "Include longhorn_install"
+    - name: "Include longhorn_install role"
       ansible.builtin.include_role:
-        name: "longhorn_install"
+        name: "wolskinet.rke2_ansible.longhorn_install"

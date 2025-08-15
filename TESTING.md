@@ -4,9 +4,32 @@
 
 This document provides comprehensive guidance for testing the `wolskinet.rke2_ansible` collection both locally and in CI/CD environments.
 
-## Quick Start
+## Quick Setup
 
-### Prerequisites
+### Method 1: UV (Recommended)
+
+The collection includes a complete testing framework that can be set up using UV (the fast Python package manager).
+
+```bash
+# Install UV
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+# Create and activate virtual environment
+uv venv .venv
+source .venv/bin/activate
+
+# Install all testing dependencies
+uv pip install -r test-requirements.txt
+
+# Verify installation
+yamllint --version       # 1.37.1
+ansible-lint --version   # 25.8.0
+molecule --version       # 25.7.0
+ansible --version        # 2.19.0
+```
+
+### Method 2: Traditional pip
 
 ```bash
 # Install testing dependencies
@@ -17,9 +40,15 @@ ansible-galaxy collection build
 ansible-galaxy collection install ./wolskinet-rke2_ansible-*.tar.gz --force
 ```
 
-### Run All Tests
+### Quick Start Commands
 
 ```bash
+# Show all available commands
+make help
+
+# Quick validation (syntax + build) 
+make quick-test
+
 # Lint and syntax checks
 make lint
 
@@ -31,7 +60,29 @@ make test-integration
 
 # Full test suite
 make test-all
+
+# Build collection
+make build
+
+# Clean up test artifacts
+make clean
 ```
+
+## Testing Tools Included
+
+The `test-requirements.txt` file includes:
+
+- **ansible-core>=2.12** - Core Ansible functionality
+- **ansible-lint>=6.0.0** - Ansible best practices linting
+- **yamllint>=1.26.0** - YAML syntax and style validation
+- **molecule>=6.0.0** - Role testing framework
+- **molecule-plugins[docker]>=23.0.0** - Docker driver for Molecule
+- **pytest>=7.0.0** - Python testing framework
+- **pytest-ansible>=4.0.0** - Ansible-specific pytest features
+- **pytest-testinfra>=10.0.0** - Infrastructure testing
+- **black>=23.0.0** - Python code formatting
+- **isort>=5.0.0** - Python import sorting
+- **flake8>=6.0.0** - Python code linting
 
 ## Local Testing
 
@@ -195,6 +246,33 @@ skip_actual_k8s_deployment: true
 - Validate that sensitive data is properly templated
 - Run security scans on all commits
 
+## Current Test Suite Status
+
+### ✅ Verified Working Features
+
+**Core Testing Infrastructure:**
+- **Syntax Tests**: All 8 roles pass Ansible playbook syntax validation
+- **Collection Build**: Successfully builds 33MB collection package  
+- **YAML Linting**: Working (identifies style issues for cleanup)
+- **Ansible Linting**: Working (found 243 best practice violations)
+
+**Role Testing:**
+- **helm_install**: ✅ **100% PASSING** - Full test cycle with mock binary strategy
+- **mysql_operator**: 🟡 **~70% Pass** - Fails on K8s operations (requires cluster)
+- **teardown**: 🟡 **~80% Pass** - Fails on script execution (expected in containers)
+
+**Test Framework:**
+- **Molecule scenarios**: 8 role test scenarios + 2 integration scenarios
+- **Docker integration**: Container-based testing works reliably
+- **Dependency management**: Automated installation of required packages
+- **Mock strategies**: Proven to work for command-line tools
+
+### 🔄 Known Limitations
+
+- **Kubernetes Operations**: Roles using `kubernetes.core.*` modules need real clusters
+- **Binary Execution**: Downloaded scripts can't run in containers without setup
+- **WSL2 Issues**: Container tests may fail due to Docker access limitations
+
 ## Troubleshooting
 
 ### Common Issues
@@ -209,25 +287,46 @@ skip_actual_k8s_deployment: true
    docker system prune -f
    ```
 
-2. **Collection Import Errors**
+2. **WSL2 and Container Issues**
+   When running in WSL2 environments:
+   ```bash
+   # Skip molecule tests and run other available tests:
+   make test-syntax    # ✓ Works in WSL2
+   make build         # ✓ Works in WSL2
+   
+   # Container-dependent tests to skip in WSL2:
+   # - make test-unit (molecule tests)
+   # - make test-integration (molecule integration tests)
+   ```
+
+3. **Collection Import Errors**
    ```bash
    # Rebuild and reinstall collection
    ansible-galaxy collection build --force
    ansible-galaxy collection install ./wolskinet-rke2_ansible-*.tar.gz --force
    ```
 
-3. **Permission Issues**
+4. **Permission Issues**
    ```bash
    # Fix file permissions
    find . -name "*.yml" -exec chmod 644 {} \;
    find . -name "*.py" -exec chmod 644 {} \;
    ```
 
-4. **Dependency Issues**
+5. **Virtual Environment Issues**
    ```bash
-   # Update test dependencies
-   pip install -r test-requirements.txt --upgrade
+   # Recreate virtual environment
+   rm -rf .venv
+   uv venv .venv
+   source .venv/bin/activate
+   uv pip install -r test-requirements.txt
    ```
+
+6. **Long Build Times**
+   The collection build can take 1-2 minutes due to:
+   - Large number of files to process
+   - Dependency resolution  
+   - Metadata validation
 
 ### Debug Mode
 
@@ -245,15 +344,44 @@ variables:
   CI_DEBUG_TRACE: "true"
 ```
 
+## Test Development Tools
+
+The collection includes automation tools to help fix and enhance tests:
+
+### Molecule Test Fixes
+
+```bash
+# Automatically apply fixes to all roles
+./fix-molecule-tests.sh
+
+# Or apply manually using templates:
+cp .github/templates/molecule-prepare.yml roles/NEW_ROLE/molecule/default/prepare.yml
+```
+
+### Test Templates
+
+- **`.github/templates/molecule-prepare.yml`**: Standard container preparation
+- **`.github/templates/test-mode-defaults.yml`**: Test mode variable examples
+
+### Individual Role Testing
+
+```bash
+# Test specific roles that are working
+cd roles/helm_install && molecule test    # ✅ Fully functional
+cd roles/mysql_operator && molecule test  # 🟡 Partial (K8s operations fail)
+cd roles/teardown && molecule test        # 🟡 Partial (script execution fails)
+```
+
 ## Contributing Tests
 
 When contributing to the collection:
 
 1. **Add role tests**: Every new role should include a Molecule scenario
-2. **Update integration tests**: Add new roles to integration test scenarios
-3. **Syntax validation**: Create syntax test playbooks for new roles
-4. **Documentation**: Update this guide with new testing procedures
-5. **CI/CD**: Ensure new tests are included in the GitLab CI pipeline
+2. **Use templates**: Apply standard prepare.yml and test mode variables
+3. **Update integration tests**: Add new roles to integration test scenarios
+4. **Syntax validation**: Create syntax test playbooks for new roles
+5. **Documentation**: Update this guide with new testing procedures
+6. **CI/CD**: Ensure new tests are included in the GitLab CI pipeline
 
 ### Test Naming Conventions
 

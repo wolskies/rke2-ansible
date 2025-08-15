@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Template prepare.yml for Molecule testing
+# Copy this file to roles/{role_name}/molecule/default/prepare.yml
+---
+- name: Prepare test environment
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      
+    - name: Install basic dependencies for testing
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - python3-pip
+          - python3-setuptools
+          - git
+        state: present
+        
+    - name: Ensure required directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /usr/local/bin
+        - /opt
+        - /etc/systemd/system
+        
+    # Add role-specific dependencies here
+    # For example:
+    # - name: Install kubectl dependencies
+    #   ansible.builtin.apt:
+    #     name:
+    #       - apt-transport-https
+    #     state: present
+    #   when: role_needs_kubectl | default(false)

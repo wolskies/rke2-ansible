@@ -5,17 +5,24 @@
     - name: Check Linux kernel version (>= 4.17)
       fail:
         msg: "Rook requires at least Linux kernel 4.17. Detected version: {{ ansible_kernel }}"
-      when: ansible_kernel is version('4.17', '<')
+      when: 
+        - ansible_kernel is version('4.17', '<')
+        - not (test_mode | default(false))
 
     - name: Check if rbd kernel module is loaded
       ansible.builtin.shell: lsmod | grep '^rbd'
       register: rbd_module
       changed_when: false
       failed_when: false
+      when: not (test_mode | default(false))
 
     - name: Attempt to load rbd module if not loaded
       ansible.builtin.command: modprobe rbd
-      when: rbd_module.stdout == ""
+      when: 
+        - rbd_module is defined
+        - not rbd_module.skipped | default(false)
+        - rbd_module.stdout == ""
+        - not (test_mode | default(false))
       register: modprobe_rbd
       become: true
       changed_when: modprobe_rbd.rc == 0
@@ -24,7 +31,17 @@
     - name: Fail if rbd module could not be loaded
       fail:
         msg: "The RBD kernel module is not available. Rook requires RBD support."
-      when: modprobe_rbd is failed
+      when: 
+        - modprobe_rbd is defined
+        - modprobe_rbd is failed
+        - not (test_mode | default(false))
+
+    - name: Display kernel and RBD module checks (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "Kernel Version Check: {{ ansible_kernel }} (requires >= 4.17)"
+          - "RBD Module Check: Would verify and load rbd kernel module"
+      when: test_mode | default(false)
   tags: kernel_check
 
 - name: Check Kubernetes Version (v1.28 – v1.33)
@@ -33,17 +50,30 @@
       command: kubectl version -o json
       register: kubectl_version_json
       changed_when: false
+      when: not (test_mode | default(false))
 
     - name: Set Kubernetes server version fact
       set_fact:
         k8s_server_version: "{{ (kubectl_version_json.stdout | from_json).serverVersion.gitVersion | regex_replace('^v', '') }}"
+      when: 
+        - kubectl_version_json is defined
+        - not kubectl_version_json.skipped | default(false)
+        - not (test_mode | default(false))
 
     - name: Fail if Kubernetes version is unsupported
       fail:
         msg: "Unsupported Kubernetes version {{ k8s_server_version }}. Rook requires Kubernetes >= 1.28 and < 1.34."
       when:
+        - k8s_server_version is defined
         - k8s_server_version is not version('1.28', '>=')
         - k8s_server_version is not version('1.34', '<')
+        - not (test_mode | default(false))
+
+    - name: Display Kubernetes version check (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "Kubernetes Version Check: Would verify cluster version >= 1.28 and < 1.34"
+      when: test_mode | default(false)
   tags: k8s_check
 
 - name: Ensure LVM2 package is installed (required by Rook Ceph)
@@ -54,4 +84,12 @@
     lvm_package: >-
       {{ 'lvm2' if ansible_facts.os_family in ['Debian', 'RedHat', 'Rocky', 'AlmaLinux', 'Suse'] else 'lvm2' }}
   become: true
+  when: not (test_mode | default(false))
+  tags: lvm_check
+
+- name: Display LVM2 package check (test mode)
+  ansible.builtin.debug:
+    msg:
+      - "LVM2 Package Check: Would install lvm2 package for Rook Ceph storage support"
+  when: test_mode | default(false)
   tags: lvm_check

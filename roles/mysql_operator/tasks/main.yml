@@ -18,6 +18,7 @@
         state: present
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
 
     - name: Deploy mysql-operator chart inside mysql-operator-system namespace
       kubernetes.core.helm:
@@ -31,3 +32,14 @@
         wait: true
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
+      when: not (skip_kubernetes_operations or skip_helm_operations)
+
+    - name: Display MySQL Operator configuration (test mode)
+      ansible.builtin.debug:
+        msg:
+          - "MySQL Operator would be deployed with:"
+          - "Chart: {{ mysql_operator_chart_ref }}"
+          - "Version: {{ mysql_operator_chart_version }}"
+          - "Namespace: mysql-operator"
+          - "Repository: https://mysql.github.io/mysql-operator/"
+      when: skip_kubernetes_operations or skip_helm_operations
