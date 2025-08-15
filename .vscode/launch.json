@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Unit Tests",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-c",
+        "from tests.unit.test_basic import test_basic; test_basic(); print('Tests completed!')"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Debug Python Module",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Ansible Playbook Syntax Check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "source .venv/bin/activate && ansible-playbook --syntax-check ${file}",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Ansible Lint Current File",
+      "type": "node-terminal", 
+      "request": "launch",
+      "command": "source .venv/bin/activate && ansible-lint ${file}",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: wildcard-{{ traefik_domain }}-com
+  name: wildcard-{{ traefik_domain }}
   namespace: traefik
 spec:
   secretName: wildcard-{{ traefik_domain }}-tls
   issuerRef:
     name: letsencrypt-{{ letsencrypt_env }}
     kind: ClusterIssuer
-  commonName: "*.{{ traefik_domain }}.com"
+  commonName: "{{ traefik_domain }}.com"
   dnsNames:
-  - "*.{{ traefik_domain }}.com"
+  - '*.{{ traefik_domain }}.com'
+  - "{{ traefik_domain }}.com"

@@ -1,38 +1,114 @@
-Role Name
-=========
+# MinIO Install Role
 
-A brief description of the role goes here.
+This role deploys MinIO object storage on an existing RKE2 Kubernetes cluster. It includes the MinIO Operator, DirectPV storage driver, and MinIO tenant deployment with optional cert-manager integration.
 
-Requirements
-------------
+## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- Ansible 2.12 or later
+- kubernetes.core ansible collection
+- Running RKE2 cluster (see `wolskinet.rke2_ansible.deploy_rke2`)
+- Helm 3.x installed (see `wolskinet.rke2_ansible.helm_install`)
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### General Configuration
+```yaml
+home_path: /home/{{ ansible_user }}
+traefik_domain: example
+kubectl_config: "{{ home_path }}/.kube/config"
+```
 
-Dependencies
-------------
+### MinIO Operator Configuration
+```yaml
+minio_operator_path: "{{ home_path }}/minio-operator"
+minio_operator_namespace: minio-operator
+```
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+### MinIO Tenant Configuration
+```yaml
+minio_tenant_path: "{{ home_path }}/minio-tenant"
+minio_tenant_namespace: minio-tenant
+minio_tenant_name: "minio"
+minio_root_user: "minio"
+minio_root_password: "minio123"
+minio_servers: 4
+minio_volumes_per_server: 1
+minio_capacity_per_tenant: "1Ti"
+```
 
-Example Playbook
-----------------
+### DirectPV Storage Driver
+```yaml
+minio_csi_driver_name: "directpv-min-io"
+direct_pv_version: "4.1.5"
+```
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### Console Access
+```yaml
+console_access_key: "console"
+console_secret_key: "console123"
+minio_browser: "on"
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+### Component Installation Controls
+```yaml
+minio_install_operator: true
+minio_install_tenant: true
+minio_install_directpv: true
+```
 
-License
--------
+## Tags
 
-BSD
+The role provides the following tags for selective execution:
 
-Author Information
-------------------
+- `storage-minio` - All MinIO components
+- `minio-operator` - MinIO operator deployment only
+- `minio-tenant` - MinIO tenant deployment only
+- `minio-directpv` - DirectPV storage driver only
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## Dependencies
+
+- `wolskinet.rke2_ansible.helm_install` - Helm must be installed
+- `wolskinet.rke2_ansible.deploy_rke2` - RKE2 cluster must be running
+
+## Example Playbook
+
+```yaml
+---
+- name: Deploy MinIO on RKE2
+  hosts: controllers
+  vars_files:
+    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
+  become: false
+  roles:
+    - name: wolskinet.rke2_ansible.minio_install
+      when: inventory_hostname == (groups['controllers'] | first)
+```
+
+### Selective Installation Examples
+
+```bash
+# Install only the MinIO operator
+ansible-playbook minio-install.yaml --tags "minio-operator"
+
+# Install everything except DirectPV
+ansible-playbook minio-install.yaml --skip-tags "minio-directpv"
+
+# Install operator and tenant, skip DirectPV
+ansible-playbook minio-install.yaml --tags "minio-operator,minio-tenant"
+```
+
+## Security Considerations
+
+- Change default passwords in production deployments
+- Use `ansible-vault` for sensitive variables like `minio_root_password`
+- Consider using cert-manager for TLS certificate management
+- Store console credentials securely
+
+## License
+
+GPL-3.0-or-later
+
+## Author Information
+
+Ed Wolski  
+wolskinet

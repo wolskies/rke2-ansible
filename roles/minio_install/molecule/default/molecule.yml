@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: minio-k8s
+    image: geerlingguy/docker-ubuntu2404-ansible:latest
+    pre_build_image: true
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    command: "/lib/systemd/systemd"
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+    groups:
+      - controllers
+      - rke2
+
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        ansible_user: root
+        # MinIO configuration
+        minio_namespace: "minio-operator"
+        minio_operator_chart_version: "6.0.6"
+        minio_tenant_chart_version: "6.0.6"
+        minio_tenant_name: "test-tenant"
+        minio_capacity_per_tenant: "10Gi"
+        minio_operator_timeout: "600s"
+        
+        # Test mode overrides
+        skip_minio_installation: true
+        test_mode: true
+        
+        # Component installation flags
+        install_minio_operator: true
+        install_minio_tenant: false
+        install_directpv: false
+        
+        # Required for Helm dependency
+        helm_version: "v3.18.4"
+  
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+      callback_whitelist: profile_tasks, timer, yaml
+      stdout_callback: yaml
+    ssh_connection:
+      pipelining: false
+
+verifier:
+  name: ansible
+
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - cleanup
+    - destroy

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Converge
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Include helm_install role
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.helm_install

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check if Helm is available
+      ansible.builtin.command: helm version --short
+      register: helm_check
+      changed_when: false
+
+    - name: Verify Helm is working
+      ansible.builtin.assert:
+        that:
+          - helm_check.rc == 0
+        fail_msg: "Helm is not available for MySQL Operator installation"
+        success_msg: "Helm is available for MySQL Operator"
+
+    - name: Check if MySQL Operator repo was added
+      ansible.builtin.command: helm repo list
+      register: repo_list
+      changed_when: false
+      failed_when: false
+
+    - name: Verify basic Helm functionality
+      ansible.builtin.assert:
+        that:
+          - repo_list.rc == 0 or "no repositories" in repo_list.stderr
+        fail_msg: "Helm repo command failed"
+        success_msg: "Helm repositories accessible"

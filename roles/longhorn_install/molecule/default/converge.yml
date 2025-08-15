@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include longhorn_install"
+      ansible.builtin.include_role:
+        name: "longhorn_install"

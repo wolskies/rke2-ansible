@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify deployment test results
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check Helm installation
+      ansible.builtin.command: helm version --short
+      register: helm_version
+      changed_when: false
+
+    - name: Verify Helm version
+      ansible.builtin.assert:
+        that:
+          - "'v3.18.4' in helm_version.stdout"
+        fail_msg: "Helm version incorrect"
+        success_msg: "Helm correctly installed"
+
+- name: Verify controller configuration
+  hosts: controllers
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check RKE2 server configuration exists
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2/config.yaml
+      register: server_config
+
+    - name: Verify server configuration file
+      ansible.builtin.assert:
+        that:
+          - server_config.stat.exists
+        fail_msg: "RKE2 server config not found"
+        success_msg: "RKE2 server configuration created"
+
+    - name: Check kube-vip manifest
+      ansible.builtin.stat:
+        path: /var/lib/rancher/rke2/server/manifests/kube-vip.yaml
+      register: kube_vip_manifest
+
+    - name: Verify kube-vip manifest exists
+      ansible.builtin.assert:
+        that:
+          - kube_vip_manifest.stat.exists
+        fail_msg: "Kube-vip manifest not found"
+        success_msg: "Kube-vip manifest created"
+
+    - name: Check MetalLB configuration
+      ansible.builtin.stat:
+        path: /var/lib/rancher/rke2/server/manifests/metallb-ippool.yaml
+      register: metallb_config
+
+    - name: Verify MetalLB configuration
+      ansible.builtin.assert:
+        that:
+          - metallb_config.stat.exists
+        fail_msg: "MetalLB configuration not found"
+        success_msg: "MetalLB configuration created"
+
+- name: Verify agent configuration
+  hosts: agents
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check RKE2 agent configuration exists
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2/config.yaml
+      register: agent_config
+
+    - name: Verify agent configuration file
+      ansible.builtin.assert:
+        that:
+          - agent_config.stat.exists
+        fail_msg: "RKE2 agent config not found"
+        success_msg: "RKE2 agent configuration created"
+
+    - name: Check agent config content
+      ansible.builtin.slurp:
+        src: /etc/rancher/rke2/config.yaml
+      register: agent_config_content
+
+    - name: Verify agent configuration has server reference
+      ansible.builtin.assert:
+        that:
+          - "'server:' in (agent_config_content.content | b64decode)"
+        fail_msg: "Agent config missing server reference"
+        success_msg: "Agent configuration properly references server"
+
+- name: Verify service files
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check for systemd service files
+      ansible.builtin.find:
+        paths: /etc/systemd/system
+        patterns: "rke2-*.service"
+      register: service_files
+
+    - name: Verify service files exist
+      ansible.builtin.assert:
+        that:
+          - service_files.files | length > 0
+        fail_msg: "No RKE2 service files found"
+        success_msg: "RKE2 service files created"

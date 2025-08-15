@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-- name: Deploy minio operator
-  tags: minio
+- name: Deploy MinIO Operator
+  tags: [minio-operator, storage-minio]
+  when: minio_install_operator | default(true)
   block:
     - name: Add MinIO Operator Helm repository
       kubernetes.core.helm_repository:
@@ -23,14 +24,15 @@
       environment:
         KUBECONFIG: "{{ kubectl_config }}"
 
-- name: Configure CSI Driver
+- name: Configure DirectPV CSI Driver
   ansible.builtin.include_tasks:
     file: direct-pv.yaml
-  tags: minio
-  when: minio_csi_driver_name == "directpv-min-io"
+  tags: [minio-directpv, storage-minio]
+  when: minio_install_directpv | default(true) and minio_csi_driver_name == "directpv-min-io"
 
 - name: Deploy MinIO Tenant
-  tags: minio
+  tags: [minio-tenant, storage-minio]
+  when: minio_install_tenant | default(true)
   block:
     - name: Create minio-tenant directory
       ansible.builtin.file:

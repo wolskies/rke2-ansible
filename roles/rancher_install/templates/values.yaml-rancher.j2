@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 hostname: "rancher.{{ traefik_domain }}.com"
 ingress:
   enabled: true
@@ -10,5 +11,5 @@ replicas: 3
 
 secrets:
   tlsSecret:
-    name: wildcard-{{ traefik_domain }}-tls
+    name: wildcard-{{ traefik_domain }}-com-tls
     namespace: cattle-system

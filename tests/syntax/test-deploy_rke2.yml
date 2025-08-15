@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Syntax test for deploy_rke2 role
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Include deploy_rke2 role for syntax checking
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.deploy_rke2
+      vars:
+        # Minimal variables to satisfy syntax checking
+        rke2_version: "v1.33.3+rke2r1"
+        vip: "192.168.100.30"
+        vip_interface: "eth0"
+        lb_range: "192.168.100.50-192.168.100.60"
+        management_network: "192.168.0.0/16"
+        # Skip actual execution
+        syntax_check_only: true

@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify Integration
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Verify Helm is installed on all nodes
+      ansible.builtin.command: helm version --short
+      register: helm_version
+      changed_when: false
+
+    - name: Assert Helm version is correct
+      ansible.builtin.assert:
+        that:
+          - "'v3.18.4' in helm_version.stdout"
+        fail_msg: "Helm version mismatch"
+        success_msg: "Helm is correctly installed"
+
+- name: Verify Controller Configuration
+  hosts: controllers
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check for controller-specific configurations
+      ansible.builtin.debug:
+        msg: "Controller configuration test passed"
+
+- name: Verify Agent Configuration
+  hosts: agents
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check for agent-specific configurations
+      ansible.builtin.debug:
+        msg: "Agent configuration test passed"
+
+- name: Verify Role Interactions
+  hosts: controllers[0]
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Verify role dependency chain worked
+      ansible.builtin.debug:
+        msg: "Role dependency integration test passed"

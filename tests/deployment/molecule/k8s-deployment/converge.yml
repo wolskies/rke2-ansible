@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Deploy RKE2 cluster components
+  import_playbook: ../../../../playbooks/deploy-rke2.yaml
+  vars:
+    # Override for container testing
+    skip_firewall_configuration: true
+    test_deployment_mode: true
+    # Focus on configuration and basic setup
+    skip_actual_rke2_start: true

@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Full Stack Deployment Test
+  import_playbook: ../../../../playbooks/deploy-rke2.yaml
+  vars:
+    # Override variables for containerized testing
+    skip_actual_k8s_deployment: true
+    skip_firewall_configuration: true
+    test_mode: true

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Root key for MinIO Tenant Chart
 tenant:
   name: {{ minio_tenant_name }}
@@ -16,7 +17,7 @@ tenant:
       name: pool-0
       volumesPerServer: {{ minio_volumes_per_server }}
       storageClassName: {{ minio_csi_driver_name }}
-      size: {{ minio_storage_requests }}
+      size: {{ minio_capacity_per_tenant }}
   requestAutoCert: true
 ingress:
   api:

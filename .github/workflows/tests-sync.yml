@@ -1,0 +1,166 @@
+# GitHub Actions workflow optimized for synced repository
+---
+name: "Tests (Synced from GitLab)"
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on: # yamllint disable-line rule:truthy
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}
+  ANSIBLE_HOST_KEY_CHECKING: "False"
+
+jobs:
+  # Fast validation jobs
+  pre-checks:
+    name: "Pre-flight Checks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install -r test-requirements.txt
+
+      - name: YAML Lint
+        run: |
+          source .venv/bin/activate
+          yamllint -c .yamllint.yml .
+
+      - name: Ansible Lint
+        run: |
+          source .venv/bin/activate
+          ansible-lint roles/ playbooks/
+
+      - name: Syntax Check
+        run: |
+          source .venv/bin/activate
+          make test-syntax
+
+      - name: Unit Tests
+        run: |
+          source .venv/bin/activate
+          python3 -c "from tests.unit.test_basic import test_basic; test_basic(); print('Unit tests passed!')"
+
+  # Collection build and validation
+  build-test:
+    name: "Build & Validate Collection"
+    runs-on: ubuntu-latest
+    needs: pre-checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install -r test-requirements.txt
+          ansible-galaxy collection install community.docker kubernetes.core community.general
+
+      - name: Build Collection
+        run: |
+          source .venv/bin/activate
+          ansible-galaxy collection build --force
+
+      - name: Install and Verify Collection
+        run: |
+          source .venv/bin/activate
+          ansible-galaxy collection install wolskinet-rke2_ansible-*.tar.gz --force
+          ansible-galaxy collection verify wolskinet.rke2_ansible
+
+      - name: Upload Collection Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-build
+          path: "*.tar.gz"
+          retention-days: 30
+
+  # Community workflows for validation
+  community-tests:
+    name: "Ansible Community Tests"
+    needs: pre-checks
+    uses: ansible/ansible-content-actions/.github/workflows/build_import.yaml@main
+
+  community-sanity:
+    name: "Community Sanity Tests" 
+    needs: pre-checks
+    uses: ansible/ansible-content-actions/.github/workflows/sanity.yaml@main
+
+  # Summary job
+  all-tests-passed:
+    name: "All Tests Status"
+    if: always()
+    needs:
+      - pre-checks
+      - build-test
+      - community-tests
+      - community-sanity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          echo "Pre-checks: ${{ needs.pre-checks.result }}"
+          echo "Build test: ${{ needs.build-test.result }}"
+          echo "Community tests: ${{ needs.community-tests.result }}"
+          echo "Community sanity: ${{ needs.community-sanity.result }}"
+          
+          if [[ "${{ needs.pre-checks.result }}" == "failure" ]]; then
+            echo "❌ Pre-checks failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.build-test.result }}" == "failure" ]]; then
+            echo "❌ Build test failed"
+            exit 1
+          fi
+          
+          echo "✅ All required tests passed"
+
+      - name: Add status comment (if PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ needs.pre-checks.result }}' === 'success' && 
+                          '${{ needs.build-test.result }}' === 'success' ? 
+                          '✅ Tests passed' : '❌ Tests failed';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## GitHub Tests Status\n\n${status}\n\n**Note**: This is a synced repository. Main CI runs on GitLab.`
+            });

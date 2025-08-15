@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check if Helm binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/helm
+      register: helm_binary
+
+    - name: Verify Helm binary is executable
+      ansible.builtin.assert:
+        that:
+          - helm_binary.stat.exists
+          - helm_binary.stat.executable
+        fail_msg: "Helm binary is not installed or not executable"
+        success_msg: "Helm binary is properly installed"
+
+    - name: Get Helm version
+      ansible.builtin.command: /usr/local/bin/helm version --short
+      register: helm_version_output
+      changed_when: false
+
+    - name: Verify Helm version
+      ansible.builtin.assert:
+        that:
+          - "'v3.18.4' in helm_version_output.stdout"
+        fail_msg: "Helm version does not match expected v3.18.4"
+        success_msg: "Helm version is correct"
+
+    - name: Test Helm functionality
+      ansible.builtin.command: /usr/local/bin/helm repo list
+      register: helm_repo_list
+      changed_when: false
+      failed_when: false
+
+    - name: Verify Helm can list repositories (empty is OK)
+      ansible.builtin.assert:
+        that:
+          - helm_repo_list.rc == 0 or "no repositories" in helm_repo_list.stderr
+        fail_msg: "Helm repo list command failed unexpectedly"
+        success_msg: "Helm is functioning correctly"

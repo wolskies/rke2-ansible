@@ -1,7 +1,15 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
+# defaults file for minio_install
+
+# General Configuration
 home_path: /home/{{ ansible_user }}
 traefik_domain: example
+
+# Kubectl Options
 kubectl_config: "{{ home_path }}/.kube/config"
+
+# Cert-Manager Options
 cert_manager_path: "{{ home_path }}/cert-manager"
 
 minio_operator_path: "{{ home_path }}/minio-operator"

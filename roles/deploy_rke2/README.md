@@ -15,7 +15,7 @@ Role Variables
 The following variables, with their defaults are settable in the defaults folder:
 ```
 kube_vip_version: "v0.9.1"
-rke2_version: "v1.33.1+rke2r1"
+rke2_version: "v1.33.3+rke2r1"
 metallb_version: v0.15.2
 
 rke2_install_dir: "/usr/local/bin"
@@ -23,7 +23,7 @@ kube_vip_noinstall: false
 metallb_noinstall: false
 disable_networkmanager: true
 firewall: ufw
-os: "linux"
+rke2_os: "linux"
 
 vip_interface: "eth0"
 vip: 192.168.100.30
@@ -36,11 +36,30 @@ Tags
 
 The role provides the following tags to control execution:
 
-- version-check
-- config-firewall
-- rke2
-- kube-vip
-- metallb
+**Core Tags:**
+- `version-check` - OS and architecture validation
+- `config-firewall` - Firewall and network preparation  
+- `rke2` - RKE2 binary installation and core cluster setup
+- `rke2-bootstrap` - Initial cluster bootstrap (first controller only)
+- `rke2-servers` - Additional controller node setup
+- `rke2-agents` - Agent/worker node setup
+
+**Network Components:**
+- `rke2-network` - All networking components
+- `kube-vip` - Virtual IP configuration for HA
+- `metallb` - Load balancer installation
+
+**Usage Examples:**
+```bash
+# Install only RKE2 core without networking
+ansible-playbook deploy-rke2.yaml --tags "rke2" --skip-tags "rke2-network"
+
+# Skip firewall configuration
+ansible-playbook deploy-rke2.yaml --skip-tags "config-firewall"
+
+# Only bootstrap the first controller
+ansible-playbook deploy-rke2.yaml --tags "rke2-bootstrap" --limit "controllers[0]"
+```
 
 Example Playbook
 ----------------

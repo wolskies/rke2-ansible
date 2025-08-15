@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Install required packages
+      ansible.builtin.package:
+        name:
+          - curl
+          - wget
+          - iptables
+          - conntrack
+          - socat
+        state: present
+
+    - name: Create RKE2 directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /etc/rancher/rke2
+        - /var/lib/rancher/rke2
+        - /var/lib/rancher/rke2/server/manifests
+        - /opt/rke2-artifacts
+        - /usr/local/bin
+
+    - name: Create mock systemctl for testing
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "Mock systemctl: $@"
+          case "$1" in
+            enable|disable|start|stop|restart)
+              echo "Service $2 $1ed"
+              exit 0
+              ;;
+            status)
+              echo "$2 is active (mock)"
+              exit 0
+              ;;
+            is-enabled)
+              echo "enabled"
+              exit 0
+              ;;
+            daemon-reload)
+              echo "Daemon reloaded"
+              exit 0
+              ;;
+          esac
+        dest: /usr/local/bin/systemctl
+        mode: '0755'

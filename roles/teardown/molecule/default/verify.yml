@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check that RKE2 config directory was removed
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2
+      register: rke2_config_dir
+
+    - name: Check that RKE2 data directory was removed
+      ansible.builtin.stat:
+        path: /var/lib/rancher/rke2
+      register: rke2_data_dir
+
+    - name: Check that kubelet directory was removed
+      ansible.builtin.stat:
+        path: /var/lib/kubelet
+      register: kubelet_dir
+
+    - name: Check that containerd directory was removed
+      ansible.builtin.stat:
+        path: /var/lib/containerd
+      register: containerd_dir
+
+    - name: Verify directories were cleaned up
+      ansible.builtin.assert:
+        that:
+          - not rke2_config_dir.stat.exists
+          - not rke2_data_dir.stat.exists
+          - not kubelet_dir.stat.exists
+          - not containerd_dir.stat.exists
+        fail_msg: "Some RKE2 directories were not properly cleaned up"
+        success_msg: "All RKE2 directories were successfully removed"
+
+    - name: Check that service files were removed
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: service_files
+      loop:
+        - /etc/systemd/system/rke2-server.service
+        - /etc/systemd/system/rke2-agent.service
+
+    - name: Verify service files were cleaned up
+      ansible.builtin.assert:
+        that:
+          - not item.stat.exists
+        fail_msg: "Service file {{ item.item }} was not removed"
+        success_msg: "Service files were properly cleaned up"
+      loop: "{{ service_files.results }}"

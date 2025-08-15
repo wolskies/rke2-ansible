@@ -1,38 +1,99 @@
-Role Name
-=========
+# MySQL Operator Role
 
-A brief description of the role goes here.
+This role deploys the MySQL Operator for Kubernetes on an existing RKE2 cluster. The MySQL Operator enables easy deployment and management of MySQL databases in Kubernetes.
 
-Requirements
-------------
+## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- Ansible 2.12 or later
+- kubernetes.core ansible collection
+- Running RKE2 cluster (see `wolskinet.rke2_ansible.deploy_rke2`)
+- Helm 3.x installed (see `wolskinet.rke2_ansible.helm_install`)
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### General Configuration
+```yaml
+home_path: /home/{{ ansible_user }}
+traefik_domain: example
+kubectl_config: "{{ home_path }}/.kube/config"
+```
 
-Dependencies
-------------
+### MySQL Operator Configuration
+```yaml
+mysql_operator_chart_ref: mysql-operator/mysql-operator
+mysql_operator_chart_version: "8.4.3"
+mysql_operator_path: "{{ home_path }}/mysql-operator"
+```
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+### Component Installation Controls
+```yaml
+mysql_install_operator: true
+```
 
-Example Playbook
-----------------
+## Tags
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+The role provides the following tags for selective execution:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- `database-mysql` - All MySQL operator components
+- `mysql_operator` - MySQL operator deployment
 
-License
--------
+## Dependencies
 
-BSD
+- `wolskinet.rke2_ansible.helm_install` - Helm must be installed
+- `wolskinet.rke2_ansible.deploy_rke2` - RKE2 cluster must be running
 
-Author Information
-------------------
+## Example Playbook
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```yaml
+---
+- name: Deploy MySQL Operator on RKE2
+  hosts: controllers
+  become: false
+  roles:
+    - name: wolskinet.rke2_ansible.mysql_operator
+      when: inventory_hostname == (groups['controllers'] | first)
+```
+
+### Selective Installation Examples
+
+```bash
+# Install MySQL operator
+ansible-playbook mysql-operator.yaml --tags "mysql-operator"
+
+# Skip MySQL operator installation
+ansible-playbook site.yaml --skip-tags "database-mysql"
+```
+
+## Usage After Installation
+
+After the MySQL operator is installed, you can create MySQL instances using custom resources:
+
+```yaml
+apiVersion: mysql.oracle.com/v2
+kind: InnoDBCluster
+metadata:
+  name: mycluster
+  namespace: default
+spec:
+  secretName: mypwds
+  tlsUseSelfSigned: true
+  instances: 3
+  router:
+    instances: 1
+```
+
+## Security Considerations
+
+- The operator manages MySQL credentials through Kubernetes secrets
+- Configure appropriate RBAC policies for MySQL resources
+- Use TLS encryption for MySQL connections in production
+- Regularly update the operator to receive security patches
+
+## License
+
+GPL-3.0-or-later
+
+## Author Information
+
+Ed Wolski  
+wolskinet

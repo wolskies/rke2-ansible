@@ -1,0 +1,236 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# GitLab CI/CD Pipeline for RKE2 Ansible Collection
+---
+stages:
+  - lint
+  - unit-test
+  - integration-test
+  - build
+  - security-scan
+  - deploy-test
+
+variables:
+  ANSIBLE_COLLECTIONS_PATH: "${CI_PROJECT_DIR}"
+  ANSIBLE_HOST_KEY_CHECKING: "False"
+  ANSIBLE_STDOUT_CALLBACK: "yaml"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  # Self-hosted optimization
+  FF_USE_FASTZIP: "true"
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+
+# Template for common job configuration - optimized for self-hosted
+.ansible_job_template: &ansible_job
+  image: quay.io/ansible/ansible-runner:latest
+  before_script:
+    # Use uv for faster package installation
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
+  cache:
+    key: 
+      files:
+        - test-requirements.txt
+    paths:
+      - .cache/pip/
+      - .cache/uv/
+      - .cache/molecule/
+      - .venv/
+  tags:
+    - docker  # Use your self-hosted runners with docker tag
+
+# Linting Stage
+lint:ansible-lint:
+  <<: *ansible_job
+  stage: lint
+  script:
+    - ansible-lint --version
+    - ansible-lint roles/ playbooks/
+  artifacts:
+    reports:
+      codequality: ansible-lint-report.json
+    when: always
+    expire_in: 1 week
+  allow_failure: false
+
+lint:yaml:
+  <<: *ansible_job
+  stage: lint
+  script:
+    - yamllint --version
+    - yamllint -c .yamllint.yml .
+  allow_failure: false
+
+lint:galaxy:
+  <<: *ansible_job
+  stage: lint
+  script:
+    - ansible-galaxy collection build --force
+    - ansible-galaxy collection install wolskinet-rke2_ansible-*.tar.gz --force
+    - ansible-galaxy collection verify wolskinet.rke2_ansible
+  artifacts:
+    paths:
+      - "*.tar.gz"
+    expire_in: 1 week
+
+# Unit Testing Stage
+test:syntax:
+  <<: *ansible_job
+  stage: unit-test
+  script:
+    - |
+      for role in roles/*/; do
+        echo "Testing syntax for role: $(basename $role)"
+        ansible-playbook --syntax-check tests/syntax/test-$(basename $role).yml || exit 1
+      done
+  parallel:
+    matrix:
+      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator, rancher_install, rook_install, teardown]
+
+test:molecule:
+  <<: *ansible_job
+  stage: unit-test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  script:
+    - cd roles/$ROLE
+    - molecule test --scenario-name default
+  parallel:
+    matrix:
+      - ROLE: [deploy_rke2, helm_install, longhorn_install, minio_install, mysql_operator, rancher_install, rook_install, teardown]
+  artifacts:
+    reports:
+      junit: roles/*/molecule/default/junit.xml
+    when: always
+    expire_in: 1 week
+
+# Integration Testing Stage
+test:integration:basic:
+  <<: *ansible_job
+  stage: integration-test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  script:
+    - molecule test --scenario-name integration
+  only:
+    - main
+    - merge_requests
+
+test:integration:full-stack:
+  <<: *ansible_job
+  stage: integration-test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  script:
+    - cd tests/integration
+    - molecule test --scenario-name full-deployment
+  artifacts:
+    paths:
+      - tests/integration/molecule/full-deployment/ansible.log
+    when: always
+    expire_in: 1 week
+  only:
+    - main
+    - tags
+
+# Build Stage
+build:collection:
+  <<: *ansible_job
+  stage: build
+  script:
+    - ansible-galaxy collection build --force
+    - ansible-galaxy collection install wolskinet-rke2_ansible-*.tar.gz --force
+  artifacts:
+    paths:
+      - "*.tar.gz"
+    expire_in: 1 month
+  only:
+    - main
+    - tags
+
+# Security Scanning Stage
+security:ansible-content:
+  <<: *ansible_job
+  stage: security-scan
+  script:
+    - pip install ansible-content-scanner
+    - ansible-content-scanner scan .
+  artifacts:
+    reports:
+      security: security-report.json
+    when: always
+    expire_in: 1 week
+  allow_failure: true
+
+security:secrets:
+  image: trufflesecurity/trufflehog:latest
+  stage: security-scan
+  script:
+    - trufflehog filesystem --directory=. --json > secrets-scan.json
+  artifacts:
+    reports:
+      security: secrets-scan.json
+    when: always
+    expire_in: 1 week
+  allow_failure: true
+
+# Deployment Test Stage
+deploy-test:k8s-cluster:
+  <<: *ansible_job
+  stage: deploy-test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  script:
+    - cd tests/deployment
+    - molecule test --scenario-name k8s-deployment
+  artifacts:
+    paths:
+      - tests/deployment/molecule/k8s-deployment/ansible.log
+    when: always
+    expire_in: 1 week
+  only:
+    - main
+    - tags
+  when: manual
+
+# Release Job (Manual)
+release:galaxy:
+  <<: *ansible_job
+  stage: deploy-test
+  script:
+    - ansible-galaxy collection build --force
+    - ansible-galaxy collection publish *.tar.gz --api-key=$GALAXY_API_KEY
+  artifacts:
+    paths:
+      - "*.tar.gz"
+    expire_in: 1 month
+  only:
+    - tags
+  when: manual
+  environment:
+    name: galaxy
+    url: https://galaxy.ansible.com/wolskinet/rke2_ansible

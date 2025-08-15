@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Create fake RKE2 directories for teardown testing
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /etc/rancher/rke2
+        - /var/lib/rancher/rke2
+        - /var/lib/kubelet
+        - /var/lib/containerd
+
+    - name: Create fake RKE2 config files
+      ansible.builtin.copy:
+        content: |
+          # Fake RKE2 config for testing
+          server: https://127.0.0.1:9345
+        dest: /etc/rancher/rke2/config.yaml
+        mode: '0644'
+
+    - name: Create fake service files
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=Fake RKE2 service for testing
+          [Service]
+          Type=simple
+          ExecStart=/bin/sleep 3600
+        dest: "{{ item }}"
+        mode: '0644'
+      loop:
+        - /etc/systemd/system/rke2-server.service
+        - /etc/systemd/system/rke2-agent.service
+
+    - name: Install UFW for firewall testing
+      ansible.builtin.package:
+        name: ufw
+        state: present

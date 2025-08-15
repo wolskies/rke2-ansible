@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare deployment test environment
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Install container runtime dependencies
+      ansible.builtin.package:
+        name:
+          - curl
+          - wget
+          - gnupg
+          - ca-certificates
+          - lsb-release
+          - iptables
+          - conntrack
+          - socat
+        state: present
+
+    - name: Create necessary directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /etc/rancher/rke2
+        - /var/lib/rancher/rke2
+        - /opt/rke2-artifacts
+        - /var/lib/kubelet
+        - /usr/local/bin
+
+    - name: Configure container runtime for testing
+      ansible.builtin.copy:
+        content: |
+          # Test configuration for containerized environment
+          # This simulates the container runtime configuration
+          disabled_plugins = []
+          root = "/var/lib/containerd"
+          state = "/run/containerd"
+        dest: /etc/containerd/config.toml
+        mode: '0644'
+      
+    - name: Create mock systemctl for testing
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          # Mock systemctl for container testing
+          echo "Mock systemctl called with: $@"
+          case "$1" in
+            enable|disable|start|stop|restart|reload)
+              echo "Service $2 $1ed"
+              exit 0
+              ;;
+            status)
+              echo "$2 is running (mock)"
+              exit 0
+              ;;
+            is-enabled)
+              echo "enabled"
+              exit 0
+              ;;
+            daemon-reload)
+              echo "Daemon reloaded"
+              exit 0
+              ;;
+            *)
+              echo "Unknown systemctl command: $1"
+              exit 1
+              ;;
+          esac
+        dest: /usr/local/bin/systemctl
+        mode: '0755'
+
+    - name: Add mock systemctl to PATH
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: 'PATH="/usr/local/bin:$PATH"'
+        create: true

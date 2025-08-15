@@ -4,7 +4,7 @@
 
 # Versions:
 kube_vip_version: "v0.9.1"
-rke2_version: "v1.33.1+rke2r1"
+rke2_version: "v1.33.3+rke2r1"
 metallb_version: v0.15.2
 metallb_path: /home/{{ ansible_user }}/metallb
 
@@ -16,7 +16,7 @@ metallb_noinstall: false
 disable_networkmanager: true
 # Options are 'ufw' or 'calico'
 firewall: ufw
-os: "linux"
+rke2_os: "linux"
 
 # Networking:
 # cni_plugin: canal

@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "name": "RKE2 Ansible Collection",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "ansible.ansible.path": "./.venv/bin/ansible",
+    "ansible.ansibleLint.path": "./.venv/bin/ansible-lint",
+    "ansible.python.interpreterPath": "./.venv/bin/python",
+    "python.defaultInterpreterPath": "./.venv/bin/python"
+  },
+  "extensions": {
+    "recommendations": [
+      "redhat.ansible",
+      "redhat.vscode-yaml",
+      "ms-python.python",
+      "ms-python.black-formatter",
+      "charliermarsh.ruff"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Collection Quick Test",
+        "type": "shell",
+        "command": "source .venv/bin/activate && make quick-test",
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+}

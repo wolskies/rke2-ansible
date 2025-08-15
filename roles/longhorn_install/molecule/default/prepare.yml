@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks: []

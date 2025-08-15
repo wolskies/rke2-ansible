@@ -1,12 +1,52 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
 galaxy_info:
-  role_name: rook_ceph
-  author: Your Name
-  description: Deploys Rook Ceph Operator, Cluster, and optional Filesystem/ObjectStore
-  license: MIT
+  role_name: rook_install
+  author: Ed Wolski
+  description: Deploy Rook Ceph storage operator with cluster, filesystem, and object store support
+  company: wolskinet
+  license: GPL-3.0-or-later
   min_ansible_version: "2.12"
+  
   platforms:
-    - name: Kubernetes
+    - name: Ubuntu
       versions:
-        - all
-dependencies: []
+        - "24.04"
+        - "22.04"
+        - "20.04"
+    - name: Debian
+      versions:
+        - "12"
+        - "11"
+    - name: RedHat
+      versions:
+        - "9"
+        - "8"
+    - name: Rocky
+      versions:
+        - "9"
+        - "8"
+  
+  galaxy_tags:
+    - storage
+    - ceph
+    - rook
+    - kubernetes
+    - operator
+    - filesystem
+    - objectstore
+    - persistent
+    - cluster
+    - helm
+    - container
+    - automation
+    - devops
+    - infrastructure
+    - backup
+    - data
+    - block
+    - distributed
 
+dependencies:
+  - role: wolskinet.rke2_ansible.helm_install
+    when: ansible_os_family != "Windows"

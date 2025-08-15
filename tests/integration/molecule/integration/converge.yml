@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Test Helm Installation
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Install Helm on all nodes
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.helm_install
+
+- name: Test RKE2 Configuration (Controllers)
+  hosts: controllers
+  become: true
+  
+  tasks:
+    - name: Test RKE2 configuration generation for controllers
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.deploy_rke2
+      vars:
+        skip_rke2_installation: true
+        skip_firewall_configuration: true
+      tags:
+        - rke2-config
+
+- name: Test RKE2 Configuration (Agents)
+  hosts: agents
+  become: true
+  
+  tasks:
+    - name: Test RKE2 configuration generation for agents
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.deploy_rke2
+      vars:
+        skip_rke2_installation: true
+        skip_firewall_configuration: true
+      tags:
+        - rke2-config
+
+- name: Test Role Dependencies
+  hosts: controllers[0]
+  become: true
+  
+  tasks:
+    - name: Test MySQL Operator role (dependencies only)
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.mysql_operator
+      vars:
+        skip_mysql_installation: true
+      tags:
+        - dependencies
+
+    - name: Test teardown role (dry run)
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.teardown
+      vars:
+        teardown_dry_run: true
+      tags:
+        - teardown

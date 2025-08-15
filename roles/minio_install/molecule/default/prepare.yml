@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Prepare
+  hosts: all
+  become: true
+  
+  tasks:
+    - name: Install Helm (dependency)
+      ansible.builtin.include_role:
+        name: wolskinet.rke2_ansible.helm_install
+
+    - name: Create mock kubectl
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "Mock kubectl: $@"
+          case "$1" in
+            get)
+              echo "Mock resource found"
+              exit 0
+              ;;
+            apply|create)
+              echo "Mock resource created"
+              exit 0
+              ;;
+            delete)
+              echo "Mock resource deleted"
+              exit 0
+              ;;
+            *)
+              exit 0
+              ;;
+          esac
+        dest: /usr/local/bin/kubectl
+        mode: '0755'

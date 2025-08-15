@@ -1,13 +1,150 @@
 {
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": [
-            "file:///home/ed/ansible_collections/wolskinet/rke2_ansible/roles/rancher_install/tasks/traefik.yaml",
-            "file:///home/ed/Projects/ansible/collections/rke2_ansible/roles/rancher_install/tasks/traefik.yaml"
-        ]
+  // Python Configuration
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.formatting.provider": "black",
+  
+  // Ansible Configuration
+  "ansible.ansible.path": "./.venv/bin/ansible",
+  "ansible.ansibleLint.path": "./.venv/bin/ansible-lint",
+  "ansible.python.interpreterPath": "./.venv/bin/python",
+  "ansible.validation.enabled": true,
+  "ansible.completion.provideRedirectModules": true,
+  "ansible.completion.provideModuleOptionAliases": true,
+  
+  // YAML Configuration
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": [
+      "playbooks/*.yml",
+      "playbooks/*.yaml",
+      "*.playbook.yml",
+      "*.playbook.yaml"
+    ],
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": [
+      "roles/*/tasks/*.yml",
+      "roles/*/tasks/*.yaml",
+      "roles/*/handlers/*.yml",
+      "roles/*/handlers/*.yaml"
+    ],
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/meta.json": [
+      "roles/*/meta/main.yml",
+      "roles/*/meta/main.yaml",
+      "meta/main.yml",
+      "meta/main.yaml"
+    ],
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/galaxy.json": [
+      "galaxy.yml",
+      "galaxy.yaml"
+    ],
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/vars.json": [
+      "roles/*/vars/*.yml",
+      "roles/*/vars/*.yaml",
+      "roles/*/defaults/*.yml",
+      "roles/*/defaults/*.yaml",
+      "group_vars/*.yml",
+      "group_vars/*.yaml",
+      "host_vars/*.yml",
+      "host_vars/*.yaml"
+    ]
+  },
+  "yaml.format.enable": true,
+  "yaml.format.singleQuote": false,
+  "yaml.format.bracketSpacing": true,
+  "yaml.validate": true,
+  "yaml.completion": true,
+  "yaml.hover": true,
+  
+  // File Associations
+  "files.associations": {
+    "*.yml": "yaml",
+    "*.yaml": "yaml",
+    "*.j2": "jinja",
+    "*/tasks/*.yml": "ansible",
+    "*/tasks/*.yaml": "ansible",
+    "*/handlers/*.yml": "ansible",
+    "*/handlers/*.yaml": "ansible",
+    "*/playbooks/*.yml": "ansible",
+    "*/playbooks/*.yaml": "ansible",
+    "*playbook*.yml": "ansible",
+    "*playbook*.yaml": "ansible",
+    "Makefile": "makefile"
+  },
+  
+  // Editor Configuration
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.rulers": [120],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  
+  // File Exclusions
+  "files.exclude": {
+    "**/.git": true,
+    "**/.ansible": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.tox": true,
+    "**/.molecule": true,
+    "**/venv": true,
+    "**/.venv": false,
+    "**/*.tar.gz": true
+  },
+  
+  // Search Configuration
+  "search.exclude": {
+    "**/.git": true,
+    "**/.ansible": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.tox": true,
+    "**/.molecule": true,
+    "**/venv": true,
+    "**/.venv/lib": true,
+    "**/*.tar.gz": true
+  },
+  
+  // Terminal Configuration
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.env.linux": {
+    "ANSIBLE_COLLECTIONS_PATH": "${workspaceFolder}"
+  },
+  
+  // Markdown Configuration
+  "markdownlint.config": {
+    "MD013": {
+      "line_length": 120
     },
-    "ansible.python.interpreterPath": "/bin/python3",
-    "ansible.executionEnvironment.containerEngine": "docker",
-    "ansible.lightspeed.enabled": false,
-    "ansible.lightspeed.suggestions.enabled": false,
-    "editor.defaultFormatter": "redhat.ansible"
+    "MD033": false
+  },
+  
+  // Todo Tree Configuration
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "HACK",
+    "NOTE",
+    "XXX"
+  ],
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "type": "tag",
+      "foreground": "#ffcc00",
+      "background": "#ffcc0020"
+    },
+    "FIXME": {
+      "icon": "alert",
+      "type": "tag", 
+      "foreground": "#ff6666",
+      "background": "#ff666620"
+    }
+  }
 }

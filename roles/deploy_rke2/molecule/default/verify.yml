@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check RKE2 config directory exists
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2
+      register: rke2_config_dir
+
+    - name: Verify RKE2 config directory
+      ansible.builtin.assert:
+        that:
+          - rke2_config_dir.stat.exists
+          - rke2_config_dir.stat.isdir
+        fail_msg: "RKE2 config directory not created"
+        success_msg: "RKE2 config directory exists"
+
+- name: Verify Controllers
+  hosts: controllers
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check RKE2 server config file
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2/config.yaml
+      register: server_config
+
+    - name: Verify server configuration
+      ansible.builtin.assert:
+        that:
+          - server_config.stat.exists
+        fail_msg: "RKE2 server config not found"
+        success_msg: "RKE2 server config created"
+
+    - name: Check kube-vip manifest
+      ansible.builtin.stat:
+        path: /var/lib/rancher/rke2/server/manifests/kube-vip.yaml
+      register: kube_vip_manifest
+
+    - name: Verify kube-vip manifest
+      ansible.builtin.assert:
+        that:
+          - kube_vip_manifest.stat.exists
+        fail_msg: "Kube-vip manifest not created"
+        success_msg: "Kube-vip manifest exists"
+
+    - name: Check MetalLB IP pool manifest
+      ansible.builtin.stat:
+        path: /var/lib/rancher/rke2/server/manifests/metallb-ippool.yaml
+      register: metallb_manifest
+
+    - name: Verify MetalLB configuration
+      ansible.builtin.assert:
+        that:
+          - metallb_manifest.stat.exists
+        fail_msg: "MetalLB IP pool manifest not created"
+        success_msg: "MetalLB configuration exists"
+
+- name: Verify Agents
+  hosts: agents
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check RKE2 agent config file
+      ansible.builtin.stat:
+        path: /etc/rancher/rke2/config.yaml
+      register: agent_config
+
+    - name: Verify agent configuration
+      ansible.builtin.assert:
+        that:
+          - agent_config.stat.exists
+        fail_msg: "RKE2 agent config not found"
+        success_msg: "RKE2 agent config created"

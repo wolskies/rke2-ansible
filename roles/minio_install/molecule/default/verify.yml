@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+    - name: Check if Helm is available
+      ansible.builtin.command: helm version --short
+      register: helm_check
+      changed_when: false
+
+    - name: Verify Helm dependency
+      ansible.builtin.assert:
+        that:
+          - helm_check.rc == 0
+        fail_msg: "Helm is not available for MinIO installation"
+        success_msg: "Helm is available"
+
+    - name: Check if kubectl mock is available
+      ansible.builtin.command: kubectl version --client
+      register: kubectl_check
+      changed_when: false
+      failed_when: false
+
+    - name: Verify kubectl availability
+      ansible.builtin.assert:
+        that:
+          - kubectl_check.rc == 0
+        fail_msg: "kubectl is not available"
+        success_msg: "kubectl is available"
+
+    - name: Test Helm repo functionality
+      ansible.builtin.command: helm repo list
+      register: repo_list
+      changed_when: false
+      failed_when: false
+
+    - name: Verify Helm repo command works
+      ansible.builtin.assert:
+        that:
+          - repo_list.rc == 0 or "no repositories" in repo_list.stderr
+        fail_msg: "Helm repo command failed"
+        success_msg: "Helm repo functionality verified"

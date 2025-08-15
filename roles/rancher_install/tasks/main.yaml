@@ -17,8 +17,3 @@
   ansible.builtin.include_tasks:
     file: rancher.yaml
   tags: rancher
-
-- name: Install Longhorn
-  ansible.builtin.include_tasks:
-    file: longhorn.yaml
-  tags: longhorn

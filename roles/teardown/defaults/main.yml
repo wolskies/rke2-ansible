@@ -1,12 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 ---
-rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.33.1+rke2r1"
+# defaults file for teardown
+
+# General Configuration
 home_path: /home/{{ ansible_user }}
 
-metallb_path: "{{ home_path }}/metallb"
+# RKE2 Options
+rke2_install_dir: "/usr/local/bin"
+rke2_version: "v1.33.3+rke2r1"
+
+# Kubectl Options
 kubectl_config: "{{ home_path }}/.kube/config"
+
+# Component Paths
+metallb_path: "{{ home_path }}/metallb"
 cert_manager_path: "{{ home_path }}/cert-manager"
 traefik_path: "{{ home_path }}/traefik"
 rancher_path: "{{ home_path }}/rancher"
+longhorn_path: "{{ home_path }}/longhorn"
 minio_operator_path: "{{ home_path }}/minio-operator"
 minio_tenant_path: "{{ home_path }}/minio-tenant"
+mysql_operator_path: "{{ home_path }}/mysql-operator"
