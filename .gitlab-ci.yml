@@ -113,6 +113,14 @@ test:molecule:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     DOCKER_TLS_VERIFY: ""
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
     - until docker info; do sleep 1; done
     - |
@@ -141,6 +149,14 @@ test:integration:basic:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     DOCKER_TLS_VERIFY: ""
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
     - until docker info; do sleep 1; done
     - molecule test --scenario-name integration
@@ -157,6 +173,14 @@ test:integration:full-stack:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     DOCKER_TLS_VERIFY: ""
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
     - until docker info; do sleep 1; done
     - cd tests/integration
@@ -221,6 +245,14 @@ deploy-test:k8s-cluster:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     DOCKER_TLS_VERIFY: ""
+  before_script:
+    - apt update && apt install curl docker.io -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r test-requirements.txt
+    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
     - until docker info; do sleep 1; done
     - cd tests/deployment
