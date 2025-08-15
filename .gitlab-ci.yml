@@ -25,7 +25,6 @@ variables:
   image: python:3.13-slim-bookworm
   before_script:
     # Use uv for faster package installation
-    - cp .ansible-lint /
     - apt update && apt install curl -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - source $HOME/.local/bin/env
@@ -62,7 +61,7 @@ lint:ansible-lint:
         - .venv/
         - .cache/
       skip_list:
-        - schema[meta]  # Skip meta schema validation issues temporarily
+        - var-naming[no-role-prefix]
       warn_list:
         - jinja[spacing]
         - name[template]
