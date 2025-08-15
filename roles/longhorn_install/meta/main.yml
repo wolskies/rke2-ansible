@@ -8,39 +8,38 @@ galaxy_info:
   license: GPL-3.0-or-later
   min_ansible_version: '2.12'
   platforms:
-  - name: Ubuntu
-    versions:
+    - name: Ubuntu
+      versions:
     - noble
-    - jammy
-    - focal
-  - name: Debian
-    versions:
-    - trixie
-    - bookworm
-  - name: RedHat
-    versions:
-    - all
-  - name: Rocky
-    versions:
-    - '9'
-    - '8'
+        - jammy
+        - focal
+    - name: Debian
+      versions:
+        - trixie
+        - bookworm
+    - name: EL
+      versions:
+        - all
+    - name: Rocky
+      versions:
+        - all
   galaxy_tags:
-  - storage
-  - blockstorage
-  - longhorn
-  - kubernetes
-  - persistent
-  - volumes
-  - backup
-  - snapshot
-  - helm
-  - container
-  - automation
-  - devops
-  - infrastructure
-  - cluster
-  - data
-  - distributed
+    - storage
+    - blockstorage
+    - longhorn
+    - kubernetes
+    - persistent
+    - volumes
+    - backup
+    - snapshot
+    - helm
+    - container
+    - automation
+    - devops
+    - infrastructure
+    - cluster
+    - data
+    - distributed
 dependencies:
 - role: wolskinet.rke2_ansible.helm_install
   when: ansible_os_family != "Windows"

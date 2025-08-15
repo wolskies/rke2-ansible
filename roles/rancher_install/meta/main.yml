@@ -9,42 +9,41 @@ galaxy_info:
   license: GPL-3.0-or-later
   min_ansible_version: '2.12'
   platforms:
-  - name: Ubuntu
-    versions:
+    - name: Ubuntu
+      versions:
     - noble
-    - jammy
-    - focal
-  - name: Debian
-    versions:
-    - trixie
-    - bookworm
-  - name: RedHat
-    versions:
-    - all
-  - name: Rocky
-    versions:
-    - '9'
-    - '8'
+        - jammy
+        - focal
+    - name: Debian
+      versions:
+        - trixie
+        - bookworm
+    - name: EL
+      versions:
+        - all
+    - name: Rocky
+      versions:
+        - all
   galaxy_tags:
-  - rancher
-  - kubernetes
-  - management
-  - certmanager
-  - traefik
-  - longhorn
-  - ingress
-  - storage
-  - cluster
-  - helm
-  - container
-  - orchestration
-  - platform
-  - devops
-  - infrastructure
-  - automation
-  - monitoring
-  - dashboard
-  - security
+    - rancher
+    - kubernetes
+    - management
+    - certmanager
+    - traefik
+    - longhorn
+    - ingress
+    - storage
+    - cluster
+    - helm
+    - container
+    - orchestration
+    - platform
+    - devops
+    - infrastructure
+    - automation
+    - monitoring
+    - dashboard
+    - security
 dependencies:
 - role: wolskinet.rke2_ansible.helm_install
   when: ansible_os_family != "Windows"
