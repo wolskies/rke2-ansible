@@ -192,8 +192,6 @@ deploy-test:k8s-cluster:
   stage: deploy-test
   script:
     - echo "K8s cluster deployment tests disabled - require Docker-in-Docker"
-    - echo "Consider implementing tests using existing K8s cluster instead of containerized testing"
-    - echo "Alternative: Use real K8s cluster for end-to-end deployment validation"
   allow_failure: true
   only:
     - main
