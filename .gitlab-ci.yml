@@ -108,12 +108,13 @@ test:molecule:
   <<: *ansible_job
   stage: unit-test
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_DRIVER: overlay2
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -147,12 +148,13 @@ test:integration:basic:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_DRIVER: overlay2
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -174,12 +176,13 @@ test:integration:full-stack:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_DRIVER: overlay2
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -249,12 +252,13 @@ deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_DRIVER: overlay2
   before_script:
     - apt update && apt install curl docker.io -y
     - curl -LsSf https://astral.sh/uv/install.sh | sh
