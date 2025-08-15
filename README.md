@@ -21,7 +21,7 @@ Deploys RKE2 on a bare-metal cluster.  Alongside RKE2 this role will configure a
 Deploys Rancher for cluster management, along with the tooling required (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. The default is setup for Cloudflare's DNS-01 challenge, but it can be modified for your provider.  **Recommend the Cloudflare API Token be put in an ansible vault file (`ansible-vault create secrets.yaml`):
 ```
 ---
-CF_TOKEN: "your_cloudflare_token_here"
+cf_token: "your_cloudflare_token_here"
 ```
 Then place the token file in the `group_vars` in your inventory folder.  See the example playbook below.
 
