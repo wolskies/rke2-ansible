@@ -22,7 +22,7 @@ variables:
 
 # Template for common job configuration - optimized for self-hosted
 .ansible_job_template: &ansible_job
-  image: python:3-13-slim-bookworm
+  image: python:3.13-slim-bookworm
   before_script:
     # Use uv for faster package installation
     - curl -LsSf https://astral.sh/uv/install.sh | sh
