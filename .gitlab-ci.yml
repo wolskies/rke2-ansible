@@ -108,11 +108,10 @@ test:molecule:
   <<: *ansible_job
   stage: unit-test
   services:
-    - docker:dind
+    - docker:20.10.16-dind
   variables:
-    # Use standard GitLab CI Docker-in-Docker setup
-    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
@@ -124,10 +123,10 @@ test:molecule:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker TLS certificates..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
     - echo "Waiting for Docker daemon..."
-    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
-    - docker info  # Show docker status for debugging
+    - timeout 60 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 2; done"
     - |
       roles="deploy_rke2 helm_install longhorn_install minio_install"
       roles="$roles mysql_operator rancher_install rook_install teardown"
@@ -149,11 +148,10 @@ test:integration:basic:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:dind
+    - docker:20.10.16-dind
   variables:
-    # Use standard GitLab CI Docker-in-Docker setup
-    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
@@ -165,10 +163,10 @@ test:integration:basic:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker TLS certificates..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
     - echo "Waiting for Docker daemon..."
-    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
-    - docker info  # Show docker status for debugging
+    - timeout 60 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 2; done"
     - molecule test --scenario-name integration
   only:
     - main
@@ -178,11 +176,10 @@ test:integration:full-stack:
   <<: *ansible_job
   stage: integration-test
   services:
-    - docker:dind
+    - docker:20.10.16-dind
   variables:
-    # Use standard GitLab CI Docker-in-Docker setup
-    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
@@ -194,10 +191,10 @@ test:integration:full-stack:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker TLS certificates..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
     - echo "Waiting for Docker daemon..."
-    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
-    - docker info  # Show docker status for debugging
+    - timeout 60 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 2; done"
     - cd tests/integration
     - molecule test --scenario-name full-deployment
   artifacts:
@@ -255,11 +252,10 @@ deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
   services:
-    - docker:dind
+    - docker:20.10.16-dind
   variables:
-    # Use standard GitLab CI Docker-in-Docker setup
-    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
@@ -271,10 +267,10 @@ deploy-test:k8s-cluster:
     - uv pip install -r test-requirements.txt
     - ansible-galaxy collection install community.docker kubernetes.core community.general --force
   script:
-    - sleep 30  # Give docker:dind and TLS setup time to initialize
+    - echo "Waiting for Docker TLS certificates..."
+    - timeout 300 sh -c "until [ -f $DOCKER_TLS_CERTDIR/client/ca.pem ]; do echo 'Waiting for certs...'; sleep 1; done"
     - echo "Waiting for Docker daemon..."
-    - for i in $(seq 1 30); do if docker info >/dev/null 2>&1; then break; else echo "Attempt $i/30"; sleep 2; fi; done
-    - docker info  # Show docker status for debugging
+    - timeout 60 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 2; done"
     - cd tests/deployment
     - molecule test --scenario-name k8s-deployment
   artifacts:
