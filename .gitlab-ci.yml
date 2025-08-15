@@ -50,7 +50,7 @@ lint:ansible-lint:
   stage: lint
   script:
     - ansible-lint --version
-    - ansible-lint roles/ playbooks/
+    - ansible-lint roles/ playbooks/ --format json
   artifacts:
     reports:
       codequality: ansible-lint-report.json
