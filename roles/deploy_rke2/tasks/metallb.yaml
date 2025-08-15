@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 # tasks file for apply-manifests
-- name: metallb installation
+- name: Metallb installation
   tags: metallb
   block:
     - name: Create metallb directory
@@ -20,12 +20,16 @@
 
     - name: Apply metallb manifest
       ansible.builtin.command:
-        cmd: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+        cmd: >
+          kubectl apply -f
+          https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
       changed_when: true
 
     - name: Wait for metallb pods to be ready, otherwise we cannot start metallb deployment
       ansible.builtin.command:
-        cmd: "kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=1800s"
+        cmd: >
+          kubectl wait --namespace metallb-system --for=condition=ready pod
+          --selector=component=controller --timeout=1800s
       changed_when: true
 
     - name: Copy metallb L2Advertisement to server 1

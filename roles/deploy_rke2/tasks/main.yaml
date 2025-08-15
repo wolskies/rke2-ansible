@@ -10,7 +10,9 @@
 
     - name: Fail when version unsupported
       ansible.builtin.fail:
-        msg: "Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}. Allowed: {{ supported_os_versions[ansible_distribution] }}"
+        msg: >
+          Unsupported version {{ ansible_distribution_version }} for {{ ansible_distribution }}.
+          Allowed: {{ supported_os_versions[ansible_distribution] }}
       when: ansible_distribution_version not in supported_os_versions[ansible_distribution]
 
 - name: Register machine architecture
@@ -131,7 +133,11 @@
       - "RKE2 cluster would be configured:"
       - "Controllers: {{ groups['controllers'] | length if 'controllers' in groups else 0 }}"
       - "Agents: {{ groups['agents'] | length if 'agents' in groups else 0 }}"
-      - "Current node role: {{ 'controller' if inventory_hostname in groups.get('controllers', []) else 'agent' if inventory_hostname in groups.get('agents', []) else 'unknown' }}"
+      - >
+        Current node role:
+        {{ 'controller' if inventory_hostname in groups.get('controllers', [])
+        else 'agent' if inventory_hostname in groups.get('agents', [])
+        else 'unknown' }}
   when: skip_rke2_installation | default(false)
   tags: rke2
 

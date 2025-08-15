@@ -66,17 +66,6 @@ lint:yaml:
     - yamllint -c .yamllint.yml .
   allow_failure: false
 
-lint:galaxy:
-  <<: *ansible_job
-  stage: lint
-  script:
-    - ansible-galaxy collection build --force
-    - ansible-galaxy collection install wolskinet-rke2_ansible-*.tar.gz --force
-    - ansible-galaxy collection verify wolskinet.rke2_ansible
-  artifacts:
-    paths:
-      - "*.tar.gz"
-    expire_in: 1 week
 
 # Unit Testing Stage
 test:syntax:
@@ -218,20 +207,3 @@ deploy-test:k8s-cluster:
     - tags
   when: manual
 
-# Release Job (Manual)
-release:galaxy:
-  <<: *ansible_job
-  stage: deploy-test
-  script:
-    - ansible-galaxy collection build --force
-    - ansible-galaxy collection publish *.tar.gz --api-key=$GALAXY_API_KEY
-  artifacts:
-    paths:
-      - "*.tar.gz"
-    expire_in: 1 month
-  only:
-    - tags
-  when: manual
-  environment:
-    name: galaxy
-    url: https://galaxy.ansible.com/wolskinet/rke2_ansible

@@ -3,51 +3,48 @@
 galaxy_info:
   role_name: rancher_install
   author: Ed Wolski
-  description: Deploy Rancher management platform with cert-manager, Traefik, and Longhorn storage
+  description: Deploy Rancher management platform with cert-manager, Traefik, and
+    Longhorn storage
   company: wolskinet
   license: GPL-3.0-or-later
-  min_ansible_version: "2.12"
-
+  min_ansible_version: '2.12'
   platforms:
-    - name: Ubuntu
-      versions:
-        - "24.04"
-        - "22.04"
-        - "20.04"
-    - name: Debian
-      versions:
-        - "12"
-        - "11"
-    - name: RedHat
-      versions:
-        - "9"
-        - "8"
-    - name: Rocky
-      versions:
-        - "9"
-        - "8"
-
+  - name: Ubuntu
+    versions:
+    - noble
+    - jammy
+    - focal
+  - name: Debian
+    versions:
+    - trixie
+    - bookworm
+  - name: RedHat
+    versions:
+    - all
+  - name: Rocky
+    versions:
+    - '9'
+    - '8'
   galaxy_tags:
-    - rancher
-    - kubernetes
-    - management
-    - certmanager
-    - traefik
-    - longhorn
-    - ingress
-    - storage
-    - cluster
-    - helm
-    - container
-    - orchestration
-    - platform
-    - devops
-    - infrastructure
-    - automation
-    - monitoring
-    - dashboard
-    - security
-
+  - rancher
+  - kubernetes
+  - management
+  - certmanager
+  - traefik
+  - longhorn
+  - ingress
+  - storage
+  - cluster
+  - helm
+  - container
+  - orchestration
+  - platform
+  - devops
+  - infrastructure
+  - automation
+  - monitoring
+  - dashboard
+  - security
 dependencies:
-  - role: wolskinet.rke2_ansible.helm_install
-    when: ansible_os_family != "Windows"
+- role: wolskinet.rke2_ansible.helm_install
+  when: ansible_os_family != "Windows"
