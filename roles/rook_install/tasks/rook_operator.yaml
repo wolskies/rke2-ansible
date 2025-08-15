@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 - name: Verify Helm is Installed
+  tags: rook_operator
   block:
     - name: Check if Helm is available
       ansible.builtin.command: helm version --short
@@ -15,9 +16,8 @@
           Helm is required to install the Rook Ceph operator.
           Please ensure a Helm role is included before running this role.
 
-  tags: rook_operator
-
 - name: Ensure Namespace and Helm Repo Setup
+  tags: rook_operator
   block:
     - name: Ensure rook-ceph namespace exists
       kubernetes.core.k8s:

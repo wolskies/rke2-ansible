@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-- hosts: localhost
+- name: Test rook_install role
+  hosts: localhost
   remote_user: root
   roles:
-    - rook
+    - rook_install

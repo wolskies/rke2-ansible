@@ -72,4 +72,8 @@
         kubectl create secret generic operator-ca-tls-tenant-1 --from-file=ca.crt -n minio-operator
       args:
         chdir: "{{ minio_tenant_path }}"
-      ignore_errors: true
+      register: create_secret_result
+      failed_when:
+        - create_secret_result.rc != 0
+        - "'already exists' not in create_secret_result.stderr"
+      changed_when: create_secret_result.rc == 0

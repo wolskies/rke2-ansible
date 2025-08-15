@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
 - name: Deploy CephFilesystem and StorageClass (optional)
+  when: rook_ceph_enable_filesystem | bool
   block:
 
     - name: Create CephFilesystem
@@ -97,5 +98,3 @@
           - "Make Default: {{ rook_ceph_fs_make_default }}"
       when: skip_kubernetes_operations or skip_helm_operations
       tags: rook_filesystem
-
-  when: rook_ceph_enable_filesystem | bool

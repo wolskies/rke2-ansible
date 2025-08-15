@@ -42,4 +42,7 @@
       ansible.builtin.package:
         name: ufw
         state: present
-      ignore_errors: true
+      register: ufw_install_result
+      failed_when:
+        - ufw_install_result.rc != 0
+        - "'not available' not in ufw_install_result.msg | default('')"

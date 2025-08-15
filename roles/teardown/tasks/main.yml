@@ -5,13 +5,21 @@
   tags: [cleanup-rke2, always]
   block:
     - name: Download RKE2 uninstaller
-      ansible.builtin.shell: curl -sfL https://get.rke2.io | sh -
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl -sfL https://get.rke2.io | sh -
       become: true
+      register: download_uninstaller_result
+      changed_when: download_uninstaller_result.rc == 0
+      failed_when: download_uninstaller_result.rc != 0
 
     - name: Run RKE2 uninstaller
       ansible.builtin.command:
         cmd: /usr/local/bin/rke2-uninstall.sh
       become: true
+      register: uninstaller_result
+      changed_when: uninstaller_result.rc == 0
+      failed_when: false
 
 - name: Configuration Files Cleanup
   tags: [cleanup-config, always]
@@ -34,12 +42,12 @@
 
 - name: Storage Components Cleanup
   tags: [cleanup-storage]
+  become: true
   block:
     - name: Remove DirectPV binary
       ansible.builtin.file:
         path: /home/{{ ansible_user }}/.local/bin/kubectl-directpv
         state: absent
-  become: true
 
 - name: Ensure UFW rules are removed for RKE2 controllers
   community.general.ufw:
