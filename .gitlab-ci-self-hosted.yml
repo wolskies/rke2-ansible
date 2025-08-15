@@ -33,7 +33,6 @@ variables:
     key:
       files:
         - test-requirements.txt
-        - .ansible-lint
     paths:
       - .cache/pip/
       - .cache/uv/
@@ -51,6 +50,7 @@ variables:
   <<: *self_hosted
   image: quay.io/ansible/ansible-runner:latest
   before_script:
+    - cp .ansible-lint /
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - source $HOME/.local/bin/env
     - uv venv .venv
