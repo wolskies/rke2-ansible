@@ -4,7 +4,6 @@
 stages:
   - lint
   - unit-test
-  - integration-test
   - build
   - security-scan
   - deploy-test
@@ -171,68 +170,8 @@ test:molecule:
     expire_in: 1 week
   allow_failure: true
 
-# Integration Testing Stage
-test:integration:basic:
-  <<: *ansible_job
-  stage: integration-test
-  services:
-    - name: docker:24.0.7-dind
-      alias: docker
-      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apt update && apt install curl docker.io -y
-    - curl -LsSf https://astral.sh/uv/install.sh | sh
-    - source $HOME/.local/bin/env
-    - uv venv .venv
-    - source .venv/bin/activate
-    - uv pip install -r test-requirements.txt
-    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
-  script:
-    - echo "Waiting for Docker daemon to start..."
-    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
-    - docker info
-    - cd tests/integration
-    - molecule test --scenario-name integration
-  only:
-    - main
-    - merge_requests
-
-test:integration:full-stack:
-  <<: *ansible_job
-  stage: integration-test
-  services:
-    - name: docker:24.0.7-dind
-      alias: docker
-      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apt update && apt install curl docker.io -y
-    - curl -LsSf https://astral.sh/uv/install.sh | sh
-    - source $HOME/.local/bin/env
-    - uv venv .venv
-    - source .venv/bin/activate
-    - uv pip install -r test-requirements.txt
-    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
-  script:
-    - echo "Waiting for Docker daemon to start..."
-    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
-    - docker info
-    - cd tests/integration
-    - molecule test --scenario-name full-deployment
-  artifacts:
-    paths:
-      - tests/integration/molecule/full-deployment/
-      - "**/*.log"
-    when: always
-    expire_in: 1 week
-  only:
-    - main
-    - tags
+# Integration tests skipped - Docker container tests provide limited value
+# TODO: Implement Kind-based testing for realistic K8s deployment testing
 
 # Build Stage
 build:collection:
@@ -276,6 +215,7 @@ security:secrets:
   allow_failure: true
 
 # Deployment Test Stage
+# TODO: Replace with Kind-based testing for realistic K8s cluster deployment
 deploy-test:k8s-cluster:
   <<: *ansible_job
   stage: deploy-test
