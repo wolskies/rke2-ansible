@@ -4,6 +4,13 @@
   tags: helm
   when: not skip_helm_installation
   block:
+    - name: Install required dependencies for Helm installation
+      ansible.builtin.package:
+        name:
+          - curl
+        state: present
+      become: true
+
     - name: Ensure user-local bin directory exists
       ansible.builtin.file:
         path: "{{ ansible_env.HOME }}/.local/bin"
