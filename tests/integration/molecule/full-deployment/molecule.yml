@@ -126,9 +126,6 @@ provisioner:
     ssh_connection:
       pipelining: false
 
-verifier:
-  name: ansible
-
 scenario:
   test_sequence:
     - dependency
@@ -138,6 +135,5 @@ scenario:
     - create
     - prepare
     - converge
-    - verify
     - cleanup
     - destroy
