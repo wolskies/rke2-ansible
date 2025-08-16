@@ -1,0 +1,64 @@
+# Example GitLab CI/CD job for Kind-based testing
+# Add this to your .gitlab-ci.yml file
+
+# Kind Testing Stage
+test:kind-deployment:
+  image: docker:24.0.7-dind
+  stage: deploy-test
+  services:
+    - name: docker:24.0.7-dind
+      alias: docker
+      command: ["--tls=false", "--host=tcp://0.0.0.0:2375"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    # Install dependencies
+    - apk add --no-cache curl bash openssh-client python3 py3-pip
+    
+    # Install Kind
+    - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+    - chmod +x ./kind && mv ./kind /usr/local/bin/
+    
+    # Install kubectl
+    - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+    - chmod +x kubectl && mv kubectl /usr/local/bin/
+    
+    # Install Ansible
+    - pip3 install ansible-core ansible
+    
+    # Wait for Docker daemon
+    - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
+  
+  script:
+    # Create Kind cluster
+    - cd tests/kind
+    - chmod +x setup-kind-test.sh
+    - ./setup-kind-test.sh
+    
+    # Test Ansible connectivity
+    - ansible -i test-inventory.ini all -m ping
+    
+    # Run test playbook
+    - ansible-playbook -i test-inventory.ini test-playbook.yml -v
+    
+    # Verify cluster state
+    - kubectl get nodes
+    - kubectl get pods -A
+    
+  after_script:
+    # Cleanup
+    - kind delete cluster --name rke2-test || true
+  
+  artifacts:
+    paths:
+      - tests/kind/*.log
+    when: always
+    expire_in: 1 week
+  
+  # Run manually or on specific branches
+  when: manual
+  only:
+    - main
+    - develop
+    - /^feature\/kind-testing$/

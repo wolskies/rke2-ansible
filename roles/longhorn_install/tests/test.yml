@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-- name: Install Longhorn test
-  hosts: localhost
-  remote_user: root
-  roles:
-    - longhorn_install

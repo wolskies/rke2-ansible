@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-- name: Test rancher_install role
-  hosts: localhost
-  remote_user: root
-  roles:
-    - rancher_install

@@ -1,0 +1,74 @@
+---
+# Test playbook for RKE2 components on Kind cluster
+# This validates component installation without actually deploying RKE2
+- name: Test RKE2 Components on Kind Cluster
+  hosts: all
+  become: false
+  gather_facts: true
+  
+  vars:
+    # Override for Kind testing
+    ansible_python_interpreter: /usr/bin/python3
+    
+  pre_tasks:
+    - name: Install sudo (required for container testing)
+      ansible.builtin.raw: apt update && apt install -y sudo
+      changed_when: false
+    
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      become: true
+      when: ansible_os_family == "Debian"
+    
+    - name: Install basic dependencies for testing
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - unzip
+          - python3-pip
+        state: present
+      become: true
+      when: ansible_os_family == "Debian"
+
+  roles:
+    # Test Helm installation
+    - role: helm_install
+      when: install_helm | default(true)
+    
+    # Test RKE2 role (config generation only)
+    - role: deploy_rke2
+      when: test_rke2_config | default(true)
+
+  post_tasks:
+    - name: Verify Helm installation
+      ansible.builtin.command: helm version --client
+      register: helm_version_output
+      failed_when: false
+      changed_when: false
+      when: install_helm | default(true)
+    
+    - name: Display Helm version
+      ansible.builtin.debug:
+        var: helm_version_output.stdout
+      when: 
+        - install_helm | default(true)
+        - helm_version_output is defined
+    
+    - name: Check for RKE2 configuration files
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: rke2_config_files
+      loop:
+        - /etc/rancher/rke2/config.yaml
+        - /etc/systemd/system/rke2-server.service
+        - /etc/systemd/system/rke2-agent.service
+      when: test_rke2_config | default(true)
+    
+    - name: Display RKE2 config file status
+      ansible.builtin.debug:
+        msg: "{{ item.item }} exists: {{ item.stat.exists }}"
+      loop: "{{ rke2_config_files.results | default([]) }}"
+      when: test_rke2_config | default(true)

@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-- name: Install MinIO test
-  hosts: localhost
-  remote_user: root
-  roles:
-    - minio_install

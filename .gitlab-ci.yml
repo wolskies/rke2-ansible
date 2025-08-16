@@ -214,10 +214,9 @@ security:secrets:
     expire_in: 1 week
   allow_failure: true
 
-# Deployment Test Stage
-# TODO: Replace with Kind-based testing for realistic K8s cluster deployment
-deploy-test:k8s-cluster:
-  <<: *ansible_job
+# Deployment Test Stage - Kind-based testing
+deploy-test:kind-cluster:
+  image: docker:24.0.7-dind
   stage: deploy-test
   services:
     - name: docker:24.0.7-dind
@@ -227,26 +226,50 @@ deploy-test:k8s-cluster:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - apt update && apt install curl docker.io -y
-    - curl -LsSf https://astral.sh/uv/install.sh | sh
-    - source $HOME/.local/bin/env
-    - uv venv .venv
-    - source .venv/bin/activate
-    - uv pip install -r test-requirements.txt
-    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
-  script:
-    - echo "Waiting for Docker daemon to start..."
+    # Install dependencies
+    - apk add --no-cache curl bash openssh-client python3 py3-pip
+    
+    # Install Kind
+    - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+    - chmod +x ./kind && mv ./kind /usr/local/bin/
+    
+    # Install kubectl
+    - curl -LO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+    - chmod +x kubectl && mv kubectl /usr/local/bin/
+    
+    # Install Ansible
+    - pip3 install ansible-core ansible
+    
+    # Wait for Docker daemon
     - timeout 120 sh -c "until docker info >/dev/null 2>&1; do echo 'Connecting to Docker...'; sleep 3; done"
-    - docker info
-    - cd tests/deployment
-    - molecule test --scenario-name k8s-deployment
+  
+  script:
+    # Create Kind cluster with Ubuntu compatibility
+    - ./tests/kind/setup-ubuntu-kind.sh
+    
+    # Test Ansible connectivity
+    - ANSIBLE_CONFIG=tests/kind/ansible.cfg ansible -i tests/kind/simple-inventory.ini all -m ping
+    
+    # Run Kind test playbook
+    - ANSIBLE_CONFIG=tests/kind/ansible.cfg ansible-playbook -i tests/kind/simple-inventory.ini tests/kind/test-playbook.yml -v
+    
+    # Verify cluster state
+    - kubectl get nodes
+    - kubectl get pods -A
+    
+  after_script:
+    # Cleanup
+    - kind delete cluster --name rke2-test || true
+  
   artifacts:
     paths:
-      - tests/deployment/molecule/k8s-deployment/
-      - "**/*.log"
+      - tests/kind/*.log
     when: always
     expire_in: 1 week
+  
+  # Run manually or on specific branches
+  when: manual
   only:
     - main
-    - tags
-  when: manual
+    - develop
+    - /^feature\/kind-testing$/

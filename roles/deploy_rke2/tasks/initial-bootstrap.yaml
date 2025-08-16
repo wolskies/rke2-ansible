@@ -73,7 +73,7 @@
 
     - name: Ensure .kube directory exists in user's home
       ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/.kube"
+        path: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube"
         state: directory
         mode: "0755"
       become: true
@@ -81,13 +81,13 @@
     - name: Copy config file to user home directory
       ansible.builtin.copy:
         src: /etc/rancher/rke2/rke2.yaml
-        dest: "/home/{{ ansible_user }}/.kube/config"
+        dest: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube/config"
         remote_src: true
-        owner: "{{ ansible_user }}"
+        owner: "{{ ansible_user | default(ansible_user_id) }}"
         mode: "u=rw,g=,o="
 
     - name: Replace IP address with server1
       ansible.builtin.replace:
-        path: /home/{{ ansible_user }}/.kube/config
+        path: /home/{{ ansible_user | default(ansible_user_id) }}/.kube/config
         regexp: "127.0.0.1"
         replace: "{{ hostvars[groups['controllers'][0]].ansible_host }}"

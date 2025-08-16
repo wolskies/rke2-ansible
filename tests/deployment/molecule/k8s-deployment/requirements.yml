@@ -1,9 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-collections:
-  - name: community.docker
-    version: ">=3.0.0"
-  - name: kubernetes.core
-    version: ">=3.0.0"
-  - name: community.general
-    version: ">=8.0.0"

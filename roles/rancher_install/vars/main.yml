@@ -1,5 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-# vars file for cluster_tools
-# choose between “production” or “staging” (testing)
-

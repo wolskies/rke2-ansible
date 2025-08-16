@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
----
-- name: Deploy RKE2 test
-  hosts: localhost
-  remote_user: root
-  roles:
-    - deploy_rke2

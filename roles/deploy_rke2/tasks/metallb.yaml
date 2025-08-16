@@ -4,7 +4,7 @@
 - name: Metallb installation
   tags: metallb
   become: true
-  become_user: "{{ ansible_user }}"
+  become_user: "{{ ansible_user | default(ansible_user_id) }}"
   when: inventory_hostname == groups['controllers'][0]
   block:
     - name: Create metallb directory
@@ -39,16 +39,16 @@
       ansible.builtin.template:
         src: templates/l2Advertisement.yaml.j2
         dest: "{{ metallb_path }}/l2Advertisement.yaml"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
+        owner: "{{ ansible_user | default(ansible_user_id) }}"
+        group: "{{ ansible_user | default(ansible_user_id) }}"
         mode: "0755"
 
     - name: Copy metallb IPPool to server 1
       ansible.builtin.template:
         src: templates/metallb-ippool.j2
         dest: "{{ metallb_path }}/ippool.yaml"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
+        owner: "{{ ansible_user | default(ansible_user_id) }}"
+        group: "{{ ansible_user | default(ansible_user_id) }}"
         mode: "0755"
 
     - name: Apply metallb ipppool
