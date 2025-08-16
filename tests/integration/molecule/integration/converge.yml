@@ -7,7 +7,7 @@
   tasks:
     - name: Install Helm on all nodes
       ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.helm_install
+        name: helm_install
 
 - name: Test RKE2 Configuration (Controllers)
   hosts: controllers
@@ -16,7 +16,7 @@
   tasks:
     - name: Test RKE2 configuration generation for controllers
       ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.deploy_rke2
+        name: deploy_rke2
       vars:
         skip_rke2_installation: true
         skip_firewall_configuration: true
@@ -30,7 +30,7 @@
   tasks:
     - name: Test RKE2 configuration generation for agents
       ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.deploy_rke2
+        name: deploy_rke2
       vars:
         skip_rke2_installation: true
         skip_firewall_configuration: true
@@ -44,7 +44,7 @@
   tasks:
     - name: Test MySQL Operator role (dependencies only)
       ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.mysql_operator
+        name: mysql_operator
       vars:
         skip_mysql_installation: true
       tags:
@@ -52,7 +52,7 @@
 
     - name: Test teardown role (dry run)
       ansible.builtin.include_role:
-        name: wolskinet.rke2_ansible.teardown
+        name: teardown
       vars:
         teardown_dry_run: true
       tags:
