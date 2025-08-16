@@ -10,20 +10,40 @@ This collection includes a number of roles for the creation and management of an
 
 ## Description
 
-This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install Metallb, Traefik, Cert-Manager, Rancher and Longhorn.  While it can be adapted to other distributions, it is currently tailored to Ubuntu Server 24+.
+This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install MetalLB, Traefik, Cert-Manager, Rancher, and various storage solutions (Longhorn, Rook/Ceph, MinIO). While it can be adapted to other distributions, it is currently tested and optimized for Ubuntu Server 20.04+, RHEL/Rocky/Oracle Linux 8.7+, SLES 15 SP3+, and Amazon Linux 2/2023. Both AMD64 and ARM64 architectures are supported.
 
-#### Role: deploy-rke2
+#### Role: deploy_rke2
 
-Deploys RKE2 on a bare-metal cluster.  Alongside RKE2 this role will configure a virtual IP with `kube-vip` and a load balancer with `metallb`.
+Deploys RKE2 on a bare-metal cluster. Alongside RKE2 this role will configure a virtual IP with `kube-vip` and a load balancer with `MetalLB`.
+
+#### Role: helm_install
+
+Installs Helm package manager and required dependencies for managing Kubernetes applications.
 
 #### Role: rancher_install
 
-Deploys Rancher for cluster management, along with the tooling required (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. The default is setup for Cloudflare's DNS-01 challenge, but it can be modified for your provider.  **Recommend the Cloudflare API Token be put in an ansible vault file (`ansible-vault create secrets.yaml`):
+Deploys Rancher for cluster management, along with the tooling required (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. The default is setup for Cloudflare's DNS-01 challenge, but it can be modified for your provider. **Recommend the Cloudflare API Token be put in an ansible vault file (`ansible-vault create secrets.yaml`):
 ```
 ---
 cf_token: "your_cloudflare_token_here"
 ```
-Then place the token file in the `group_vars` in your inventory folder.  See the example playbook below.
+Then place the token file in the `group_vars` in your inventory folder. See the example playbook below.
+
+#### Storage Roles
+
+**longhorn_install**: Deploys Longhorn distributed block storage system for persistent volumes.
+
+**rook_install**: Deploys Rook-Ceph distributed storage system as an alternative to Longhorn.
+
+**minio_install**: Deploys MinIO object storage with operator, DirectPV CSI driver, and tenant configuration.
+
+#### Database Role
+
+**mysql_operator**: Deploys MySQL Operator for Kubernetes to manage MySQL database instances.
+
+#### Utility Roles
+
+**teardown**: Provides complete cleanup and removal of RKE2 clusters and all associated components.
 
 ## Installation
 
@@ -39,11 +59,48 @@ See the Ansible documentation for more details on using collections.
 
 #### Hardware/Software
 
-Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements).  This collection is written and tested on `amd64` systems, but should work for `arm64/aarch64`.  It is not intended to support Windows.
+Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements). This collection is tested on both `amd64` and `arm64/aarch64` architectures. It is not intended to support Windows.
 
-#### Kube VIP
+**Supported Operating Systems:**
+- Ubuntu Server 20.04, 22.04, 24.04, 25.04
+- RHEL/Rocky/Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+- SUSE Linux Enterprise Server 15 SP3, SP4, SP5, SP6
+- Amazon Linux 2, Amazon Linux 2023
 
-Kube VIP needs to know the name of the primary ethernet interface.  The configuration file assumes it's `eth0`.  The best way is to change the name of the primary interface to `eth0` - that can be done in an Ubuntu environment via `/etc/netplan/50-cloud-init.yaml` like this:
+#### Component Versions
+
+| Component | Version | Purpose |
+|-----------|---------|---------|
+| RKE2 | v1.33.3+rke2r1 | Kubernetes distribution |
+| Helm | v3.18.4 | Package manager |
+| Kube-VIP | v0.9.1 | Virtual IP for HA |
+| MetalLB | v0.15.2 | Load balancer |
+| Cert-Manager | v1.18.2 | Certificate management |
+| Traefik | v37.0.0 | Ingress controller |
+| Rancher | v2.12.0 | Cluster management |
+| Longhorn | v1.9.1 | Block storage |
+| Rook-Ceph | v1.17.7 | Distributed storage |
+| MinIO Operator | Latest | Object storage |
+| MySQL Operator | v8.4.3 | Database management |
+
+#### Network Configuration
+
+**Default Network Ranges** (customizable via variables):
+- **Management Network**: `192.168.100.0/24`
+- **Virtual IP (VIP)**: `192.168.100.30`
+- **Load Balancer Range**: `192.168.100.240-192.168.100.254`
+- **Primary Interface**: `eth0` (required for Kube-VIP)
+
+**Required Ports** (automatically configured via UFW):
+- **6443**: Kubernetes API server
+- **9345**: RKE2 supervisor API
+- **10250**: Kubelet API
+- **2379-2381**: etcd client/peer communication
+- **30000-32767**: NodePort services range
+
+#### Kube VIP Interface Configuration
+
+Kube VIP needs to know the name of the primary ethernet interface. The configuration file assumes it's `eth0`. The best way is to change the name of the primary interface to `eth0` - that can be done in an Ubuntu environment via `/etc/netplan/50-cloud-init.yaml` like this:
 ```
 network:
   version: 2
@@ -64,7 +121,6 @@ network:
 
 * Note 4: If the firewall is set to UFW, the appropriate firewall rules will be installed, but UFW will be left in the state (enabled/disabled) that it was found in.
 
-* Note 5: (Not Yet Implemented) If the firewall is set to Calico, a GlobalNetworkPolicy will be created and applied to each host.  This will allow RKE2 required communications, but effectively firewall all other incoming traffic to the cluster.
 
 #### Inventory
 
@@ -91,35 +147,140 @@ agents:
             ansible_host: 192.168.10.5
 ```
 
+## Security Considerations
+
+⚠️ **Important**: This collection includes default credentials that **MUST** be changed for production deployments:
+
+- **MinIO**: Default root user `minio` / password `minio123`
+- **MinIO Console**: Default access key `console` / secret key `console123`
+- **Cloudflare API Token**: Store in ansible vault file (see rancher_install role documentation)
+
+**Best Practices:**
+1. Use `ansible-vault` to encrypt sensitive variables
+2. Change all default passwords before production deployment
+3. Review and customize network ranges for your environment
+4. Ensure proper firewall rules are configured (automatically handled via UFW)
+5. Use strong TLS certificates (Let's Encrypt integration included)
+
 ## Usage
 
-The role contains a sample playbook in the `playbooks` directory along with a sample `group_vars` to customize role defaults.  Assuming you have installed the role as a collection, a typical deployment playbook would look like:
-```
+The collection contains a sample playbook in the `playbooks` directory along with sample `group_vars` to customize role defaults. Assuming you have installed the collection, a typical deployment playbook would look like:
+
+### Basic RKE2 Cluster Deployment
+```yaml
 ---
 - name: Deploy RKE2 Cluster
-  hosts:
-    - rke2
+  hosts: rke2
   vars_files:
     - /home/user/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
-    - name: wolskinet.rke2_ansible.deploy_rke2
-      become: true
-    - name: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname == (groups['servers'] | first)
+    # Install Helm on all nodes
+    - role: wolskinet.rke2_ansible.helm_install
       become: false
+
+    # Install RKE2 cluster on all nodes
+    - role: wolskinet.rke2_ansible.deploy_rke2
+      become: true
+
+    # Install Rancher management platform (first controller only)
+    - role: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname == (groups['controllers'] | first)
+      become: false
+      tags: rancher
+
+    # Storage options (choose ONE) - (first controller only)
+    # Longhorn - distributed block storage
+    - role: wolskinet.rke2_ansible.longhorn_install
+      when: inventory_hostname == (groups['controllers'] | first)
+      become: false
+      tags: longhorn
+      
+    # Alternative storage options (uncomment to use instead of Longhorn):
+    
+    # Rook/Ceph - distributed storage alternative
+    # - role: wolskinet.rke2_ansible.rook_install
+    #   when: inventory_hostname == (groups['controllers'] | first)
+    #   become: false
+    #   tags: rook
+
+    # MinIO - object storage
+    # - role: wolskinet.rke2_ansible.minio_install
+    #   when: inventory_hostname == (groups['controllers'] | first)
+    #   become: false
+    #   tags: minio
+
+    # MySQL Operator - database operator
+    # - role: wolskinet.rke2_ansible.mysql_operator
+    #   when: inventory_hostname == (groups['controllers'] | first)
+    #   become: false
+    #   tags: mysql
 ```
+
+### Minimal Deployment (RKE2 only)
+```yaml
+---
+- name: Deploy Minimal RKE2 Cluster
+  hosts: rke2
+  become: false
+  roles:
+    - role: wolskinet.rke2_ansible.helm_install
+    - role: wolskinet.rke2_ansible.deploy_rke2
+      become: true
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Network Configuration:**
+- Ensure VIP (`192.168.100.30`) is not already in use
+- Verify primary interface is named `eth0` or update `vip_interface` variable
+- Check that load balancer range doesn't conflict with existing IPs
+
+**Firewall Issues:**
+- UFW rules are automatically configured, but verify no conflicting rules exist
+- If using a different firewall, disable it or configure RKE2 ports manually
+- NetworkManager conflicts with Canal CNI - role removes it by default
+
+**Storage Problems:**
+- Only deploy one storage solution (Longhorn OR Rook OR MinIO for block storage)
+- Ensure nodes have sufficient disk space (Rook requires 5Ti minimum device capacity)
+- Verify storage classes are created properly after deployment
+
+**Certificate Issues:**
+- Cloudflare API token must be valid and have DNS edit permissions
+- Check cert-manager logs if certificates fail to issue
+- Verify domain configuration matches `traefik_domain` variable
+
+### Getting Help
+
+- Check role-specific README files for detailed configuration options
+- Review logs: `kubectl logs -n <namespace> <pod-name>`
+- For RKE2 issues, see [official documentation](https://docs.rke2.io)
+- For component-specific issues (Rancher, Traefik, etc.), refer to their official documentation
 
 ## Support
 
-Obviously happy to help with the role.  For Rancher, Traefik, etc, I recommend going to their sites.  I've put links to useful information where I've been able to find it.
+Happy to help with the collection. For component-specific issues (Rancher, Traefik, etc.), I recommend referring to their official documentation. Links to useful information are provided where available.
 
 ## Roadmap
 
-I am considering additional roles for services to deploy to the cluster including:
-    - Postgres
-    - ZenML Dashboard
-    - MongoDB
+### Current Features ✅
+- ✅ RKE2 cluster deployment with HA
+- ✅ Multiple storage solutions (Longhorn, Rook/Ceph, MinIO)
+- ✅ MySQL Operator for database management
+- ✅ Rancher management platform
+- ✅ Complete teardown capabilities
+
+### Future Enhancements 🚧
+- **Additional Database Operators**: PostgreSQL, MongoDB operators
+- **Monitoring Stack**: Prometheus, Grafana, AlertManager
+- **Service Mesh**: Istio or Linkerd integration  
+- **Backup Solutions**: Velero for cluster backups
+- **Security Enhancements**: Pod Security Standards, Network Policies
+- **Additional CNI Options**: Cilium, Calico support
+- **GitOps Integration**: ArgoCD or Flux deployment
 
 ## Authors and acknowledgment
 

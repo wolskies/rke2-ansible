@@ -99,10 +99,16 @@ ansible-playbook minio-install.yaml --tags "minio-operator,minio-tenant"
 
 ## Security Considerations
 
-- Change default passwords in production deployments
-- Use `ansible-vault` for sensitive variables like `minio_root_password`
-- Consider using cert-manager for TLS certificate management
-- Store console credentials securely
+⚠️ **WARNING**: Default credentials are insecure and MUST be changed for production:
+- **MinIO Root**: `minio` / `minio123`
+- **Console Access**: `console` / `console123`
+
+**Production Security Steps:**
+1. Change `minio_root_password` and `console_secret_key` variables
+2. Use `ansible-vault` for sensitive variables like `minio_root_password`
+3. Configure cert-manager for TLS certificate management (included)
+4. Store console credentials securely in encrypted variable files
+5. Review and customize storage encryption settings
 
 ## License
 
