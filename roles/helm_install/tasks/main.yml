@@ -4,12 +4,30 @@
   tags: helm
   when: not skip_helm_installation
   block:
-    - name: Install required dependencies for Helm installation
-      ansible.builtin.package:
+    - name: Install required dependencies for Helm installation (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name:
+          - curl
+        state: present
+        update_cache: true
+      become: true
+      when: ansible_os_family == "Debian"
+
+    - name: Install required dependencies for Helm installation (RedHat/CentOS)
+      ansible.builtin.yum:
         name:
           - curl
         state: present
       become: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Install required dependencies for Helm installation (SUSE)
+      ansible.builtin.zypper:
+        name:
+          - curl
+        state: present
+      become: true
+      when: ansible_os_family == "Suse"
 
     - name: Ensure user-local bin directory exists
       ansible.builtin.file:
