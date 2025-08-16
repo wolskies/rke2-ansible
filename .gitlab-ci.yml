@@ -189,12 +189,12 @@ build:collection:
     - tags
 
 # Security Scanning Stage
-security:ansible-content:
+security:ansible-lint:
   <<: *ansible_job
   stage: security-scan
   script:
-    - pip install ansible-content-scanner
-    - ansible-content-scanner scan . > security-report.json || true
+    - ansible-lint --version
+    - ansible-lint roles/ playbooks/ --format json > security-report.json || true
   artifacts:
     paths:
       - security-report.json
