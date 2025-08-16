@@ -42,9 +42,12 @@ variables:
           sleep 10
           if [ $i -eq 3 ]; then
             echo "All attempts failed, trying individual collection install"
-            ansible-galaxy collection install community.docker --force || echo "WARNING: community.docker install failed"
-            ansible-galaxy collection install kubernetes.core --force || echo "WARNING: kubernetes.core install failed"
-            ansible-galaxy collection install community.general --force || echo "WARNING: community.general install failed"
+            ansible-galaxy collection install community.docker --force || \
+              echo "WARNING: community.docker install failed"
+            ansible-galaxy collection install kubernetes.core --force || \
+              echo "WARNING: kubernetes.core install failed"
+            ansible-galaxy collection install community.general --force || \
+              echo "WARNING: community.general install failed"
           fi
         fi
       done
