@@ -14,7 +14,7 @@
       when: ansible_os_family == "Debian"
 
     - name: Install required dependencies for Helm installation (RedHat/CentOS)
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name:
           - curl
         state: present
@@ -22,7 +22,7 @@
       when: ansible_os_family == "RedHat"
 
     - name: Install required dependencies for Helm installation (SUSE)
-      ansible.builtin.zypper:
+      community.general.zypper:
         name:
           - curl
         state: present
