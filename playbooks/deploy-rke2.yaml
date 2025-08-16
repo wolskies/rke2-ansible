@@ -7,7 +7,7 @@
     secrets_file: "/home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml"
   pre_tasks:
     - name: Include secrets if file exists
-      include_vars: "{{ secrets_file }}"
+      ansible.builtin.include_vars: "{{ secrets_file }}"
       when: secrets_file is file
   become: false
   roles:
