@@ -67,5 +67,5 @@ galaxy_info:
     - distributed
 
 dependencies:
-  - role: wolskinet.rke2_ansible.helm_install
+  - role: helm_install
     when: ansible_os_family != "Windows"
