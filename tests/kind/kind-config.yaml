@@ -1,3 +1,4 @@
+---
 # Kind cluster configuration for RKE2 testing
 # This creates a multi-node cluster that simulates a realistic deployment environment
 kind: Cluster
@@ -8,11 +9,11 @@ nodes:
   - role: control-plane
     image: kindest/node:v1.29.0@sha256:eaa1450915475849a73a9227b8f201df25e55e268e5d619312131292e324d570
     kubeadmConfigPatches:
-    - |
-      kind: InitConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "node-type=controller"
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=controller"
     extraMounts:
       # Mount for testing storage components
       - hostPath: /tmp/kind-storage
@@ -30,11 +31,11 @@ nodes:
   - role: worker
     image: kindest/node:v1.29.0@sha256:eaa1450915475849a73a9227b8f201df25e55e268e5d619312131292e324d570
     kubeadmConfigPatches:
-    - |
-      kind: JoinConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "node-type=worker"
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=worker"
     extraMounts:
       - hostPath: /tmp/kind-storage
         containerPath: /mnt/storage
@@ -43,11 +44,11 @@ nodes:
   - role: worker
     image: kindest/node:v1.29.0@sha256:eaa1450915475849a73a9227b8f201df25e55e268e5d619312131292e324d570
     kubeadmConfigPatches:
-    - |
-      kind: JoinConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "node-type=worker"
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=worker"
     extraMounts:
       - hostPath: /tmp/kind-storage
         containerPath: /mnt/storage
