@@ -65,6 +65,7 @@ provisioner:
         # Disable actual installation in containers
         skip_rke2_installation: true
         skip_firewall_configuration: true
+        skip_helm_installation: true
 
         # Component versions
         helm_version: "v3.18.4"
