@@ -31,14 +31,32 @@ variables:
     - uv venv .venv
     - source .venv/bin/activate
     - uv pip install -r test-requirements.txt
-    - ansible-galaxy collection install community.docker kubernetes.core community.general --force
+    - |
+      # Install collections with retry logic and fallback
+      for i in {1..3}; do
+        if ansible-galaxy collection install -r requirements.yml --force; then
+          echo "Collections installed successfully"
+          break
+        else
+          echo "Attempt $i failed, retrying in 10 seconds..."
+          sleep 10
+          if [ $i -eq 3 ]; then
+            echo "All attempts failed, trying individual collection install"
+            ansible-galaxy collection install community.docker --force || echo "WARNING: community.docker install failed"
+            ansible-galaxy collection install kubernetes.core --force || echo "WARNING: kubernetes.core install failed"
+            ansible-galaxy collection install community.general --force || echo "WARNING: community.general install failed"
+          fi
+        fi
+      done
   cache:
     key:
       files:
         - test-requirements.txt
+        - requirements.yml
     paths:
       - .cache/uv/
       - .venv/
+      - ~/.ansible/collections/
   tags:
     - docker # Use your self-hosted runners with docker tag
 
@@ -84,6 +102,14 @@ lint:yaml:
 test:syntax:
   <<: *ansible_job
   stage: unit-test
+  before_script:
+    # Minimal setup for syntax check only - skip external collections
+    - apt update && apt install curl -y
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install ansible-core yamllint
   script:
     - |
       for role in roles/*/; do
