@@ -8,6 +8,8 @@
       ansible.builtin.shell: |
         set -o pipefail
         curl -sfL https://get.rke2.io | sh -
+      args:
+        executable: /bin/bash
       become: true
       register: download_uninstaller_result
       changed_when: download_uninstaller_result.rc == 0
