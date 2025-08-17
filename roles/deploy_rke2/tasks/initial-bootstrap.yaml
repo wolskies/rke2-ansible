@@ -40,7 +40,7 @@
         dest: /usr/local/bin/kubectl
         mode: "0755"
         remote_src: true
-        become: true
+      become: true
 
     - name: Wait for kubectl
       ansible.builtin.wait_for:
