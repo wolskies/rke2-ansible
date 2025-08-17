@@ -40,7 +40,6 @@ rook_ceph_operator_values:
   monitoring:
     enabled: false
 
-# Test mode configuration
-test_mode: false
-skip_kubernetes_operations: false
-skip_helm_operations: false
+# Component installation control
+rook_install_operator: true
+rook_install_cluster: true

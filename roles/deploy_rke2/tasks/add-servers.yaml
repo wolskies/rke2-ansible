@@ -27,7 +27,7 @@
   delay: 10
   changed_when: true
   become: true
-  become_user: "{{ ansible_user | default(ansible_user_id) }}"
+  become_user: "{{ ansible_user }}"
   when: inventory_hostname == groups['controllers'][0]
 
 - name: Apply kube vip configuration file

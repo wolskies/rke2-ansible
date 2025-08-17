@@ -6,44 +6,23 @@
     state: present
   become: true
 
-- name: Ensure UFW rules are present for RKE2 controllers
+- name: Configure common UFW rules for all nodes
   community.general.ufw:
     rule: allow
     port: "{{ item.port }}"
     proto: "{{ item.proto }}"
     comment: "{{ item.comment }}"
-  loop: "{{ ufw_rules_server }}"
+  loop: "{{ ufw_rules_common }}"
+  notify: Reload UFW
+  become: true
+
+- name: Configure additional UFW rules for controller nodes
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+  loop: "{{ ufw_rules_controllers }}"
   notify: Reload UFW
   when: inventory_hostname in groups['controllers']
-  become: true
-
-- name: Ensure UFW rules are present for RKE2 agents
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    comment: "{{ item.comment }}"
-  loop: "{{ ufw_rules_agent }}"
-  notify: Reload UFW
-  when: inventory_hostname in groups['agents']
-  become: true
-
-- name: Ensure UFW rules are present for CNI
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    comment: "{{ item.comment }}"
-  loop: "{{ ufw_rules_canal }}"
-  notify: Reload UFW
-  become: true
-
-- name: Ensure UFW rules are present for web and Rancher
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    comment: "{{ item.comment }}"
-  loop: "{{ ufw_rules_general }}"
-  notify: Reload UFW
   become: true

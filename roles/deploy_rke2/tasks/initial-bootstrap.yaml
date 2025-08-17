@@ -30,7 +30,7 @@
       ansible.builtin.wait_for:
         path: /var/lib/rancher/rke2/server/node-token
 
-    - name: Wait for kubectl
+    - name: Wait for kubectl binary
       ansible.builtin.wait_for:
         path: /var/lib/rancher/rke2/bin/kubectl
 
@@ -42,38 +42,20 @@
         remote_src: true
       become: true
 
-    - name: Wait for kubectl
-      ansible.builtin.wait_for:
-        path: /usr/local/bin/kubectl
-
-    - name: Register node-token file access mode
-      ansible.builtin.stat:
-        path: /var/lib/rancher/rke2/server
-      register: p
-
-    - name: Change file access for node-token
-      ansible.builtin.file:
-        path: /var/lib/rancher/rke2/server
-        mode: "g+rx,o+rx"
-
-    - name: Fetch the token from the first server node
+    - name: Read RKE2 server token
       ansible.builtin.slurp:
         src: /var/lib/rancher/rke2/server/token
       register: rke2_token
+      become: true
       run_once: true
 
-    - name: Save Master node-token for later
+    - name: Save server token
       ansible.builtin.set_fact:
         token: "{{ rke2_token.content | b64decode | regex_replace('\n', '') }}"
 
-    - name: Restore node-token file access
-      ansible.builtin.file:
-        path: /var/lib/rancher/rke2/server
-        mode: "{{ p.stat.mode }}"
-
     - name: Ensure .kube directory exists in user's home
       ansible.builtin.file:
-        path: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube"
+        path: "/home/{{ ansible_user }}/.kube"
         state: directory
         mode: "0755"
       become: true
@@ -81,13 +63,13 @@
     - name: Copy config file to user home directory
       ansible.builtin.copy:
         src: /etc/rancher/rke2/rke2.yaml
-        dest: "/home/{{ ansible_user | default(ansible_user_id) }}/.kube/config"
+        dest: "/home/{{ ansible_user }}/.kube/config"
         remote_src: true
-        owner: "{{ ansible_user | default(ansible_user_id) }}"
+        owner: "{{ ansible_user }}"
         mode: "u=rw,g=,o="
 
     - name: Replace IP address with server1
       ansible.builtin.replace:
-        path: /home/{{ ansible_user | default(ansible_user_id) }}/.kube/config
+        path: /home/{{ ansible_user }}/.kube/config
         regexp: "127.0.0.1"
         replace: "{{ hostvars[groups['controllers'][0]].ansible_host }}"

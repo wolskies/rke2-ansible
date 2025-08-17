@@ -6,7 +6,9 @@
 kube_vip_version: "v0.9.1"
 rke2_version: "v1.33.3+rke2r1"
 metallb_version: v0.15.2
-metallb_path: /home/{{ ansible_user | default(ansible_user_id) }}/metallb
+# User configuration
+ansible_user: "{{ ansible_user_id }}"
+metallb_path: /home/{{ ansible_user }}/metallb
 
 # Options:
 
@@ -26,10 +28,9 @@ management_network: "192.168.100.0/24"
 lb_range: 192.168.100.240-192.168.100.254
 lb_pool_name: first-pool
 
-# Test mode configuration
-test_mode: false
-skip_rke2_installation: false
-skip_firewall_configuration: false
-skip_network_manager_configuration: false
-skip_kube_vip_installation: false
-skip_metallb_installation: false
+# Component installation control
+rke2_install_kubevip: true
+rke2_install_metallb: true
+
+# Derived paths
+kubectl_config: "/home/{{ ansible_user }}/.kube/config"
