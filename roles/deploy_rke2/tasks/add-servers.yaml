@@ -18,16 +18,6 @@
     mode: '0644'
   when: inventory_hostname != groups['controllers'][0]
 
-- name: Wait for cluster API to be ready
-  ansible.builtin.command:
-    cmd: "kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes"
-  register: kubectl_output
-  until: kubectl_output.rc == 0
-  retries: 30
-  delay: 10
-  changed_when: false
-  when: inventory_hostname == groups['controllers'][0]
-
 - name: Apply kube vip configuration file
   ansible.builtin.command:
     cmd: kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml apply -f https://kube-vip.io/manifests/rbac.yaml

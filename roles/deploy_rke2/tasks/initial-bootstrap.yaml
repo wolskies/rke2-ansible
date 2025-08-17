@@ -26,6 +26,25 @@
         state: restarted
         daemon_reload: true
 
+    - name: Check RKE2 service status
+      ansible.builtin.command: systemctl status rke2-server
+      register: rke2_status
+      failed_when: false
+      changed_when: false
+
+    - name: Show RKE2 service status
+      ansible.builtin.debug:
+        var: rke2_status.stdout_lines
+
+    - name: Check RKE2 service logs
+      ansible.builtin.command: journalctl -u rke2-server --no-pager -l
+      register: rke2_logs
+      changed_when: false
+
+    - name: Show RKE2 service logs
+      ansible.builtin.debug:
+        var: rke2_logs.stdout_lines
+
     - name: Wait for node-token
       ansible.builtin.wait_for:
         path: /var/lib/rancher/rke2/server/node-token
@@ -73,3 +92,12 @@
         path: /home/{{ ansible_user }}/.kube/config
         regexp: "127.0.0.1"
         replace: "{{ hostvars[groups['controllers'][0]].ansible_host }}"
+
+    - name: Wait for API server to be ready
+      ansible.builtin.command:
+        cmd: "kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes"
+      register: kubectl_output
+      until: kubectl_output.rc == 0
+      retries: 30
+      delay: 10
+      changed_when: false
