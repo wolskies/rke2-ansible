@@ -13,7 +13,9 @@
     name: firewalld
     state: stopped
     enabled: false
-  when: "'firewalld.service' in ansible_facts.services and ansible_facts.services['firewalld.service'].state == 'running'"
+  when: >
+    'firewalld.service' in ansible_facts.services and
+    ansible_facts.services['firewalld.service'].state == 'running'
   become: true
 
 - name: Configure UFW rules
