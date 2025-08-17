@@ -1,8 +1,6 @@
 ## Ansible Collection: rke2_ansible
 
 [![GitLab CI](https://img.shields.io/badge/GitLab%20CI-passed-brightgreen?logo=gitlab)](https://your-gitlab-instance.com/your-group/rke2-ansible/-/pipelines)
-[![GitHub Tests](https://github.com/wolskies/rke2-ansible/workflows/Tests%20(Synced%20from%20GitLab)/badge.svg)](https://github.com/wolskies/rke2-ansible/actions)
-[![Ansible Galaxy](https://img.shields.io/badge/galaxy-wolskinet.rke2__ansible-blue.svg)](https://galaxy.ansible.com/wolskinet/rke2_ansible)
 
 This collection includes a number of roles for the creation and management of an RKE2 cluster of bare-metal systems.
 
