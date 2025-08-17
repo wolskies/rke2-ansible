@@ -8,6 +8,4 @@
   become: true
   community.general.ufw:
     state: reloaded
-  when: >
-    "'ufw.service' in ansible_facts.services
-      and ansible_facts.services['ufw.service'].state == 'running'"
+  when: "'ufw.service' in ansible_facts.services and ansible_facts.services['ufw.service'].state == 'running'"
