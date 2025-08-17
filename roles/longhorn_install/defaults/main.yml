@@ -22,7 +22,3 @@ longhorn_create_default_storage_class: true
 longhorn_storage_class_name: longhorn
 longhorn_replica_count: 3
 
-# Test mode configuration
-test_mode: false
-skip_kubernetes_operations: false
-skip_helm_operations: false

@@ -7,9 +7,6 @@ home_path: /home/{{ ansible_user }}
 
 # Helm Options
 # https://github.com/helm/helm/releases
-helm_version: v3.18.4
+helm_version: "v3.18.4"
 
-# Test mode configuration
-test_mode: false
-skip_helm_installation: false
 
