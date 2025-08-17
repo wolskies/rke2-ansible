@@ -18,17 +18,6 @@
     mode: '0644'
   when: inventory_hostname != groups['controllers'][0]
 
-- name: Check RKE2 server service status before API check
-  ansible.builtin.systemd:
-    name: rke2-server
-  register: rke2_service_status
-  when: inventory_hostname == groups['controllers'][0]
-
-- name: Display RKE2 service status for debugging
-  ansible.builtin.debug:
-    msg: "RKE2 service state: {{ rke2_service_status.status.ActiveState | default('unknown') }}"
-  when: inventory_hostname == groups['controllers'][0]
-
 - name: Wait for cluster API to be ready
   ansible.builtin.command:
     cmd: "kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes"
@@ -37,31 +26,7 @@
   retries: 30
   delay: 10
   changed_when: false
-  failed_when: false
-  become: true
   when: inventory_hostname == groups['controllers'][0]
-
-- name: Display kubectl output for debugging if failed
-  ansible.builtin.debug:
-    msg:
-      - "kubectl return code: {{ kubectl_output.rc | default('undefined') }}"
-      - "kubectl stdout: {{ kubectl_output.stdout | default('No output') }}"
-      - "kubectl stderr: {{ kubectl_output.stderr | default('No error output') }}"
-  when:
-    - inventory_hostname == groups['controllers'][0]
-    - kubectl_output is defined
-    - kubectl_output.rc != 0
-
-- name: Fail if cluster API is not ready after timeout
-  ansible.builtin.fail:
-    msg: >
-      Cluster API failed to become ready after 5 minutes.
-      Last kubectl output: {{ kubectl_output.stdout if kubectl_output.stdout else 'No output' }}
-      Error: {{ kubectl_output.stderr if kubectl_output.stderr else 'No error output' }}
-  when:
-    - inventory_hostname == groups['controllers'][0]
-    - kubectl_output is defined
-    - kubectl_output.rc != 0
 
 - name: Apply kube vip configuration file
   ansible.builtin.command:
