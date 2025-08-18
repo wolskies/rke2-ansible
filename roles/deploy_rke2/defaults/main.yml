@@ -23,7 +23,7 @@ rke2_os: "linux"
 # Networking:
 # cni_plugin: canal
 vip_interface: "eth0"
-vip: 192.168.100.30
+vip: 192.168.100.50
 management_network: "192.168.100.0/24"
 lb_range: 192.168.100.240-192.168.100.254
 lb_pool_name: first-pool

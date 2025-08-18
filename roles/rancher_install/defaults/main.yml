@@ -23,5 +23,9 @@ traefik_dashboard_expose: false
 
 # https://github.com/rancher/rancher/releases
 rancher_chart_ref: rancher-stable/rancher
-rancher_chart_version: 2.12.0
+rancher_chart_version: 2.11.3
 rancher_path: "{{ home_path }}/rancher"
+
+# Cloudflare API Token for Let's Encrypt DNS-01 challenge
+# Maps from vault variable CF_TOKEN to role variable cf_token
+cf_token: "{{ CF_TOKEN }}"

@@ -41,11 +41,6 @@
         dest: "{{ rke2_install_dir }}/rke2"
         mode: '0755'
 
-    - name: Set executable permissions on the RKE2 binary
-      ansible.builtin.file:
-        path: "{{ rke2_install_dir }}/rke2"
-        mode: '0755'
-        state: file
 
 - name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
@@ -91,9 +86,3 @@
     file: metallb.yaml
   when: inventory_hostname == groups['controllers'][0] and rke2_install_metallb and not metallb_noinstall
   tags: [metallb, rke2-network]
-
-
-# - name: Configure Calico GlobalNetworkPolicy
-# ansible.builtin.include_tasks:
-# file: calico-firewall.yaml
-#   when: firewall == "calico"

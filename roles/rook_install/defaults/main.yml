@@ -43,3 +43,4 @@ rook_ceph_operator_values:
 # Component installation control
 rook_install_operator: true
 rook_install_cluster: true
+

@@ -28,9 +28,9 @@ Deploys Rancher for cluster management, along with the required tooling (Cert Ma
 The default setup uses Cloudflare's DNS-01 challenge, but can be modified for your provider. **Recommend storing the Cloudflare API Token in an ansible vault file (`ansible-vault create secrets.yaml`):
 ```yaml
 ---
-cf_token: "your_cloudflare_token_here"
+CF_TOKEN: "your_cloudflare_token_here"
 ```
-Place the token file in the `group_vars` in your inventory folder.
+Place the encrypted token file in the `group_vars` in your inventory folder. The role automatically maps `CF_TOKEN` to `cf_token` for template usage.
 
 ## Optional Convenience Roles
 
@@ -82,7 +82,7 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 | MetalLB | v0.15.2 | Load balancer |
 | Cert-Manager | v1.18.2 | Certificate management |
 | Traefik | v37.0.0 | Ingress controller |
-| Rancher | v2.12.0 | Cluster management |
+| Rancher | v2.11.3 | Cluster management |
 | Longhorn | v1.9.1 | Block storage |
 | Rook-Ceph | v1.17.7 | Distributed storage |
 | MySQL Operator | v8.4.3 | Database management |
@@ -143,17 +143,17 @@ rke2:
 controllers:
     hosts:
         kcontrol01:
-            ansible_host: 192.168.10.1
+            ansible_host: 192.168.100.11
         kcontrol02:
-            ansible_host: 192.168.10.2
+            ansible_host: 192.168.100.12
         kcontrol03:
-            ansible_host: 192.168.10.3
+            ansible_host: 192.168.100.13
 agents:
     hosts:
         kworker01:
-            ansible_host: 192.168.10.4
+            ansible_host: 192.168.100.14
         kworker02:
-            ansible_host: 192.168.10.5
+            ansible_host: 192.168.100.15
 ```
 
 ## Security Considerations

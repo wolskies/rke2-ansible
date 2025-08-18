@@ -2,4 +2,4 @@ write-kubeconfig-mode: "0644"
 token: {{ hostvars[groups['controllers'][0]]['token'] }}
 server: https://{{ hostvars[groups['controllers'][0]].ansible_host }}:9345
 node-label:
-  - "node-role.kubernetes.io/worker=true"
+  - "agent=true"

@@ -6,7 +6,7 @@
     - rke2
   # Include secrets if available (not required for CI/testing)
   vars:
-    secrets_file: "/home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml"
+    secrets_file: "/home/user/Ansible/inventory/group_vars/secrets.yaml"
   pre_tasks:
     - name: Include secrets if file exists
       ansible.builtin.include_vars: "{{ secrets_file }}"
@@ -25,6 +25,7 @@
     - role: rancher_install
       when: inventory_hostname == (groups['controllers'] | first)
       become: false
+      run_once: true
       tags: rancher
 
     # Optional: Automated storage deployment (if you prefer not to use Rancher GUI)
@@ -33,16 +34,19 @@
     # - role: longhorn_install
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
+    #   run_once: true
     #   tags: longhorn
 
     # Rook/Ceph - distributed storage alternative (OPTIONAL - can install via Rancher GUI)
     # - role: rook_install
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
+    #   run_once: true
     #   tags: rook
 
     # Additional optional roles (consider managing via Rancher GUI instead):
     # - role: mysql_operator
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
+    #   run_once: true
     #   tags: mysql

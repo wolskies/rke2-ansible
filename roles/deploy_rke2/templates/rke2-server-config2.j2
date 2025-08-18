@@ -7,7 +7,7 @@ tls-san:
   - {{ hostvars[controller].ansible_host }}
 {% endfor %}
 node-label:
-  - node-role.kubernetes.io/control-plane=true
+  - server=true
 disable: rke2-ingress-nginx
 node-taint:
   - "CriticalAddonsOnly=true:NoExecute"

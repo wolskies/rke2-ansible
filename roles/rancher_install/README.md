@@ -30,13 +30,28 @@ traefik_chart_version: 37.0.0
 traefik_path: "{{ home_path }}/traefik"
 
 rancher_chart_ref: rancher-stable/rancher
-rancher_chart_version: 2.12.0
+rancher_chart_version: 2.11.3
 rancher_path: "{{ home_path }}/rancher"
 
 longhorn_chart_ref: longhorn/longhorn
 longhorn_chart_version: 1.9.1
 longhorn_path: "{{ home_path }}/longhorn"
+
+# Cloudflare API Token for Let's Encrypt DNS-01 challenge
+cf_token: "{{ CF_TOKEN }}"
 ```
+
+## Required Secrets
+
+This role requires a Cloudflare API token for Let's Encrypt certificate generation. Store this in an encrypted ansible-vault file:
+
+**secrets.yaml** (encrypt with `ansible-vault create secrets.yaml`):
+```yaml
+---
+CF_TOKEN: "your_cloudflare_api_token_here"
+```
+
+The role maps `CF_TOKEN` from your vault file to the `cf_token` variable used in templates.
 
 Dependencies
 ------------
@@ -51,7 +66,7 @@ Example Playbook
   hosts:
     - rke2
   vars_files:
-    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
+    - /home/user/Ansible/inventory/group_vars/secrets.yaml
   become: false
   roles:
     - name: wolskinet.rke2_ansible.deploy_rke2

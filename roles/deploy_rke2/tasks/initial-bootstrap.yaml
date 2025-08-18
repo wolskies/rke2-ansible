@@ -26,24 +26,6 @@
         state: restarted
         daemon_reload: true
 
-    - name: Check RKE2 service status
-      ansible.builtin.command: systemctl status rke2-server
-      register: rke2_status
-      failed_when: false
-      changed_when: false
-
-    - name: Show RKE2 service status
-      ansible.builtin.debug:
-        var: rke2_status.stdout_lines
-
-    - name: Check RKE2 service logs
-      ansible.builtin.command: journalctl -u rke2-server --no-pager -l
-      register: rke2_logs
-      changed_when: false
-
-    - name: Show RKE2 service logs
-      ansible.builtin.debug:
-        var: rke2_logs.stdout_lines
 
     - name: Wait for node-token
       ansible.builtin.wait_for:
@@ -68,9 +50,9 @@
       become: true
       run_once: true
 
-    - name: Save server token to all controllers
+    - name: Set server token fact for all controllers
       ansible.builtin.set_fact:
-        token: "{{ rke2_token.content | b64decode | regex_replace('\n', '') }}"
+        token: "{{ rke2_token.content | b64decode | trim }}"
       delegate_to: "{{ item }}"
       delegate_facts: true
       loop: "{{ groups['controllers'] }}"

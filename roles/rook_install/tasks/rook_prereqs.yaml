@@ -12,6 +12,8 @@
       ansible.builtin.shell: |
         set -o pipefail
         lsmod | grep '^rbd'
+      args:
+        executable: /bin/bash
       register: rbd_module
       changed_when: false
       failed_when: false
