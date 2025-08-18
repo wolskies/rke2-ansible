@@ -50,7 +50,7 @@ provisioner:
       all:
         ansible_user: root
         # Core RKE2 configuration
-        rke2_version: "v1.33.3+rke2r1"
+        rke2_version: "v1.31.11+rke2r1"
         rke2_os: "linux"
         vip: "192.168.100.30"
         vip_interface: "eth0"

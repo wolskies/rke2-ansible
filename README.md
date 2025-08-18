@@ -76,7 +76,7 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 
 | Component | Version | Purpose |
 |-----------|---------|---------|
-| RKE2 | v1.33.3+rke2r1 | Kubernetes distribution |
+| RKE2 | v1.31.11+rke2r1 | Kubernetes distribution |
 | Helm | v3.18.4 | Package manager |
 | Kube-VIP | v0.9.1 | Virtual IP for HA |
 | MetalLB | v0.15.2 | Load balancer |
@@ -125,6 +125,11 @@ network:
 
 * Note 4: If the firewall is set to UFW, the appropriate firewall rules will be installed, but UFW will be left in the state (enabled/disabled) that it was found in.
 
+* Note 5: **ARM64 Version Compatibility**: When deploying on ARM64/aarch64 systems, verify that the specified RKE2 version has ARM64 container images available. If you encounter "image not found" errors during deployment, you can check image availability using:
+  ```bash
+  curl -s "https://registry.hub.docker.com/v2/repositories/rancher/rke2-runtime/tags/?page_size=100" | grep "v1.32.8"
+  ```
+  Look for entries containing "linux-arm64". If ARM64 images aren't available for your desired version, use a stable release like `v1.32.7+rke2r1` or `v1.31.11+rke2r1` which have confirmed ARM64 support.
 
 #### Inventory
 

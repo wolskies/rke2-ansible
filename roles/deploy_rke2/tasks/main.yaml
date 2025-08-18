@@ -89,7 +89,7 @@
 - name: Install and configure MetalLB
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when: inventory_hostname in groups['controllers'][0] and rke2_install_metallb and not metallb_noinstall
+  when: inventory_hostname == groups['controllers'][0] and rke2_install_metallb and not metallb_noinstall
   tags: [metallb, rke2-network]
 
 

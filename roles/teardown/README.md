@@ -18,7 +18,7 @@ home_path: /home/{{ ansible_user }}
 ### RKE2 Configuration
 ```yaml
 rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.33.3+rke2r1"
+rke2_version: "v1.31.11+rke2r1"
 ```
 
 ### Component Paths

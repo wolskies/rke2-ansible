@@ -10,7 +10,7 @@
         name: wolskinet.rke2_ansible.deploy_rke2
       vars:
         # Minimal variables to satisfy syntax checking
-        rke2_version: "v1.33.3+rke2r1"
+        rke2_version: "v1.31.11+rke2r1"
         vip: "192.168.100.30"
         vip_interface: "eth0"
         lb_range: "192.168.100.50-192.168.100.60"
