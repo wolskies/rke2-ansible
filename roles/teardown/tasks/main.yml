@@ -15,6 +15,18 @@
       changed_when: download_uninstaller_result.rc == 0
       failed_when: download_uninstaller_result.rc != 0
 
+    - name: Stop and disable RKE2 services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+      loop:
+        - rke2-server
+        - rke2-agent
+      become: true
+      failed_when: false
+
     - name: Run RKE2 uninstaller
       ansible.builtin.command:
         cmd: /usr/local/bin/rke2-uninstall.sh
@@ -22,6 +34,19 @@
       register: uninstaller_result
       changed_when: uninstaller_result.rc == 0
       failed_when: false
+
+    - name: Remove additional RKE2 artifacts not cleaned by uninstaller
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /usr/local/bin/kubectl
+        - /etc/systemd/system/rke2-server.service
+        - /etc/systemd/system/rke2-agent.service
+        - /etc/rancher
+        - /var/lib/rancher
+        - /opt/rke2
+      become: true
 
 - name: Configuration Files Cleanup
   tags: [cleanup-config, always]
@@ -40,13 +65,41 @@
         - "{{ mysql_operator_path }}"
       become: true
 
-- name: Storage Components Cleanup
+- name: Container and Storage Cleanup
   tags: [cleanup-storage]
   become: true
   block:
-    - name: Placeholder for storage cleanup tasks
-      ansible.builtin.debug:
-        msg: "No storage-specific cleanup tasks currently defined"
+    - name: Clean up container images and containerd data
+      ansible.builtin.shell: |
+        set -o pipefail
+        # Stop containerd if running
+        systemctl stop rke2-server rke2-agent || true
+
+        # Clean containerd data if it exists
+        if [ -d "/var/lib/rancher/rke2/agent/containerd" ]; then
+          rm -rf /var/lib/rancher/rke2/agent/containerd/*
+        fi
+
+        # Clean up any leftover container processes
+        pkill -f containerd || true
+        pkill -f rke2 || true
+      args:
+        executable: /bin/bash
+      failed_when: false
+      changed_when: true
+
+    - name: Remove additional storage and runtime directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/kubelet
+        - /var/lib/cni
+        - /var/log/containers
+        - /var/log/pods
+        - /run/containerd
+        - /run/rke2
+      failed_when: false
 
 - name: Remove UFW rules for all nodes
   community.general.ufw:
@@ -73,6 +126,20 @@
     firewall == 'ufw' and
     inventory_hostname in groups['controllers']
   become: true
+
+- name: Final cleanup and systemd refresh
+  tags: [cleanup-rke2, always]
+  become: true
+  block:
+    - name: Reload systemd daemon to remove deleted services
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Reset failed systemd units
+      ansible.builtin.command:
+        cmd: systemctl reset-failed
+      failed_when: false
+      changed_when: false
 
 - name: Reboot System
   ansible.builtin.reboot:
