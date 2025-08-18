@@ -8,40 +8,47 @@ This collection includes a number of roles for the creation and management of an
 
 ## Description
 
-This collection automates the deployment and management of a bare-metal RKE2 cluster.  It includes roles to install MetalLB, Traefik, Cert-Manager, Rancher, and various storage solutions (Longhorn, Rook/Ceph, MinIO). While it can be adapted to other distributions, it is currently tested and optimized for Ubuntu Server 20.04+, RHEL/Rocky/Oracle Linux 8.7+, SLES 15 SP3+, and Amazon Linux 2/2023. Both AMD64 and ARM64 architectures are supported.
+This collection automates the deployment and management of a bare-metal RKE2 cluster with Rancher for comprehensive cluster management through a web interface. The core workflow consists of three primary roles: `deploy_rke2` for cluster setup, `helm_install` for package management, and `rancher_install` for the management platform. Once Rancher is installed, additional charts and features are typically managed through the Rancher GUI.
 
-#### Role: deploy_rke2
+For added convenience, optional storage roles (`longhorn_install` and `rook_install`) are included if you prefer automated storage deployment over managing through Rancher.
 
-Deploys RKE2 on a bare-metal cluster. Alongside RKE2 this role will configure a virtual IP with `kube-vip` and a load balancer with `MetalLB`.
+While it can be adapted to other distributions, it is currently tested and optimized for Ubuntu Server 20.04+, RHEL/Rocky/Oracle Linux 8.7+, SLES 15 SP3+, and Amazon Linux 2/2023. Both AMD64 and ARM64 architectures are supported.
 
-#### Role: helm_install
+## Core Roles
 
-Installs Helm package manager and required dependencies for managing Kubernetes applications.
+### deploy_rke2
+Deploys RKE2 on a bare-metal cluster. Alongside RKE2 this role will configure a virtual IP with `kube-vip` and a load balancer with `MetalLB`. This forms the foundation of your Kubernetes cluster.
 
-#### Role: rancher_install
+### helm_install
+Installs Helm package manager and required dependencies for managing Kubernetes applications. Essential for Rancher installation and managing other Kubernetes workloads.
 
-Deploys Rancher for cluster management, along with the tooling required (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. The default is setup for Cloudflare's DNS-01 challenge, but it can be modified for your provider. **Recommend the Cloudflare API Token be put in an ansible vault file (`ansible-vault create secrets.yaml`):
-```
+### rancher_install
+Deploys Rancher for cluster management, along with the required tooling (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. Once installed, you'll manage additional charts and cluster features through the Rancher web interface.
+
+The default setup uses Cloudflare's DNS-01 challenge, but can be modified for your provider. **Recommend storing the Cloudflare API Token in an ansible vault file (`ansible-vault create secrets.yaml`):
+```yaml
 ---
 cf_token: "your_cloudflare_token_here"
 ```
-Then place the token file in the `group_vars` in your inventory folder. See the example playbook below.
+Place the token file in the `group_vars` in your inventory folder.
 
-#### Storage Roles
+## Optional Convenience Roles
 
-**longhorn_install**: Deploys Longhorn distributed block storage system for persistent volumes.
+These roles are provided for automated deployment, but you can also manage these components through the Rancher GUI after the core setup is complete:
 
-**rook_install**: Deploys Rook-Ceph distributed storage system as an alternative to Longhorn.
+### longhorn_install
+Deploys Longhorn distributed block storage system for persistent volumes. Can alternatively be installed via Rancher's Apps & Marketplace.
 
-**minio_install**: Deploys MinIO object storage with operator, DirectPV CSI driver, and tenant configuration.
+### rook_install  
+Deploys Rook-Ceph distributed storage system as an alternative to Longhorn. Can alternatively be installed via Rancher's Apps & Marketplace.
 
-#### Database Role
+## Additional Roles
 
-**mysql_operator**: Deploys MySQL Operator for Kubernetes to manage MySQL database instances.
+### mysql_operator
+Deploys MySQL Operator for Kubernetes to manage MySQL database instances.
 
-#### Utility Roles
-
-**teardown**: Provides complete cleanup and removal of RKE2 clusters and all associated components.
+### teardown
+Provides complete cleanup and removal of RKE2 clusters and all associated components.
 
 ## Installation
 
@@ -78,7 +85,6 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 | Rancher | v2.12.0 | Cluster management |
 | Longhorn | v1.9.1 | Block storage |
 | Rook-Ceph | v1.17.7 | Distributed storage |
-| MinIO Operator | Latest | Object storage |
 | MySQL Operator | v8.4.3 | Database management |
 
 #### Network Configuration
@@ -149,8 +155,6 @@ agents:
 
 ⚠️ **Important**: This collection includes default credentials that **MUST** be changed for production deployments:
 
-- **MinIO**: Default root user `minio` / password `minio123`
-- **MinIO Console**: Default access key `console` / secret key `console123`
 - **Cloudflare API Token**: Store in ansible vault file (see rancher_install role documentation)
 
 **Best Practices:**
@@ -162,12 +166,15 @@ agents:
 
 ## Usage
 
-The collection contains a sample playbook in the `playbooks` directory along with sample `group_vars` to customize role defaults. Assuming you have installed the collection, a typical deployment playbook would look like:
+The collection contains a sample playbook in the `playbooks` directory along with sample `group_vars` to customize role defaults. 
 
-### Basic RKE2 Cluster Deployment
+### Recommended Workflow: Core Deployment with Rancher Management
+
+This is the recommended approach - deploy the core infrastructure and then manage additional components through Rancher's GUI:
+
 ```yaml
 ---
-- name: Deploy RKE2 Cluster
+- name: Deploy RKE2 Cluster with Rancher Management
   hosts: rke2
   vars_files:
     - /home/user/Ansible/inventory/group_vars/secrets.yaml
@@ -186,33 +193,47 @@ The collection contains a sample playbook in the `playbooks` directory along wit
       when: inventory_hostname == (groups['controllers'] | first)
       become: false
       tags: rancher
+```
 
-    # Storage options (choose ONE) - (first controller only)
+After deployment, access Rancher at `https://rancher.yourdomain.com` and use the **Apps & Marketplace** to install:
+- Longhorn (Storage)
+- Prometheus + Grafana (Monitoring)
+- Additional applications as needed
+
+### Alternative: Full Automated Deployment
+
+If you prefer to deploy storage automatically via Ansible (instead of through Rancher GUI):
+
+```yaml
+---
+- name: Deploy RKE2 Cluster with Automated Storage
+  hosts: rke2
+  vars_files:
+    - /home/user/Ansible/inventory/group_vars/secrets.yaml
+  become: false
+  roles:
+    # Core components
+    - role: wolskinet.rke2_ansible.helm_install
+      become: false
+    - role: wolskinet.rke2_ansible.deploy_rke2
+      become: true
+    - role: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname == (groups['controllers'] | first)
+      become: false
+      tags: rancher
+
+    # Optional: Automated storage deployment (choose ONE)
     # Longhorn - distributed block storage
     - role: wolskinet.rke2_ansible.longhorn_install
       when: inventory_hostname == (groups['controllers'] | first)
       become: false
       tags: longhorn
       
-    # Alternative storage options (uncomment to use instead of Longhorn):
-    
-    # Rook/Ceph - distributed storage alternative
+    # OR Rook/Ceph - distributed storage alternative
     # - role: wolskinet.rke2_ansible.rook_install
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
     #   tags: rook
-
-    # MinIO - object storage
-    # - role: wolskinet.rke2_ansible.minio_install
-    #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: minio
-
-    # MySQL Operator - database operator
-    # - role: wolskinet.rke2_ansible.mysql_operator
-    #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: mysql
 ```
 
 ### Minimal Deployment (RKE2 only)
@@ -242,7 +263,7 @@ The collection contains a sample playbook in the `playbooks` directory along wit
 - NetworkManager conflicts with Canal CNI - role removes it by default
 
 **Storage Problems:**
-- Only deploy one storage solution (Longhorn OR Rook OR MinIO for block storage)
+- Only deploy one storage solution (Longhorn OR Rook for block storage)
 - Ensure nodes have sufficient disk space (Rook requires 5Ti minimum device capacity)
 - Verify storage classes are created properly after deployment
 
@@ -266,7 +287,7 @@ Happy to help with the collection. For component-specific issues (Rancher, Traef
 
 ### Current Features ✅
 - ✅ RKE2 cluster deployment with HA
-- ✅ Multiple storage solutions (Longhorn, Rook/Ceph, MinIO)
+- ✅ Multiple storage solutions (Longhorn, Rook/Ceph)
 - ✅ MySQL Operator for database management
 - ✅ Rancher management platform
 - ✅ Complete teardown capabilities

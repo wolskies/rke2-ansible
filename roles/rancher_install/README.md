@@ -1,7 +1,7 @@
 Role Name
 =========
 
-This role deploys Rancher on an existing RKE2 cluster. Rancher is installed with Cert Manager for ACME TLS certificates and Traefik for ingress. Storage must be provided separately (see longhorn_install, rook_install, or minio_install roles).
+This role deploys Rancher on an existing RKE2 cluster. Rancher is installed with Cert Manager for ACME TLS certificates and Traefik for ingress. Storage must be provided separately (see longhorn_install or rook_install roles).
 
 Requirements
 ------------
@@ -57,7 +57,7 @@ Example Playbook
     - name: wolskinet.rke2_ansible.deploy_rke2
       become: true
     - name: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname == (groups['servers'] | first)
+      when: inventory_hostname == (groups['controllers'] | first)
       become: false
 ```
 

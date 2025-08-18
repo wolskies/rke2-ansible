@@ -8,5 +8,3 @@ home_path: /home/{{ ansible_user }}
 # Helm Options
 # https://github.com/helm/helm/releases
 helm_version: "v3.18.4"
-
-

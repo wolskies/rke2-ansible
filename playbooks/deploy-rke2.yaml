@@ -1,5 +1,7 @@
 ---
-- name: Deploy RKE2 Cluster
+# Recommended Workflow: Core RKE2 + Rancher Deployment
+# Deploy the foundation cluster and Rancher, then manage additional apps via Rancher GUI
+- name: Deploy RKE2 Cluster with Rancher Management
   hosts:
     - rke2
   # Include secrets if available (not required for CI/testing)
@@ -25,27 +27,22 @@
       become: false
       tags: rancher
 
-    # Storage options - (first controller only)
-    # Longhorn - distributed block storage
-    - role: longhorn_install
-      when: inventory_hostname == (groups['controllers'] | first)
-      become: false
-      tags: longhorn
-
-    # Rook/Ceph - distributed storage alternative
-    # - role: wolskinet.rke2_ansible.rook_install
+    # Optional: Automated storage deployment (if you prefer not to use Rancher GUI)
+    # Remove these roles if you want to install storage via Rancher Apps & Marketplace
+    # Longhorn - distributed block storage (OPTIONAL - can install via Rancher GUI)
+    # - role: longhorn_install
     #   when: inventory_hostname == (groups['controllers'] | first)
-    # become: false
-    # tags: rook
+    #   become: false
+    #   tags: longhorn
 
-    # MinIO - object storage
-    # - role: wolskinet.rke2_ansible.minio_install
+    # Rook/Ceph - distributed storage alternative (OPTIONAL - can install via Rancher GUI)
+    # - role: rook_install
     #   when: inventory_hostname == (groups['controllers'] | first)
-    # become: false
-    # tags: minio
+    #   become: false
+    #   tags: rook
 
-    # MySQL Operator - database operator
-    # - role: wolskinet.rke2_ansible.mysql_operator
+    # Additional optional roles (consider managing via Rancher GUI instead):
+    # - role: mysql_operator
     #   when: inventory_hostname == (groups['controllers'] | first)
-    # become: false
-    # tags: mysql
+    #   become: false
+    #   tags: mysql

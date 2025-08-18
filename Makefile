@@ -27,7 +27,7 @@ lint: ## Run linting and syntax checks
 
 test-unit: ## Run unit tests with Molecule
 	@echo "Running Molecule unit tests..."
-	@for role in deploy_rke2 helm_install longhorn_install minio_install mysql_operator rancher_install rook_install teardown; do \
+	@for role in deploy_rke2 helm_install longhorn_install mysql_operator rancher_install rook_install teardown; do \
 		echo "Testing role: $$role"; \
 		cd roles/$$role && molecule test && cd ../..; \
 	done
@@ -74,7 +74,7 @@ install-local: build ## Install collection locally
 
 molecule-destroy: ## Destroy all Molecule instances
 	@echo "Destroying Molecule instances..."
-	@for role in deploy_rke2 helm_install longhorn_install minio_install mysql_operator rancher_install rook_install teardown; do \
+	@for role in deploy_rke2 helm_install longhorn_install mysql_operator rancher_install rook_install teardown; do \
 		cd roles/$$role && molecule destroy && cd ../..; \
 	done
 	cd tests/integration && molecule destroy --scenario-name integration

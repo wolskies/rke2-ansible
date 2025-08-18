@@ -29,8 +29,6 @@ cert_manager_path: "{{ home_path }}/cert-manager"
 traefik_path: "{{ home_path }}/traefik"
 rancher_path: "{{ home_path }}/rancher"
 longhorn_path: "{{ home_path }}/longhorn"
-minio_operator_path: "{{ home_path }}/minio-operator"
-minio_tenant_path: "{{ home_path }}/minio-tenant"
 mysql_operator_path: "{{ home_path }}/mysql-operator"
 ```
 
@@ -90,11 +88,9 @@ ansible-playbook teardown.yaml --skip-tags "cleanup-storage"
   - Traefik configurations
   - Rancher configurations
   - Longhorn configurations
-  - MinIO operator and tenant configurations
   - MySQL operator configurations
 
 ### Storage Components (`cleanup-storage`)
-- DirectPV binary
 - Storage driver configurations
 
 ### Firewall Rules

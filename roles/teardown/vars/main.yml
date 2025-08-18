@@ -4,35 +4,38 @@
 rke2_binary_root: "https://github.com/rancher/rke2/releases/download"
 rke2_os: "linux"
 
-ufw_rules_server:
+# Common UFW rules for all nodes
+ufw_rules_common:
+  - port: "10250"
+    proto: "tcp"
+    comment: "RKE2 kubelet metrics"
+  - port: "30000:32767"
+    proto: "tcp"
+    comment: "RKE2 NodePort port range"
+  - port: "8472"
+    proto: "udp"
+    comment: "Canal CNI with VXLAN"
+  - port: "9099"
+    proto: "tcp"
+    comment: "Canal CNI health checks"
+  - port: "80"
+    proto: "tcp"
+    comment: "HTTP"
+  - port: "443"
+    proto: "tcp"
+    comment: "HTTPS"
+
+# Additional rules for controller nodes only
+ufw_rules_controllers:
   - port: "6443"
     proto: "tcp"
     comment: "RKE2 Kubernetes API"
   - port: "9345"
     proto: "tcp"
     comment: "RKE2 Supervisor API"
-  - port: "10250"
-    proto: "tcp"
-    comment: "RKE2 kubelet metrics"
   - port: "2379:2381"
     proto: "tcp"
-    comment: "RKE2 etc client/peer/metrics ports"
-  - port: "30000:32767"
+    comment: "RKE2 etcd"
+  - port: "8080"
     proto: "tcp"
-    comment: "RKE2 NodePort port range"
-
-ufw_rules_agent:
-  - port: "10250"
-    proto: "tcp"
-    comment: "RKE2 kubelet metrics"
-  - port: "30000:32767"
-    proto: "tcp"
-    comment: "RKE2 NodePort port range"
-
-ufw_rules_canal:
-  - port: "8472"
-    proto: "udp"
-    comment: "Canal CNI with VXLAN"
-  - port: "9099"
-    proto: "tcp"
-    comment: "Canal CNI with health checks"
+    comment: "Traefik Dashboard"

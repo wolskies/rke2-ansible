@@ -37,8 +37,6 @@
         - "{{ traefik_path }}"
         - "{{ rancher_path }}"
         - "{{ longhorn_path }}"
-        - "{{ minio_operator_path }}"
-        - "{{ minio_tenant_path }}"
         - "{{ mysql_operator_path }}"
       become: true
 
@@ -46,44 +44,34 @@
   tags: [cleanup-storage]
   become: true
   block:
-    - name: Remove DirectPV binary
-      ansible.builtin.file:
-        path: /home/{{ ansible_user }}/.local/bin/kubectl-directpv
-        state: absent
+    - name: Placeholder for storage cleanup tasks
+      ansible.builtin.debug:
+        msg: "No storage-specific cleanup tasks currently defined"
 
-- name: Ensure UFW rules are removed for RKE2 controllers
+- name: Remove UFW rules for all nodes
   community.general.ufw:
     rule: allow
     port: "{{ item.port }}"
     proto: "{{ item.proto }}"
     comment: "{{ item.comment }}"
     delete: true
-  loop: "{{ ufw_rules_server }}"
+  loop: "{{ ufw_rules_common }}"
   notify: Reload UFW
-  when: inventory_hostname in groups['controllers']
+  when: firewall == 'ufw'
   become: true
 
-- name: Ensure UFW rules are removed for RKE2 agents
+- name: Remove UFW rules for controllers
   community.general.ufw:
     rule: allow
     port: "{{ item.port }}"
     proto: "{{ item.proto }}"
     comment: "{{ item.comment }}"
     delete: true
-  loop: "{{ ufw_rules_agent }}"
+  loop: "{{ ufw_rules_controllers }}"
   notify: Reload UFW
-  when: inventory_hostname in groups['agents']
-  become: true
-
-- name: Ensure UFW rules are removed for CNI
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    comment: "{{ item.comment }}"
-    delete: true
-  loop: "{{ ufw_rules_canal }}"
-  notify: Reload UFW
+  when: >
+    firewall == 'ufw' and
+    inventory_hostname in groups['controllers']
   become: true
 
 - name: Reboot System
