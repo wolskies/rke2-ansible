@@ -68,9 +68,12 @@
       become: true
       run_once: true
 
-    - name: Save server token
+    - name: Save server token to all controllers
       ansible.builtin.set_fact:
         token: "{{ rke2_token.content | b64decode | regex_replace('\n', '') }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['controllers'] }}"
 
     - name: Ensure .kube directory exists in user's home
       ansible.builtin.file:

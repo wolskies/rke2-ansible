@@ -1,9 +1,9 @@
 write-kubeconfig-mode: "0644"
 tls-san:
   - {{ vip }}
-  - {{ hostvars[groups['controllers'][0]].ansible_host }}
-  - {{ hostvars[groups['controllers'][1]].ansible_host }}
-  - {{ hostvars[groups['controllers'][2]].ansible_host }}
+{% for controller in groups['controllers'] %}
+  - {{ hostvars[controller].ansible_host }}
+{% endfor %}
 node-label:
-  - server=true
+  - node-role.kubernetes.io/control-plane=true
 disable: rke2-ingress-nginx
