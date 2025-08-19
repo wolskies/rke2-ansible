@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# RKE2 binary download root (same as deploy_rke2)
+rke2_binary_root: "https://github.com/rancher/rke2/releases/download"
+
+# Supported operating systems (same as deploy_rke2)
+supported_distributions:
+  - Ubuntu
+  - Rocky
+  - RedHat
+  - Oracle
+  - SLES
+  - Amazon
+
+# Minimum major versions (same as deploy_rke2)
+min_os_versions:
+  Ubuntu: "20"
+  Rocky: "8"
+  RedHat: "8"
+  Oracle: "8"
+  SLES: "15"
+  Amazon: "2"

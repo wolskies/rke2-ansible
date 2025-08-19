@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Drain node before upgrade
+  kubernetes.core.k8s_drain:
+    name: "{{ current_node }}"
+    state: drain
+    delete_options:
+      delete_emptydir_data: "{{ upgrade_drain_delete_emptydir_data }}"
+      grace_period: "{{ upgrade_drain_grace_period }}"
+      timeout: "{{ upgrade_drain_timeout }}"
+  delegate_to: "{{ groups['controllers'][0] }}"
+  when:
+    - upgrade_drain_nodes
+    - node_type == "worker"
+  environment:
+    KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Download new RKE2 binary
+  ansible.builtin.get_url:
+    url: "{{ rke2_binary_url }}"
+    dest: "{{ rke2_install_dir }}/rke2.new"
+    mode: '0755'
+    timeout: 300
+  retries: 3
+  delay: 10
+
+- name: Get RKE2 service name
+  ansible.builtin.set_fact:
+    rke2_service_name: >-
+      {{ 'rke2-server' if node_type == 'controller' else 'rke2-agent' }}
+
+- name: Stop RKE2 service
+  ansible.builtin.systemd:
+    name: "{{ rke2_service_name }}"
+    state: stopped
+  register: stop_result
+  retries: 3
+  delay: 10
+
+- name: Wait for service to stop completely
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: Backup current RKE2 binary
+  ansible.builtin.copy:
+    src: "{{ rke2_install_dir }}/rke2"
+    dest: "{{ rke2_install_dir }}/rke2.backup"
+    mode: '0755'
+    remote_src: true
+
+- name: Replace RKE2 binary
+  ansible.builtin.copy:
+    src: "{{ rke2_install_dir }}/rke2.new"
+    dest: "{{ rke2_install_dir }}/rke2"
+    mode: '0755'
+    remote_src: true
+
+- name: Remove temporary binary
+  ansible.builtin.file:
+    path: "{{ rke2_install_dir }}/rke2.new"
+    state: absent
+
+- name: Start RKE2 service
+  ansible.builtin.systemd:
+    name: "{{ rke2_service_name }}"
+    state: started
+    daemon_reload: true
+  register: start_result
+  retries: 3
+  delay: 10
+
+- name: Wait for service to stabilize
+  ansible.builtin.pause:
+    seconds: "{{ service_restart_delay }}"
+
+- name: Wait for node to be ready
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Node
+    name: "{{ current_node }}"
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"
+    wait_timeout: "{{ node_ready_timeout }}"
+  delegate_to: "{{ groups['controllers'][0] }}"
+  environment:
+    KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Uncordon node after upgrade
+  kubernetes.core.k8s_drain:
+    name: "{{ current_node }}"
+    state: uncordon
+  delegate_to: "{{ groups['controllers'][0] }}"
+  when:
+    - upgrade_drain_nodes
+    - node_type == "worker"
+  environment:
+    KUBECONFIG: "{{ kubectl_config }}"
+
+- name: Verify upgrade
+  ansible.builtin.command:
+    cmd: "{{ rke2_install_dir }}/rke2 --version"
+  register: new_rke2_version
+  changed_when: false
+
+- name: Display upgrade result
+  ansible.builtin.debug:
+    msg: "Node {{ current_node }} upgraded to: {{ new_rke2_version.stdout }}"

@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: rke2-upgrade-controller
+    image: docker.io/pycontribs/ubuntu:latest
+    pre_build_image: true
+    privileged: true
+    command: /lib/systemd/systemd
+    groups:
+      - controllers
+  - name: rke2-upgrade-worker
+    image: docker.io/pycontribs/ubuntu:latest
+    pre_build_image: true
+    privileged: true
+    command: /lib/systemd/systemd
+    groups:
+      - workers
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      rke2-upgrade-controller:
+        ansible_python_interpreter: /usr/bin/python3
+      rke2-upgrade-worker:
+        ansible_python_interpreter: /usr/bin/python3
+verifier:
+  name: ansible

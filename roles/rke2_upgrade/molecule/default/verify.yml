@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check RKE2 binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/rke2
+      register: rke2_binary
+
+    - name: Assert RKE2 binary exists
+      ansible.builtin.assert:
+        that:
+          - rke2_binary.stat.exists
+          - rke2_binary.stat.mode == '0755'
+
+    - name: Check service is running
+      ansible.builtin.systemd:
+        name: "rke2-{{ 'server' if inventory_hostname in groups['controllers'] else 'agent' }}"
+      register: rke2_service
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that:
+          - rke2_service.status.ActiveState == "active"

@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Upgrade RKE2 cluster
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    # Target RKE2 version
+    rke2_version: "v1.31.11+rke2r1"
+
+    # Upgrade options
+    upgrade_drain_nodes: true
+    upgrade_drain_timeout: 300
+    upgrade_drain_grace_period: 30
+  pre_tasks:
+    - name: Verify inventory groups
+      ansible.builtin.assert:
+        that:
+          - groups['controllers'] is defined
+          - groups['workers'] is defined
+        fail_msg: "Inventory must define 'controllers' and 'workers' groups"
+      run_once: true  # noqa: run-once[task]
+
+    - name: Display upgrade information
+      ansible.builtin.debug:
+        msg: |
+          RKE2 Cluster Upgrade
+          Target version: {{ rke2_version }}
+          Controllers: {{ groups['controllers'] | join(', ') }}
+          Workers: {{ groups['workers'] | join(', ') }}
+          Drain nodes: {{ upgrade_drain_nodes }}
+      run_once: true  # noqa: run-once[task]
+
+  roles:
+    - wolskinet.rke2_ansible.rke2_upgrade
+
+  post_tasks:
+    - name: Display cluster status
+      ansible.builtin.command:
+        cmd: kubectl get nodes -o wide
+      delegate_to: "{{ groups['controllers'][0] }}"
+      run_once: true  # noqa: run-once[task]
+      environment:
+        KUBECONFIG: "{{ kubectl_config }}"
+      register: cluster_status
+      changed_when: false
+
+    - name: Show cluster status
+      ansible.builtin.debug:
+        var: cluster_status.stdout_lines
+      run_once: true  # noqa: run-once[task]

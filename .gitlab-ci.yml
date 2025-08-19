@@ -80,6 +80,7 @@ lint:ansible-lint:
         - .cache/
       skip_list:
         - var-naming[no-role-prefix]
+        - var-naming[pattern]
       warn_list:
         - jinja[spacing]
         - name[template]
@@ -127,6 +128,7 @@ test:syntax:
             longhorn_install,
             mysql_operator,
             rancher_install,
+            rke2_upgrade,
             rook_install,
             teardown,
           ]
@@ -155,7 +157,7 @@ test:molecule:
     - docker info
     - |
       roles="deploy_rke2 helm_install longhorn_install"
-      roles="$roles mysql_operator rancher_install rook_install teardown"
+      roles="$roles mysql_operator rancher_install rke2_upgrade rook_install teardown"
       for role in $roles; do
         echo "Testing role: $role"
         cd roles/$role

@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Create mock RKE2 binary for testing
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "rke2 version v1.30.10+rke2r1"
+        dest: /usr/local/bin/rke2
+        mode: '0755'
+
+    - name: Create mock systemd services
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=Mock RKE2 {{ 'server' if inventory_hostname in groups['controllers'] else 'agent' }}
+          
+          [Service]
+          Type=simple
+          ExecStart=/bin/sleep infinity
+          
+          [Install]
+          WantedBy=multi-user.target
+        dest: "/etc/systemd/system/rke2-{{ 'server' if inventory_hostname in groups['controllers'] else 'agent' }}.service"
+        mode: '0644'
+
+    - name: Enable and start mock services
+      ansible.builtin.systemd:
+        name: "rke2-{{ 'server' if inventory_hostname in groups['controllers'] else 'agent' }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Include rke2_upgrade role
+      ansible.builtin.include_role:
+        name: rke2_upgrade
+      vars:
+        rke2_version: "v1.31.11+rke2r1"
+        upgrade_drain_nodes: false  # Skip draining in molecule tests

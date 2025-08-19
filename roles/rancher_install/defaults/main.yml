@@ -28,4 +28,4 @@ rancher_path: "{{ home_path }}/rancher"
 
 # Cloudflare API Token for Let's Encrypt DNS-01 challenge
 # Maps from vault variable CF_TOKEN to role variable cf_token
-cf_token: "{{ CF_TOKEN }}"
+cf_token: "{{ CF_TOKEN }}"  # noqa: var-naming[pattern]

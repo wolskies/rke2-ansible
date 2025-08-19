@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Validate system requirements
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution in supported_distributions
+      - ansible_distribution_major_version | int >= min_os_versions[ansible_distribution] | int
+    fail_msg: >
+      Unsupported OS: {{ ansible_distribution }} {{ ansible_distribution_version }}.
+      Minimum required: {{ ansible_distribution }} {{ min_os_versions[ansible_distribution] | default('Unknown') }}
+  tags:
+    - rke2-upgrade
+    - version-check
+
+- name: Register machine architecture
+  ansible.builtin.set_fact:
+    normalized_arch: >-
+      {{ 'amd64' if ansible_architecture == 'x86_64'
+        else 'arm64' if ansible_architecture == 'aarch64'
+        else ansible_architecture }}
+  tags: rke2-upgrade
+
+- name: Generate RKE2 binary url
+  ansible.builtin.set_fact:
+    rke2_binary_url: "{{ rke2_binary_root }}/{{ rke2_version }}/rke2.{{ rke2_os }}-{{ normalized_arch }}"
+  tags: rke2-upgrade
+
+- name: Check current RKE2 version
+  ansible.builtin.command:
+    cmd: "{{ rke2_install_dir }}/rke2 --version"
+  register: current_rke2_version
+  changed_when: false
+  failed_when: false
+  tags: rke2-upgrade
+
+- name: Display current and target versions
+  ansible.builtin.debug:
+    msg: |
+      Current version: {{ current_rke2_version.stdout | default('Not installed') }}
+      Target version: {{ rke2_version }}
+  tags: rke2-upgrade
+
+- name: Upgrade control plane nodes
+  ansible.builtin.include_tasks:
+    file: upgrade-controllers.yml
+  when: "'controllers' in group_names"
+  tags:
+    - rke2-upgrade
+    - rke2-upgrade-controllers
+
+- name: Upgrade worker nodes
+  ansible.builtin.include_tasks:
+    file: upgrade-workers.yml
+  when: "'workers' in group_names"
+  tags:
+    - rke2-upgrade
+    - rke2-upgrade-workers

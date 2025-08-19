@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+galaxy_info:
+  author: Ed Swallow
+  description: RKE2 Kubernetes cluster upgrade role
+  company: WolskiNet
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Rocky
+      versions:
+        - "9.2"
+        - "8.8"
+    - name: OracleLinux
+      versions:
+        - "9.4"
+        - "8.10"
+    - name: SLES
+      versions:
+        - "15SP6"
+        - "15SP5"
+        - "15SP4"
+    - name: Amazon
+      versions:
+        - all
+  galaxy_tags:
+    - rke2
+    - kubernetes
+    - k8s
+    - cluster
+    - upgrade
+    - rancher
+
+dependencies: []

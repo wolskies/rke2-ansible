@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Test syntax for rke2_upgrade role
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Include rke2_upgrade role
+      ansible.builtin.include_role:
+        name: rke2_upgrade

@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Upgrade control plane nodes sequentially
+  ansible.builtin.include_tasks:
+    file: upgrade-node.yml
+  run_once: true
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['controllers'] }}"
+  loop_control:
+    pause: 30
+  vars:
+    node_type: "controller"
+    current_node: "{{ item }}"
