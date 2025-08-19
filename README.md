@@ -318,4 +318,9 @@ GPL-3
 
 ## Project status
 
-WIP
+This collection was created for personal use and is provided as-is. While it's functional and tested in my environment, it's not under active development or commercial support.
+
+**Community Contributions Welcome** 🤝  
+Feel free to fork, modify, and improve this collection for your own needs. Pull requests with enhancements are appreciated, but please note that I may not be able to provide ongoing support or troubleshooting assistance.
+
+**Current Status**: Stable for personal/homelab use
