@@ -53,10 +53,10 @@ supported_distributions:
 
 # Minimum major versions per official support matrix
 min_os_versions:
-  Ubuntu: "20"           # 20.04, 22.04, 24.04, 25.04
-  Rocky: "8"             # 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-  RedHat: "8"            # RHEL 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-  Oracle: "8"            # Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-  SLES: "15"             # SLES 15 SP3, SP4, SP5, SP6
-  "openSUSE Leap": "15"  # openSUSE Leap 15.3, 15.4, 15.5, 15.6
-  Amazon: "2"            # Amazon Linux 2, Amazon Linux 2023
+  Ubuntu: "20" # 20.04, 22.04, 24.04, 25.04
+  Rocky: "8" # 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  RedHat: "8" # RHEL 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  Oracle: "8" # Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  SLES: "15" # SLES 15 SP3, SP4, SP5, SP6
+  "openSUSE Leap": "15" # openSUSE Leap 15.3, 15.4, 15.5, 15.6
+  Amazon: "2" # Amazon Linux 2, Amazon Linux 2023

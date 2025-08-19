@@ -6,7 +6,7 @@
     dest: /etc/rancher/rke2/config.yaml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname != groups['controllers'][0]
 
 - name: Create systemd service file for RKE2 server
@@ -15,7 +15,7 @@
     dest: /etc/systemd/system/rke2-server.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname != groups['controllers'][0]
 
 - name: Ensure additional RKE2 controllers are enabled and running

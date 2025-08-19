@@ -26,7 +26,6 @@
         state: restarted
         daemon_reload: true
 
-
     - name: Wait for node-token
       ansible.builtin.wait_for:
         path: /var/lib/rancher/rke2/server/node-token
@@ -80,9 +79,12 @@
 
     - name: Wait for API server to be ready
       ansible.builtin.command:
-        cmd: "kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes"
+        cmd: "/var/lib/rancher/rke2/bin/kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes --no-headers"
       register: kubectl_output
       until: kubectl_output.rc == 0
-      retries: 30
+      retries: 60
       delay: 10
       changed_when: false
+      failed_when: false
+      environment:
+        PATH: "/var/lib/rancher/rke2/bin:{{ ansible_env.PATH }}"
