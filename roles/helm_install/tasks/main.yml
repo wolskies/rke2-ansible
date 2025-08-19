@@ -66,11 +66,17 @@
         - "{{ ansible_user_dir }}/.local/share/helm"
         - "{{ ansible_user_dir }}/.local/share/helm/plugins"
 
+- name: Check if Helm Diff plugin is installed
+  ansible.builtin.command: /usr/local/bin/helm plugin list
+  register: helm_plugins
+  changed_when: false
+  failed_when: false
+  tags: helm-diff
+
 - name: Install Helm Diff plugin
   ansible.builtin.command: >
     /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
-  args:
-    creates: "{{ ansible_user_dir }}/.local/share/helm/plugins/helm-diff"
+  when: "'diff' not in helm_plugins.stdout"
   tags: helm-diff
 
 - name: Install pip/python requirements for Kubernetes (Debian/Ubuntu)
