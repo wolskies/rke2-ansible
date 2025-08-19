@@ -33,7 +33,7 @@ upgrade_drain_delete_emptydir_data: true
 
 ## Dependencies
 
-None. This role is designed to work with clusters deployed using the `deploy_rke2` role.
+- **helm_install**: Required for python3-kubernetes package needed by node drain/uncordon operations
 
 ## Example Playbook
 

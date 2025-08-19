@@ -62,4 +62,6 @@ galaxy_info:
     - update
     - highavailability
 
-dependencies: []
+dependencies:
+  - role: helm_install
+    when: ansible_os_family != "Windows"

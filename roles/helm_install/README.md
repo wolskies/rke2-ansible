@@ -1,6 +1,6 @@
 # Helm Install Role
 
-A straightforward role to install Helm package manager via the `get-helm-3.sh` script, and helm-diff plugin.
+A straightforward role to install Helm package manager via the `get-helm-3.sh` script, helm-diff plugin, and the python3-kubernetes library required by other roles that use kubernetes.core modules.
 
 ## Requirements
 

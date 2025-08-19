@@ -70,11 +70,41 @@
     creates: "{{ ansible_user_dir }}/.local/share/helm/plugins/helm-diff"
   tags: helm-diff
 
-- name: Install pip/python requirements for Kubernetes
-  ansible.builtin.package:
+- name: Install pip/python requirements for Kubernetes (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - python3-kubernetes
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == "Debian"
+  tags: python3-kubernetes
+
+- name: Install pip/python requirements for Kubernetes (RedHat/CentOS/Rocky)
+  ansible.builtin.dnf:
     name:
       - python3-pip
       - python3-kubernetes
     state: present
   become: true
+  when: ansible_os_family == "RedHat"
+  tags: python3-kubernetes
+
+- name: Install pip/python requirements for Kubernetes (SUSE)
+  community.general.zypper:
+    name:
+      - python3-pip
+      - python3-kubernetes
+    state: present
+  become: true
+  when: ansible_os_family == "Suse"
+  tags: python3-kubernetes
+
+- name: Install Kubernetes Python library via pip (fallback)
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+  become: true
+  when: ansible_os_family not in ["Debian", "RedHat", "Suse"]
   tags: python3-kubernetes

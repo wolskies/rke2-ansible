@@ -67,4 +67,6 @@ galaxy_info:
     - firewall
     - security
 
-dependencies: []
+dependencies:
+  - role: helm_install
+    when: ansible_os_family != "Windows"
