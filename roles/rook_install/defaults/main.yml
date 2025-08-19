@@ -1,46 +1,38 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# defaults file for rook_install
+# defaults file for rook_install - user-customizable variables
 
-# General Configuration
-home_path: /home/{{ ansible_user }}
-
-# Kubectl Options
-kubectl_config: "{{ home_path }}/.kube/config"
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
 # Rook Ceph Options
-rook_ceph_namespace: rook-ceph
-rook_ceph_operator_chart_version: "1.17.7"
-rook_ceph_min_device_capacity: "5Ti"
-rook_ceph_version: "v18.2.2"
+# rook_ceph_namespace: "rook-ceph"                  # Defined in group_vars/all.yaml
+# rook_ceph_operator_chart_version: "1.17.7"       # Defined in group_vars/all.yaml
+# rook_ceph_min_device_capacity: "50Mi"            # Defined in group_vars/all.yaml
+# rook_ceph_version: "v18.2.2"                     # Defined in group_vars/all.yaml
+# rook_ceph_mon_count: 3                           # Defined in group_vars/all.yaml
+# rook_ceph_replica_size: 1                        # Defined in group_vars/all.yaml
+# rook_ceph_pool_name: "replicapool"               # Defined in group_vars/all.yaml
+# rook_ceph_storage_class_name: "rook-ceph-block"  # Defined in group_vars/all.yaml
+# rook_ceph_make_storage_class_default: true       # Defined in group_vars/all.yaml
 
-rook_ceph_mon_count: 3
-rook_ceph_replica_size: 1
-rook_ceph_pool_name: replicapool
-rook_ceph_storage_class_name: rook-ceph-block
-rook_ceph_make_storage_class_default: true
+# Optional CephFS Configuration
+# rook_ceph_enable_filesystem: false               # Defined in group_vars/all.yaml
+# rook_ceph_filesystem_name: "cephfs"              # Defined in group_vars/all.yaml
+# rook_ceph_fs_storage_class: "rook-cephfs"        # Defined in group_vars/all.yaml
+# rook_ceph_fs_make_default: false                 # Defined in group_vars/all.yaml
 
-rook_ceph_enable_filesystem: false  # Set to true to deploy CephFS + StorageClass
-rook_ceph_filesystem_name: "cephfs"
-rook_ceph_fs_storage_class: "rook-cephfs"
-rook_ceph_fs_make_default: false
+# Optional Object Store Configuration
+# rook_ceph_enable_objectstore: false              # Defined in group_vars/all.yaml
+# rook_ceph_objectstore_name: "ceph-objectstore"   # Defined in group_vars/all.yaml
+# rook_ceph_objectstore_storage_class: "rook-ceph-bucket" # Defined in group_vars/all.yaml
+# rook_ceph_objectstore_gateway_port: 80           # Defined in group_vars/all.yaml
+# rook_ceph_objectstore_replicas: 1                # Defined in group_vars/all.yaml
 
-rook_ceph_enable_objectstore: false
-rook_ceph_objectstore_name: "ceph-objectstore"
-rook_ceph_objectstore_storage_class: "rook-ceph-bucket"
-rook_ceph_objectstore_gateway_port: 80
-rook_ceph_objectstore_replicas: 1
+# Operator Configuration
+# rook_ceph_operator_values:                       # Defined in group_vars/all.yaml
 
-rook_ceph_operator_values:
-  crds:
-    enabled: true
-  csi:
-    enableCephFS: true
-    enableRBD: true
-  monitoring:
-    enabled: false
 
 # Component installation control
-rook_install_operator: true
-rook_install_cluster: true
-
+# rook_install_operator: true                      # Defined in group_vars/all.yaml
+# rook_install_cluster: true                       # Defined in group_vars/all.yaml

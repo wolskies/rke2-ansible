@@ -62,7 +62,6 @@
         - "{{ traefik_path }}"
         - "{{ rancher_path }}"
         - "{{ longhorn_path }}"
-        - "{{ mysql_operator_path }}"
       become: true
 
 - name: Container and Storage Cleanup

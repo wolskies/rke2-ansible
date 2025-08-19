@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# RKE2 binary download root (same as deploy_rke2)
+# vars file for rke2_upgrade - internal variables
+
+# Derived paths
+kubectl_config: "/home/{{ ansible_user_id }}/.kube/config"
+
+# Internal implementation details
+rke2_os: "linux"
 rke2_binary_root: "https://github.com/rancher/rke2/releases/download"
 
 # Supported operating systems (same as deploy_rke2)

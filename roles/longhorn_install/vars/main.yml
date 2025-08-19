@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# vars file for longhorn_install - internal variables
+
+# Derived paths
+home_path: "/home/{{ ansible_user_id }}"
+kubectl_config: "{{ home_path }}/.kube/config"
+longhorn_path: "{{ home_path }}/longhorn"
+
+# Chart reference
+longhorn_chart_ref: "longhorn-stable/longhorn"

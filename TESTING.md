@@ -132,14 +132,12 @@ cd roles/helm_install
 molecule test
 
 # Test all roles with Molecule scenarios
-cd roles/mysql_operator && molecule test
 cd roles/teardown && molecule test
 ```
 
 #### Available Molecule Scenarios
 
 - **helm_install**: Tests Helm binary installation and functionality
-- **mysql_operator**: Tests MySQL Operator deployment (with Helm dependency)
 - **teardown**: Tests complete RKE2 cluster cleanup
 
 ### 3. Integration Testing
@@ -279,7 +277,6 @@ skip_actual_k8s_deployment: true
 
 **Role Testing:**
 - **helm_install**: ✅ **100% PASSING** - Full test cycle with mock binary strategy
-- **mysql_operator**: 🟡 **~70% Pass** - Fails on K8s operations (requires cluster)
 - **rke2_upgrade**: 🟡 **~70% Pass** - Fails on K8s operations (requires cluster)
 - **teardown**: 🟡 **~80% Pass** - Fails on script execution (expected in containers)
 
@@ -390,7 +387,6 @@ cp .github/templates/molecule-prepare.yml roles/NEW_ROLE/molecule/default/prepar
 ```bash
 # Test specific roles that are working
 cd roles/helm_install && molecule test    # ✅ Fully functional
-cd roles/mysql_operator && molecule test  # 🟡 Partial (K8s operations fail)
 cd roles/teardown && molecule test        # 🟡 Partial (script execution fails)
 ```
 

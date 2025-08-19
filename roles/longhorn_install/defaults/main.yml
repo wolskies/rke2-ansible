@@ -1,24 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# defaults file for longhorn_install
+# defaults file for longhorn_install - user-customizable variables
 
-# General Configuration
-home_path: /home/{{ ansible_user }}
-
-# Kubectl Options
-kubectl_config: "{{ home_path }}/.kube/config"
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
 # Longhorn Configuration
-longhorn_chart_ref: longhorn-stable/longhorn
-longhorn_chart_version: "1.9.1"
-longhorn_path: "{{ home_path }}/longhorn"
-longhorn_namespace: longhorn-system
-
-# Component Installation Controls
-longhorn_install_system: true
-
-# Storage Configuration
-longhorn_create_default_storage_class: true
-longhorn_storage_class_name: longhorn
-longhorn_replica_count: 3
+# longhorn_chart_version: "1.9.1"           # Defined in group_vars/all.yaml
+# longhorn_namespace: "longhorn-system"      # Defined in group_vars/all.yaml
+# longhorn_install_system: true              # Defined in group_vars/all.yaml
+# longhorn_create_default_storage_class: true # Defined in group_vars/all.yaml
+# longhorn_storage_class_name: "longhorn"    # Defined in group_vars/all.yaml
+# longhorn_replica_count: 3                  # Defined in group_vars/all.yaml
 

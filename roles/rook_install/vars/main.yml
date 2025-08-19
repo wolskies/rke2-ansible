@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# vars file for rook
+# vars file for rook_install - internal variables
+
+# Derived paths
+home_path: "/home/{{ ansible_user_id }}"
+kubectl_config: "{{ home_path }}/.kube/config"
+
+# Required packages for Rook-Ceph installation
 rook_packages_install:
   - lvm2
 

@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# vars file for helm_install - internal variables
+
+# Derived paths
+home_path: "/home/{{ ansible_user_id }}"

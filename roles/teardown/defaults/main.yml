@@ -1,21 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# defaults file for teardown
+# defaults file for teardown - user-customizable variables
 
-# General Configuration
-home_path: /home/{{ ansible_user }}
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
-# RKE2 Options
-rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.31.11+rke2r1"
-
-# Kubectl Options
-kubectl_config: "{{ home_path }}/.kube/config"
-
-# Component Paths
-metallb_path: "{{ home_path }}/metallb"
-cert_manager_path: "{{ home_path }}/cert-manager"
-traefik_path: "{{ home_path }}/traefik"
-rancher_path: "{{ home_path }}/rancher"
-longhorn_path: "{{ home_path }}/longhorn"
-mysql_operator_path: "{{ home_path }}/mysql-operator"
+# RKE2 configuration (should match deployment settings)
+# rke2_install_dir: "/usr/local/bin"           # Defined in group_vars/all.yaml
+# rke2_version: "v1.31.11+rke2r1"               # Defined in group_vars/all.yaml

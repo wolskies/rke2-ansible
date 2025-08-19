@@ -18,26 +18,7 @@
         fail_msg: "Helm is not available for MySQL Operator installation"
         success_msg: "Helm is available for MySQL Operator"
 
-    - name: Check if MySQL Operator directory was created
-      ansible.builtin.stat:
-        path: /root/mysql-operator
-      register: mysql_operator_dir
-
-    - name: Verify MySQL Operator directory exists
-      ansible.builtin.assert:
-        that:
-          - mysql_operator_dir.stat.exists
-          - mysql_operator_dir.stat.isdir
-        fail_msg: "MySQL Operator directory was not created"
-        success_msg: "MySQL Operator directory created successfully"
-      when: mysql_operator_dir.stat.exists
-
-    - name: Test mode completion check
-      ansible.builtin.debug:
-        msg: "MySQL Operator role verified - configuration validated in test mode"
-      when: not mysql_operator_dir.stat.exists
-
     - name: Test mode verification
       ansible.builtin.debug:
-        msg: "MySQL Operator role completed in test mode - Kubernetes operations were skipped"
+        msg: "Longhorn role completed in test mode - Kubernetes operations were skipped"
       when: true

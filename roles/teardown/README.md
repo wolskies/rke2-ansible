@@ -29,7 +29,6 @@ cert_manager_path: "{{ home_path }}/cert-manager"
 traefik_path: "{{ home_path }}/traefik"
 rancher_path: "{{ home_path }}/rancher"
 longhorn_path: "{{ home_path }}/longhorn"
-mysql_operator_path: "{{ home_path }}/mysql-operator"
 ```
 
 ## Tags

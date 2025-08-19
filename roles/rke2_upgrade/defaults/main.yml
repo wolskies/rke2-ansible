@@ -1,26 +1,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
+# defaults file for rke2_upgrade - user-customizable variables
+
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
+
 # Target RKE2 version to upgrade to
-rke2_version: "v1.31.11+rke2r1"
-
-# RKE2 installation directory (same as deploy_rke2)
-rke2_install_dir: "/usr/local/bin"
-
-# Operating system
-rke2_os: "linux"
-
-# User configuration
-ansible_user: "{{ ansible_user_id }}"
-
-# kubectl configuration
-kubectl_config: "/home/{{ ansible_user }}/.kube/config"
+# rke2_version: "v1.31.11+rke2r1"               # Defined in group_vars/all.yaml
+# rke2_install_dir: "/usr/local/bin"           # Defined in group_vars/all.yaml
 
 # Upgrade strategy configuration
-upgrade_drain_nodes: true
-upgrade_drain_timeout: 300
-upgrade_drain_grace_period: 30
-upgrade_drain_delete_emptydir_data: true
+# upgrade_drain_nodes: true                    # Defined in group_vars/all.yaml
+# upgrade_drain_timeout: 300                   # Defined in group_vars/all.yaml
+# upgrade_drain_grace_period: 30               # Defined in group_vars/all.yaml
+# upgrade_drain_delete_emptydir_data: true     # Defined in group_vars/all.yaml
 
 # Wait times for service operations
-service_restart_delay: 30
-node_ready_timeout: 300
+# service_restart_delay: 30                    # Defined in group_vars/all.yaml
+# node_ready_timeout: 300                      # Defined in group_vars/all.yaml

@@ -1,31 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-home_path: /home/{{ ansible_user }}
-traefik_domain: example
-letsencrypt_env: production
+# defaults file for rancher_install - user-customizable variables
 
-kubectl_config: "{{ home_path }}/.kube/config"
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
-# https://github.com/helm/helm/releases
-helm_version: "v3.18.4"
+# Domain and environment configuration
+# traefik_domain: "example"                    # Defined in group_vars/all.yaml
+# letsencrypt_env: "production"                # Defined in group_vars/all.yaml
+# cert_manager_email: "your_email@domain.com"  # Defined in group_vars/all.yaml
+# traefik_dashboard_expose: false              # Defined in group_vars/all.yaml
 
-cert_manager_chart_ref: jetstack/cert-manager
-# https://github.com/cert-manager/cert-manager/releases
-cert_manager_chart_version: v1.18.2
-cert_manager_path: "{{ home_path }}/cert-manager"
-cert_manager_email: your_email@your_domain.com
-
-traefik_chart_ref: traefik/traefik
-# https://github.com/traefik/traefik-helm-chart/releases
-traefik_chart_version: 37.0.0
-traefik_path: "{{ home_path }}/traefik"
-traefik_dashboard_expose: false
-
-# https://github.com/rancher/rancher/releases
-rancher_chart_ref: rancher-stable/rancher
-rancher_chart_version: 2.11.3
-rancher_path: "{{ home_path }}/rancher"
+# Component versions
+# helm_version: "v3.18.4"                      # Defined in group_vars/all.yaml
+# cert_manager_chart_version: "v1.18.2"        # Defined in group_vars/all.yaml
+# traefik_chart_version: "37.0.0"              # Defined in group_vars/all.yaml
+# rancher_chart_version: "2.11.3"              # Defined in group_vars/all.yaml
 
 # Cloudflare API Token for Let's Encrypt DNS-01 challenge
 # Maps from vault variable CF_TOKEN to role variable cf_token
-cf_token: "{{ CF_TOKEN }}"  # noqa: var-naming[pattern]
+# cf_token: "{{ CF_TOKEN | default('') }}"     # Defined in group_vars/all.yaml

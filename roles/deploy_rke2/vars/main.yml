@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# vars file for deploy-rke2-cluster
+# vars file for deploy-rke2-cluster - internal variables
+
+# Derived paths
+metallb_path: "/home/{{ ansible_user_id }}/metallb"
+kubectl_config: "/home/{{ ansible_user_id }}/.kube/config"
+
+# Internal implementation details
 rke2_binary_root: "https://github.com/rancher/rke2/releases/download"
 rke2_os: "linux"
 

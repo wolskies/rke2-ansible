@@ -45,8 +45,3 @@
     #   tags: rook
 
     # Additional optional roles (consider managing via Rancher GUI instead):
-    # - role: mysql_operator
-    #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   run_once: true
-    #   tags: mysql

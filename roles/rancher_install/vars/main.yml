@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# vars file for rancher_install - internal variables
+
+# Derived paths
+home_path: "/home/{{ ansible_user_id }}"
+kubectl_config: "{{ home_path }}/.kube/config"
+cert_manager_path: "{{ home_path }}/cert-manager"
+traefik_path: "{{ home_path }}/traefik"
+rancher_path: "{{ home_path }}/rancher"
+
+# Chart references
+cert_manager_chart_ref: "jetstack/cert-manager"
+traefik_chart_ref: "traefik/traefik"
+rancher_chart_ref: "rancher-stable/rancher"

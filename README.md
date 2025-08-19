@@ -47,8 +47,6 @@ Deploys Rook-Ceph distributed storage system as an alternative to Longhorn. Can 
 ### rke2_upgrade
 Upgrades RKE2 clusters following the official manual upgrade process. Safely upgrades control plane nodes first, then worker nodes with optional draining.
 
-### mysql_operator
-Deploys MySQL Operator for Kubernetes to manage MySQL database instances.
 
 ### teardown
 Provides complete cleanup and removal of RKE2 clusters and all associated components.

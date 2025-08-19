@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# defaults file for helm_install
+# defaults file for helm_install - user-customizable variables
 
-# General Configuration
-home_path: /home/{{ ansible_user }}
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
 # Helm Options
 # https://github.com/helm/helm/releases
-helm_version: "v3.18.4"
+# helm_version: "v3.18.4"  # Defined in group_vars/all.yaml

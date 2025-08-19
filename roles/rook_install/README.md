@@ -19,7 +19,7 @@ This role installs and configures [Rook](https://rook.io) to deploy a full Ceph 
 - kubernetes.core ansible collection
 - Running RKE2 cluster (see `wolskinet.rke2_ansible.deploy_rke2`)
 - Helm 3.x installed (see `wolskinet.rke2_ansible.helm_install`)
-- **Minimum 5Ti raw storage capacity** per node
+- **Minimum 50MB raw storage capacity** per node (suitable for testing)
 
 ## Role Variables
 
@@ -34,7 +34,7 @@ rook_ceph_namespace: rook-ceph
 ```yaml
 rook_ceph_operator_chart_version: "1.17.7"
 rook_ceph_version: "v18.2.2"
-rook_ceph_min_device_capacity: "5Ti"
+rook_ceph_min_device_capacity: "50Mi"
 rook_ceph_mon_count: 3
 rook_ceph_replica_size: 1
 ```
@@ -88,7 +88,7 @@ ansible-playbook rook-install.yaml --tags "rook-operator"
 
 ## Important Notes
 
-⚠️ **Storage Requirements**: Each node must have at least 5Ti of raw storage capacity available for Ceph.
+⚠️ **Storage Requirements**: Each node must have at least 50MB of raw storage capacity available for Ceph (testing configuration). For production deployments, increase `rook_ceph_min_device_capacity` to appropriate values (e.g., "100Gi" or higher).
 
 ⚠️ **Production Considerations**: 
 - Default replica size is 1 (no redundancy) - increase for production

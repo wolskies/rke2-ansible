@@ -1,32 +1,26 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# defaults file for deploy-rke2-cluster
+# defaults file for deploy-rke2-cluster - user-customizable variables
 
-# Versions:
-kube_vip_version: "v0.9.1"
-rke2_version: "v1.31.11+rke2r1"
-metallb_version: v0.15.2
-# User configuration
-ansible_user: "{{ ansible_user_id }}"
-metallb_path: /home/{{ ansible_user }}/metallb
+# Most variables are defined in playbooks/group_vars/all.yaml
+# Override individual variables here if needed for specific deployments
 
-# Options:
+# Component versions
+# kube_vip_version: "v0.9.1"                   # Defined in group_vars/all.yaml
+# rke2_version: "v1.31.11+rke2r1"               # Defined in group_vars/all.yaml
+# metallb_version: "v0.15.2"                   # Defined in group_vars/all.yaml
 
-rke2_install_dir: "/usr/local/bin"
-disable_networkmanager: true
-rke2_os: "linux"
+# System configuration
+# rke2_install_dir: "/usr/local/bin"           # Defined in group_vars/all.yaml
+# disable_networkmanager: true                 # Defined in group_vars/all.yaml
 
-# Networking:
-# cni_plugin: canal
-vip_interface: "eth0"
-vip: 192.168.100.50
-management_network: "192.168.100.0/24"
-lb_range: 192.168.100.240-192.168.100.254
-lb_pool_name: first-pool
+# Network configuration
+# vip_interface: "eth0"                        # Defined in group_vars/all.yaml
+# vip: "192.168.100.50"                        # Defined in group_vars/all.yaml
+# management_network: "192.168.100.0/24"       # Defined in group_vars/all.yaml
+# lb_range: "192.168.100.240-192.168.100.254" # Defined in group_vars/all.yaml
+# lb_pool_name: "first-pool"                   # Defined in group_vars/all.yaml
 
 # Component installation control
-rke2_install_kubevip: true
-rke2_install_metallb: true
-
-# Derived paths
-kubectl_config: "/home/{{ ansible_user }}/.kube/config"
+# rke2_install_kubevip: true                   # Defined in group_vars/all.yaml
+# rke2_install_metallb: true                   # Defined in group_vars/all.yaml

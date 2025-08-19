@@ -126,7 +126,6 @@ test:syntax:
             deploy_rke2,
             helm_install,
             longhorn_install,
-            mysql_operator,
             rancher_install,
             rke2_upgrade,
             rook_install,
@@ -157,7 +156,7 @@ test:molecule:
     - docker info
     - |
       roles="deploy_rke2 helm_install longhorn_install"
-      roles="$roles mysql_operator rancher_install rke2_upgrade rook_install teardown"
+      roles="$roles rancher_install rke2_upgrade rook_install teardown"
       for role in $roles; do
         echo "Testing role: $role"
         cd roles/$role
@@ -172,7 +171,6 @@ test:molecule:
   allow_failure: true
 
 # Integration tests skipped - Docker container tests provide limited value
-# TODO: Implement Kind-based testing for realistic K8s deployment testing
 
 # Build Stage
 build:collection:
