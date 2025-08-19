@@ -292,6 +292,12 @@ If you prefer to deploy storage automatically via Ansible (instead of through Ra
 - Check cert-manager logs if certificates fail to issue
 - Verify domain configuration matches `traefik_domain` variable
 
+**Alma Linux/RHEL Specific Issues:**
+- If cluster hangs at "Wait for API server", try disabling kube-vip: `rke2_install_kubevip: false`
+- Check SELinux status: `getenforce` (should show Permissive after role runs)
+- Verify network interface was detected: check Ansible output for "Using network interface"
+- For debugging: `journalctl -u rke2-server -f` on affected nodes
+
 ### Getting Help
 
 - Check role-specific README files for detailed configuration options
@@ -341,5 +347,8 @@ Feel free to fork, modify, and improve this collection for your own needs. Pull 
 - ✅ **Fully tested**: Debian/Ubuntu on both ARM64/aarch64 and AMD64 platforms
 - ⚠️ **Limited testing**: RHEL-based distributions (Rocky, AlmaLinux, etc.)
 - ❓ **Prototype status**: OpenSUSE/SLES support (functionality added but untested)
+
+**Known Issues**:
+- **Alma Linux/RHEL**: Kube-vip may have issues with HA setup. If cluster formation hangs at "Wait for API server", set `rke2_install_kubevip: false` in your variables. This disables the virtual IP but allows the cluster to form properly.
 
 **Current Status**: Stable for Debian/Ubuntu environments, experimental for other distributions

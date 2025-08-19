@@ -12,7 +12,7 @@
 # Control which components get installed in your cluster
 
 # Core RKE2 Components
-rke2_install_kubevip: true           # Install kube-vip for HA virtual IP
+rke2_install_kubevip: true           # Install kube-vip for HA virtual IP (set false for Alma Linux if issues)
 rke2_install_metallb: true           # Install MetalLB load balancer
 rke2_install_traefik: true           # Install Traefik ingress controller
 rke2_install_certbot: true           # Install cert-manager for TLS certificates
