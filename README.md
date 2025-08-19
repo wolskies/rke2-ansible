@@ -323,4 +323,9 @@ This collection was created for personal use and is provided as-is. While it's f
 **Community Contributions Welcome** 🤝  
 Feel free to fork, modify, and improve this collection for your own needs. Pull requests with enhancements are appreciated, but please note that I may not be able to provide ongoing support or troubleshooting assistance.
 
-**Current Status**: Stable for personal/homelab use
+**Testing Status**:
+- ✅ **Fully tested**: Debian/Ubuntu on both ARM64/aarch64 and AMD64 platforms
+- ⚠️ **Limited testing**: RHEL-based distributions (Rocky, AlmaLinux, etc.)
+- ❓ **Prototype status**: OpenSUSE/SLES support (functionality added but untested)
+
+**Current Status**: Stable for Debian/Ubuntu environments, experimental for other distributions
