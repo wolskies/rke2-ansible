@@ -101,6 +101,11 @@
         - /run/rke2
       failed_when: false
 
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  tags: [cleanup-firewall]
+
 - name: Remove UFW rules for all nodes
   community.general.ufw:
     rule: allow
@@ -110,7 +115,9 @@
     delete: true
   loop: "{{ ufw_rules_common }}"
   notify: Reload UFW
-  when: firewall == 'ufw'
+  when:
+    - firewall == 'ufw'
+    - "'ufw' in ansible_facts.packages"
   become: true
 
 - name: Remove UFW rules for controllers
@@ -122,9 +129,10 @@
     delete: true
   loop: "{{ ufw_rules_controllers }}"
   notify: Reload UFW
-  when: >
-    firewall == 'ufw' and
-    inventory_hostname in groups['controllers']
+  when:
+    - firewall == 'ufw'
+    - inventory_hostname in groups['controllers']
+    - "'ufw' in ansible_facts.packages"
   become: true
 
 - name: Final cleanup and systemd refresh
