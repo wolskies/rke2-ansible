@@ -14,15 +14,15 @@
   become: false
   roles:
     # Install Helm on all nodes
-    - role: helm_install
+    - role: wolskinet.rke2_ansible.helm_install
       become: false
 
     # Install RKE2 cluster on all nodes
-    - role: deploy_rke2
+    - role: wolskinet.rke2_ansible.deploy_rke2
       become: true
 
     # Install Rancher management platform (first controller only)
-    - role: rancher_install
+    - role: wolskinet.rke2_ansible.rancher_install
       when: inventory_hostname == (groups['controllers'] | first)
       become: false
       run_once: true
@@ -31,14 +31,14 @@
     # Optional: Automated storage deployment (if you prefer not to use Rancher GUI)
     # Remove these roles if you want to install storage via Rancher Apps & Marketplace
     # Longhorn - distributed block storage (OPTIONAL - can install via Rancher GUI)
-    # - role: longhorn_install
+    # - role: wolskinet.rke2_ansible.longhorn_install
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
     #   run_once: true
     #   tags: longhorn
 
     # Rook/Ceph - distributed storage alternative (OPTIONAL - can install via Rancher GUI)
-    # - role: rook_install
+    # - role: wolskinet.rke2_ansible.rook_install
     #   when: inventory_hostname == (groups['controllers'] | first)
     #   become: false
     #   run_once: true
