@@ -124,9 +124,7 @@ network:
 
 * Note 2: **The RKE2 deploy role will remove NetworkManager if it is installed**.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes. This behavior can be skipped using default vars, or by skipping the `config-firewall` tag.
 
-* Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  Canal can manage firewall rules after installation - see Note 5.  This behavior can be skipped by running the playbook with the `--skip-tags config-firewall` option.
-
-* Note 4: If the firewall is set to UFW, the appropriate firewall rules will be installed, but UFW will be left in the state (enabled/disabled) that it was found in.
+* Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  If UFW is already installed, the role will configure necessary firewall rules and leave UFW in its current state. If no firewall is present, Canal CNI manages network security without installing additional firewall software.  This behavior can be skipped by running the playbook with the `--skip-tags config-firewall` option.
 
 * Note 5: **ARM64 Version Compatibility**: When deploying on ARM64/aarch64 systems, verify that the specified RKE2 version has ARM64 container images available. If you encounter "image not found" errors during deployment, you can check image availability using:
   ```bash
