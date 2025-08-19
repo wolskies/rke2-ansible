@@ -49,6 +49,7 @@ supported_distributions:
   - Oracle
   - SLES
   - Amazon
+  - AlmaLinux
 
 # Minimum major versions
 min_os_versions:
@@ -59,3 +60,4 @@ min_os_versions:
   Oracle: "8"
   SLES: "15"
   Amazon: "2"
+  AlmaLinux: "9"
