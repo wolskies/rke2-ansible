@@ -78,7 +78,9 @@
     state: present
     update_cache: true
   become: true
-  when: ansible_os_family == "Debian"
+  when:
+    - ansible_os_family == "Debian"
+    - inventory_hostname in groups['controllers']
   tags: python3-kubernetes
 
 - name: Install pip/python requirements for Kubernetes (RedHat/CentOS/Rocky)
@@ -88,7 +90,9 @@
       - python3-kubernetes
     state: present
   become: true
-  when: ansible_os_family == "RedHat"
+  when:
+    - ansible_os_family == "RedHat"
+    - inventory_hostname in groups['controllers']
   tags: python3-kubernetes
 
 - name: Install pip/python requirements for Kubernetes (SUSE)
@@ -98,7 +102,9 @@
       - python3-kubernetes
     state: present
   become: true
-  when: ansible_os_family == "Suse"
+  when:
+    - ansible_os_family == "Suse"
+    - inventory_hostname in groups['controllers']
   tags: python3-kubernetes
 
 - name: Install Kubernetes Python library via pip (fallback)
@@ -106,5 +112,7 @@
     name: kubernetes
     state: present
   become: true
-  when: ansible_os_family not in ["Debian", "RedHat", "Suse"]
+  when:
+    - ansible_os_family not in ["Debian", "RedHat", "Suse"]
+    - inventory_hostname in groups['controllers']
   tags: python3-kubernetes
