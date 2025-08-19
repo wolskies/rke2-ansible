@@ -19,6 +19,35 @@
     ansible_facts.services['firewalld.service'].state == 'running'
   become: true
 
+- name: Handle SELinux for RHEL-based systems
+  when: ansible_os_family == "RedHat"
+  become: true
+  block:
+    - name: Check SELinux status
+      ansible.builtin.command: getenforce
+      register: selinux_status
+      changed_when: false
+      failed_when: false
+
+    - name: Install container-selinux package
+      ansible.builtin.package:
+        name: container-selinux
+        state: present
+      when: selinux_status.stdout == "Enforcing"
+
+    - name: Set SELinux to permissive mode temporarily
+      ansible.builtin.command: setenforce 0
+      when: selinux_status.stdout == "Enforcing"
+      changed_when: true
+
+    - name: Ensure SELinux file contexts for RKE2
+      ansible.builtin.command: |
+        semanage fcontext -a -t container_file_t '/var/lib/rancher/rke2(/.*)?'
+        restorecon -R /var/lib/rancher/rke2
+      when: selinux_status.stdout != "Disabled"
+      failed_when: false
+      changed_when: false
+
 - name: Check for UFW and configure rules if present
   ansible.builtin.include_tasks:
     file: prepare-nodes-ufw.yaml

@@ -134,6 +134,12 @@ network:
 
 * Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  If UFW is already installed, the role will configure necessary firewall rules and leave UFW in its current state. If no firewall is present, Canal CNI manages network security without installing additional firewall software.  This behavior can be skipped by running the playbook with the `--skip-tags config-firewall` option.
 
+* Note 4: **SELinux Handling on RHEL-based systems**: The role automatically handles SELinux on RHEL/CentOS/Alma Linux systems by:
+  - Installing the `container-selinux` package for proper container policies
+  - Setting SELinux to permissive mode temporarily during installation
+  - Configuring proper file contexts for RKE2 directories
+  - This prevents kube-vip and RKE2 networking issues on SELinux-enforcing systems
+
 * Note 5: **ARM64 Version Compatibility**: When deploying on ARM64/aarch64 systems, verify that the specified RKE2 version has ARM64 container images available. If you encounter "image not found" errors during deployment, you can check image availability using:
   ```bash
   curl -s "https://registry.hub.docker.com/v2/repositories/rancher/rke2-runtime/tags/?page_size=100" | grep "v1.32.8"
