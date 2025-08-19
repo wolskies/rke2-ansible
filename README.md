@@ -69,6 +69,10 @@ See the Ansible documentation for more details on using collections.
 
 Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements). This collection is tested on both `amd64` and `arm64/aarch64` architectures. It is not intended to support Windows.
 
+**Python Requirements:**
+- Target systems must have Python 3.7+ installed (Python 3.6 is not supported due to syntax requirements)
+- For older distributions like OpenSUSE Leap 15.x, install a newer Python version: `sudo zypper install python39`
+
 **Supported Operating Systems** (per [official RKE2 support matrix](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/)):
 - Ubuntu Server 20.04, 22.04, 24.04, 25.04
 - Rocky Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
