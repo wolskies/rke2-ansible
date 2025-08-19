@@ -7,6 +7,7 @@
       ansible.builtin.apt:
         name:
           - curl
+          - git
         state: present
         update_cache: true
       become: true
@@ -16,6 +17,7 @@
       ansible.builtin.dnf:
         name:
           - curl
+          - git
         state: present
       become: true
       when: ansible_os_family == "RedHat"
@@ -24,6 +26,7 @@
       community.general.zypper:
         name:
           - curl
+          - git
         state: present
       become: true
       when: ansible_os_family == "Suse"
