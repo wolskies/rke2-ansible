@@ -96,7 +96,7 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 - **Management Network**: `192.168.100.0/24`
 - **Virtual IP (VIP)**: `192.168.100.30`
 - **Load Balancer Range**: `192.168.100.240-192.168.100.254`
-- **Primary Interface**: `eth0` (required for Kube-VIP)
+- **Primary Interface**: `eth0` (auto-detected if not found)
 
 **Required Ports** (automatically configured via UFW):
 - **6443**: Kubernetes API server
@@ -107,7 +107,15 @@ Host systems must meet the basic hardware/software requirements for RKE2 as outl
 
 #### Kube VIP Interface Configuration
 
-Kube VIP needs to know the name of the primary ethernet interface. The configuration file assumes it's `eth0`. The best way is to change the name of the primary interface to `eth0` - that can be done in an Ubuntu environment via `/etc/netplan/50-cloud-init.yaml` like this:
+Kube VIP needs to know the name of the primary ethernet interface. The role defaults to `eth0` but **automatically detects the correct interface** if `eth0` doesn't exist. This is particularly useful on RHEL-based systems (Alma Linux, Rocky Linux, etc.) where interfaces are typically named `ens160`, `enp0s3`, etc.
+
+**Auto-Detection Behavior:**
+- If `eth0` exists → uses `eth0`
+- If `eth0` doesn't exist → automatically uses the default route interface
+- Manual override → set `vip_interface: your_interface_name` in your variables
+
+**Optional: Rename Interface to eth0**
+If you prefer consistency across all systems, you can rename your interface to `eth0`. In Ubuntu via `/etc/netplan/50-cloud-init.yaml`:
 ```
 network:
   version: 2
