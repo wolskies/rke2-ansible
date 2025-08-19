@@ -77,6 +77,7 @@
   ansible.builtin.command: >
     /usr/local/bin/helm plugin install https://github.com/databus23/helm-diff
   when: "'diff' not in helm_plugins.stdout"
+  changed_when: true
   tags: helm-diff
 
 - name: Install pip/python requirements for Kubernetes (Debian/Ubuntu)
