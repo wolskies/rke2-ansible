@@ -58,6 +58,11 @@ lb_pool_name: "first-pool"              # MetalLB pool name
 rke2_install_kubevip: true              # Install kube-vip for HA virtual IP
 rke2_install_metallb: true              # Install MetalLB load balancer
 
+# Rancher Management Components
+rke2_install_certbot: true              # Install Cert-Manager for TLS certificates
+rke2_install_traefik: true              # Install Traefik ingress controller
+rancher_install_platform: true          # Install Rancher management platform
+
 # =============================================================================
 # SECURITY AND DOMAIN CONFIGURATION
 # =============================================================================
