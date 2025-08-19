@@ -40,24 +40,21 @@ ufw_rules_controllers:
     proto: "tcp"
     comment: "Traefik Dashboard"
 
-# Supported operating systems
+# Supported operating systems per official RKE2 support matrix
+# https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/
 supported_distributions:
   - Ubuntu
-  - Debian
   - Rocky
   - RedHat
   - Oracle
   - SLES
   - Amazon
-  - AlmaLinux
 
-# Minimum major versions
+# Minimum major versions per official support matrix
 min_os_versions:
-  Ubuntu: "20"
-  Debian: "11"
-  Rocky: "8"
-  RedHat: "8"
-  Oracle: "8"
-  SLES: "15"
-  Amazon: "2"
-  AlmaLinux: "9"
+  Ubuntu: "20"      # 20.04, 22.04, 24.04, 25.04
+  Rocky: "8"        # 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  RedHat: "8"       # RHEL 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  Oracle: "8"       # Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+  SLES: "15"        # SLES 15 SP3, SP4, SP5, SP6
+  Amazon: "2"       # Amazon Linux 2, Amazon Linux 2023

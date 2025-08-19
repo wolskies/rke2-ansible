@@ -69,9 +69,11 @@ See the Ansible documentation for more details on using collections.
 
 Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements). This collection is tested on both `amd64` and `arm64/aarch64` architectures. It is not intended to support Windows.
 
-**Supported Operating Systems:**
+**Supported Operating Systems** (per [official RKE2 support matrix](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/)):
 - Ubuntu Server 20.04, 22.04, 24.04, 25.04
-- RHEL/Rocky/Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+- Rocky Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+- Red Hat Enterprise Linux (RHEL) 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
+- Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
 - SUSE Linux Enterprise Server 15 SP3, SP4, SP5, SP6
 - Amazon Linux 2, Amazon Linux 2023
 
@@ -128,7 +130,7 @@ network:
 ```
 
 #### Installation Notes
-* Note 1:  The `deploy_rke2` role will fail if the host OS is not one of [RKE2's supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-33/).  This behavior can be skipped by running the playbook with the `--skip-tags version-check` option.
+* Note 1:  The `deploy_rke2` role will fail if the host OS is not one of [RKE2's officially supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/).  This behavior can be skipped by running the playbook with the `--skip-tags version-check` option.
 
 * Note 2: **The RKE2 deploy role will remove NetworkManager if it is installed**.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes. This behavior can be skipped using default vars, or by skipping the `config-firewall` tag.
 
@@ -292,11 +294,6 @@ If you prefer to deploy storage automatically via Ansible (instead of through Ra
 - Check cert-manager logs if certificates fail to issue
 - Verify domain configuration matches `traefik_domain` variable
 
-**Alma Linux/RHEL Specific Issues:**
-- If cluster hangs at "Wait for API server", try disabling kube-vip: `rke2_install_kubevip: false`
-- Check SELinux status: `getenforce` (should show Permissive after role runs)
-- Verify network interface was detected: check Ansible output for "Using network interface"
-- For debugging: `journalctl -u rke2-server -f` on affected nodes
 
 ### Getting Help
 
@@ -345,10 +342,8 @@ Feel free to fork, modify, and improve this collection for your own needs. Pull 
 
 **Testing Status**:
 - ✅ **Fully tested**: Debian/Ubuntu on both ARM64/aarch64 and AMD64 platforms
-- ⚠️ **Limited testing**: RHEL-based distributions (Rocky, AlmaLinux, etc.)
+- ⚠️ **Limited testing**: RHEL-based distributions (Rocky Linux, Oracle Linux, RHEL)
 - ❓ **Prototype status**: OpenSUSE/SLES support (functionality added but untested)
 
-**Known Issues**:
-- **Alma Linux/RHEL**: Kube-vip may have issues with HA setup. If cluster formation hangs at "Wait for API server", set `rke2_install_kubevip: false` in your variables. This disables the virtual IP but allows the cluster to form properly.
 
 **Current Status**: Stable for Debian/Ubuntu environments, experimental for other distributions
