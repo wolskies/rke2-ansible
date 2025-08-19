@@ -18,4 +18,3 @@
   ansible.builtin.include_tasks:
     file: rancher.yaml
   tags: rancher
-  when: rancher_install_platform
