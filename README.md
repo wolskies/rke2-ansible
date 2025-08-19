@@ -260,7 +260,7 @@ If you prefer to deploy storage automatically via Ansible (instead of through Ra
 
 **Network Configuration:**
 - Ensure VIP (`192.168.100.30`) is not already in use
-- Verify primary interface is named `eth0` or update `vip_interface` variable
+- Network interface is auto-detected if `eth0` doesn't exist (common on RHEL/Alma Linux)
 - Check that load balancer range doesn't conflict with existing IPs
 
 **Firewall Issues:**

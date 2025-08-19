@@ -42,6 +42,21 @@
         mode: '0755'
 
 
+- name: Auto-detect network interface for kube-vip if needed
+  ansible.builtin.set_fact:
+    vip_interface: "{{ ansible_default_ipv4.interface }}"
+  when:
+    - rke2_install_kubevip
+    - vip_interface == "eth0"
+    - ansible_default_ipv4.interface != "eth0"
+  tags: [kube-vip, rke2-network]
+
+- name: Display detected network interface for kube-vip
+  ansible.builtin.debug:
+    msg: "Using network interface '{{ vip_interface }}' for kube-vip VIP {{ vip }}"
+  when: rke2_install_kubevip
+  tags: [kube-vip, rke2-network]
+
 - name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml

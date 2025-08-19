@@ -64,7 +64,7 @@ rook_ceph_version: "v18.2.2"              # Ceph distributed storage version
 
 # Core Network Settings
 vip: 192.168.100.30                 # Virtual IP address for HA clusters
-vip_interface: eth0                 # Network interface for VIP binding
+vip_interface: eth0                 # Network interface for VIP binding (auto-detected if eth0 not found)
 management_network: "192.168.100.0/24" # Management network CIDR block
 
 # MetalLB Load Balancer Configuration
@@ -171,7 +171,8 @@ node_ready_timeout: 300                            # Node ready timeout (seconds
 #    deployments. Update versions carefully and test in non-production first.
 #
 # 2. Network Configuration: Ensure the VIP address and load balancer range
-#    do not conflict with existing network infrastructure.
+#    do not conflict with existing network infrastructure. The vip_interface
+#    will be auto-detected from the default route if eth0 doesn't exist.
 #
 # 3. Storage Configuration: Choose between Longhorn (simpler) or Rook-Ceph
 #    (more features) based on your requirements. Do not enable both as default.
