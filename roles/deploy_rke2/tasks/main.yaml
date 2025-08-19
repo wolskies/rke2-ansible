@@ -45,7 +45,7 @@
 - name: Ensure kube-vip manifest present
   ansible.builtin.include_tasks:
     file: kube-vip-manifest.yaml
-  when: rke2_install_kubevip and not kube_vip_noinstall
+  when: rke2_install_kubevip
   tags: [kube-vip, rke2-network]
 
 - name: Configure and start RKE2 nodes
@@ -84,5 +84,5 @@
 - name: Install and configure MetalLB
   ansible.builtin.include_tasks:
     file: metallb.yaml
-  when: inventory_hostname == groups['controllers'][0] and rke2_install_metallb and not metallb_noinstall
+  when: inventory_hostname == groups['controllers'][0] and rke2_install_metallb
   tags: [metallb, rke2-network]

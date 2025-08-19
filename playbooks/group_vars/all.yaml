@@ -1,94 +1,183 @@
 ---
-# General Configuration
-kube_domain: cluster.local
-traefik_domain: example
-letsencrypt_env: production
-firewall: ufw
-rke2_os: "linux"
-home_path: /home/{{ ansible_user }}
+# =============================================================================
+# RKE2 Ansible Collection - User Configuration Variables
+# =============================================================================
+# This file contains all user-configurable variables for the RKE2 Ansible
+# collection. Modify these values according to your environment requirements.
+# =============================================================================
 
-# Pinned Releases
-kube_vip_version: "v0.9.1"
-rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.31.11+rke2r1"
-metallb_version: v0.15.2
-helm_version: "v3.18.4"
+# =============================================================================
+# COMPONENT INSTALLATION CONTROLS
+# =============================================================================
+# Control which components get installed in your cluster
 
-# Install Options
-kube_vip_noinstall: false
-metallb_noinstall: false
-certbot_noinstall: false
-traefik_noinstall: false
-disable_networkmanager: true
-disable_firewalld: true
-install_ufw_rules: true
+# Core RKE2 Components
+rke2_install_kubevip: true           # Install kube-vip for HA virtual IP
+rke2_install_metallb: true           # Install MetalLB load balancer
+rke2_install_traefik: true           # Install Traefik ingress controller
+rke2_install_certbot: true           # Install cert-manager for TLS certificates
 
-# RKE Configuration Options
-cni_plugin: canal
-vip_interface: eth0
-vip: 192.168.100.30
-management_network: "192.168.100.0/24"
-metallb_path: "{{ home_path }}/metallb"
-lb_range: 192.168.100.240-192.168.100.254
-lb_pool_name: first-pool
+# Storage Systems
+rook_install_operator: true          # Install Rook-Ceph operator
+rook_install_cluster: true           # Install Rook-Ceph cluster
+longhorn_install_system: true       # Install Longhorn distributed storage
 
-# Helm Options
-kubectl_config: "{{ home_path }}/.kube/config"
+# Database Operators
+mysql_install_operator: true        # Install MySQL Operator
 
-# Cert-Manager Options
-cert_manager_chart_ref: jetstack/cert-manager
-# https://github.com/cert-manager/cert-manager/releases
-cert_manager_chart_version: v1.18.2
-cert_manager_path: "{{ home_path }}/cert-manager"
-cert_manager_email: your_email@your_domain.com
+# Management Platforms
+rancher_install_platform: true      # Install Rancher management platform
 
-# Traefik Options
-traefik_chart_ref: traefik/traefik
-# https://github.com/traefik/traefik-helm-chart/releases
-traefik_chart_version: 37.0.0
-traefik_path: "{{ home_path }}/traefik"
-traefik_dashboard_expose: false
+# =============================================================================
+# SYSTEM CONFIGURATION
+# =============================================================================
+# Operating system and network service configuration
 
-# Rancher Options
-# https://github.com/rancher/rancher/releases
-rancher_chart_ref: rancher-stable/rancher
-rancher_chart_version: 2.11.3
-rancher_path: "{{ home_path }}/rancher"
+rke2_os: "linux"                    # Target operating system
+firewall: ufw                       # Firewall system (ufw/firewalld)
+disable_networkmanager: true        # Disable NetworkManager service
 
-# Longhorn Options
-longhorn_chart_ref: longhorn-stable/longhorn
-longhorn_chart_version: 1.9.1
-longhorn_path: "{{ home_path }}/longhorn"
+# =============================================================================
+# VERSION MANAGEMENT
+# =============================================================================
+# Pin specific versions for reproducible deployments
 
-# MySQL Operator Options
-mysql_operator_chart_ref: mysql-operator/mysql-operator
-mysql_operator_chart_version: "8.4.3"
-mysql_operator_path: "{{ home_path }}/mysql-operator"
+# Core Component Versions
+rke2_version: "v1.31.11+rke2r1"     # RKE2 Kubernetes distribution version
+helm_version: "v3.18.4"             # Helm package manager version
+kube_vip_version: "v0.9.1"          # Kube-VIP virtual IP version
+metallb_version: v0.15.2            # MetalLB load balancer version
 
-# Rook Ceph Options
-rook_ceph_namespace: rook-ceph
-rook_ceph_operator_chart_version: "1.17.7"
-rook_ceph_min_device_capacity: "5Ti"
-rook_ceph_version: "v18.2.2"
-rook_ceph_mon_count: 3
-rook_ceph_replica_size: 1
-rook_ceph_pool_name: replicapool
-rook_ceph_storage_class_name: rook-ceph-block
-rook_ceph_make_storage_class_default: true
-rook_ceph_enable_filesystem: false
-rook_ceph_filesystem_name: "cephfs"
-rook_ceph_fs_storage_class: "rook-cephfs"
-rook_ceph_fs_make_default: false
-rook_ceph_enable_objectstore: false
-rook_ceph_objectstore_name: "ceph-objectstore"
-rook_ceph_objectstore_storage_class: "rook-ceph-bucket"
-rook_ceph_objectstore_gateway_port: 80
-rook_ceph_objectstore_replicas: 1
+# Helm Chart Versions
+cert_manager_chart_version: v1.18.2       # Cert-Manager chart version
+traefik_chart_version: 37.0.0             # Traefik ingress chart version
+rancher_chart_version: 2.11.3             # Rancher management chart version
+longhorn_chart_version: 1.9.1             # Longhorn storage chart version
+mysql_operator_chart_version: "8.4.3"     # MySQL Operator chart version
+rook_ceph_operator_chart_version: "1.17.7" # Rook-Ceph operator chart version
+rook_ceph_version: "v18.2.2"              # Ceph distributed storage version
 
-# Component Installation Controls
-rke2_install_metallb: true
-rke2_install_kubevip: true
-rook_install_operator: true
-rook_install_cluster: true
-mysql_install_operator: true
+# =============================================================================
+# NETWORK CONFIGURATION
+# =============================================================================
+# Network settings for cluster communication and services
 
+# Core Network Settings
+vip: 192.168.100.30                 # Virtual IP address for HA clusters
+vip_interface: eth0                 # Network interface for VIP binding
+management_network: "192.168.100.0/24" # Management network CIDR block
+
+# MetalLB Load Balancer Configuration
+lb_range: 192.168.100.240-192.168.100.254 # IP range for LoadBalancer services
+lb_pool_name: first-pool            # MetalLB address pool name
+
+# Domain and DNS Settings
+traefik_domain: example             # Domain for Traefik/Rancher services
+letsencrypt_env: production         # Let's Encrypt environment (staging/production)
+
+# =============================================================================
+# PATHS AND DIRECTORIES
+# =============================================================================
+# File system paths for binaries and working directories
+
+# Core Paths
+home_path: /home/{{ ansible_user }}  # User home directory base path
+rke2_install_dir: "/usr/local/bin"   # RKE2 binary installation directory
+kubectl_config: "{{ home_path }}/.kube/config" # kubectl configuration file path
+
+# Application Working Directories
+metallb_path: "{{ home_path }}/metallb"                    # MetalLB manifests directory
+cert_manager_path: "{{ home_path }}/cert-manager"          # Cert-Manager manifests directory
+traefik_path: "{{ home_path }}/traefik"                    # Traefik manifests directory
+rancher_path: "{{ home_path }}/rancher"                    # Rancher manifests directory
+longhorn_path: "{{ home_path }}/longhorn"                  # Longhorn manifests directory
+mysql_operator_path: "{{ home_path }}/mysql-operator"      # MySQL Operator manifests directory
+
+# =============================================================================
+# HELM CHART REPOSITORIES
+# =============================================================================
+# Helm chart repository references for component installations
+
+cert_manager_chart_ref: jetstack/cert-manager      # Cert-Manager chart repository
+traefik_chart_ref: traefik/traefik                 # Traefik chart repository
+rancher_chart_ref: rancher-stable/rancher          # Rancher chart repository
+longhorn_chart_ref: longhorn-stable/longhorn       # Longhorn chart repository
+mysql_operator_chart_ref: mysql-operator/mysql-operator # MySQL Operator chart repository
+
+# =============================================================================
+# STORAGE CONFIGURATION
+# =============================================================================
+# Persistent storage system configuration
+
+# Longhorn Distributed Storage Settings
+longhorn_namespace: longhorn-system                # Longhorn Kubernetes namespace
+
+# Rook-Ceph Distributed Storage Settings
+rook_ceph_namespace: rook-ceph                     # Rook-Ceph Kubernetes namespace
+rook_ceph_min_device_capacity: "5Ti"              # Minimum device capacity for Ceph
+rook_ceph_mon_count: 3                             # Ceph monitor daemon count
+rook_ceph_replica_size: 1                          # Ceph pool replica size
+rook_ceph_pool_name: replicapool                   # Ceph storage pool name
+rook_ceph_storage_class_name: rook-ceph-block      # Rook block storage class name
+rook_ceph_make_storage_class_default: true         # Make Rook storage class default
+
+# Optional Rook-Ceph Features
+rook_ceph_enable_filesystem: false                 # Enable CephFS shared filesystem
+rook_ceph_filesystem_name: "cephfs"                # CephFS filesystem name
+rook_ceph_fs_storage_class: "rook-cephfs"          # CephFS storage class name
+rook_ceph_fs_make_default: false                   # Make CephFS default storage class
+
+rook_ceph_enable_objectstore: false                # Enable S3-compatible object storage
+rook_ceph_objectstore_name: "ceph-objectstore"     # Object store name
+rook_ceph_objectstore_storage_class: "rook-ceph-bucket" # Object storage class name
+rook_ceph_objectstore_gateway_port: 80             # Object store gateway port
+rook_ceph_objectstore_replicas: 1                  # Object store gateway replicas
+
+# =============================================================================
+# SECURITY AND AUTHENTICATION
+# =============================================================================
+# Security-related configuration settings
+
+cert_manager_email: your_email@your_domain.com     # Email for Let's Encrypt certificates
+traefik_dashboard_expose: false                    # Expose Traefik dashboard publicly
+
+# =============================================================================
+# UPGRADE CONFIGURATION
+# =============================================================================
+# Settings for RKE2 cluster upgrade operations
+
+upgrade_drain_nodes: true                          # Drain nodes during upgrade
+upgrade_drain_timeout: 300                         # Node drain timeout (seconds)
+upgrade_drain_grace_period: 30                     # Drain grace period (seconds)
+upgrade_drain_delete_emptydir_data: true           # Delete emptyDir data when draining
+service_restart_delay: 30                          # Service restart delay (seconds)
+node_ready_timeout: 300                            # Node ready timeout (seconds)
+
+# =============================================================================
+# ADVANCED CONFIGURATION
+# =============================================================================
+# Advanced settings for specific use cases
+
+# User Configuration
+ansible_user: "{{ ansible_user_id }}"              # Ansible execution user
+
+# =============================================================================
+# CONFIGURATION NOTES
+# =============================================================================
+#
+# 1. Version Pinning: All component versions are pinned for reproducible
+#    deployments. Update versions carefully and test in non-production first.
+#
+# 2. Network Configuration: Ensure the VIP address and load balancer range
+#    do not conflict with existing network infrastructure.
+#
+# 3. Storage Configuration: Choose between Longhorn (simpler) or Rook-Ceph
+#    (more features) based on your requirements. Do not enable both as default.
+#
+# 4. Security: Update cert_manager_email with your actual email address for
+#    Let's Encrypt certificate notifications.
+#
+# 5. Component Installation: Disable unnecessary components to reduce resource
+#    usage and attack surface.
+#
+# =============================================================================

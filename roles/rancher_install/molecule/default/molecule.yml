@@ -52,10 +52,10 @@ provisioner:
         test_mode: true
 
         # Component installation flags
-        install_cert_manager: true
-        install_traefik: true
-        install_rancher: false
-        install_longhorn: false
+        rke2_install_certbot: true
+        rke2_install_traefik: true
+        rancher_install_platform: false
+        longhorn_install_system: false
 
         # Required for Helm dependency
         helm_version: "v3.18.4"

@@ -18,8 +18,8 @@ rke2_version: "v1.31.11+rke2r1"
 metallb_version: v0.15.2
 
 rke2_install_dir: "/usr/local/bin"
-kube_vip_noinstall: false
-metallb_noinstall: false
+rke2_install_kubevip: true
+rke2_install_metallb: true
 disable_networkmanager: true
 rke2_os: "linux"
 

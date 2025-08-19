@@ -5,15 +5,17 @@
   ansible.builtin.include_tasks:
     file: cert-manager.yaml
   tags: cert-manager
+  when: rke2_install_certbot
 
 # Not required if using RKE2's native ingress
 - name: Configure Traefik
   ansible.builtin.include_tasks:
     file: traefik.yaml
   tags: traefik
-  when: not traefik_noinstall
+  when: rke2_install_traefik
 
 - name: Install Rancher
   ansible.builtin.include_tasks:
     file: rancher.yaml
   tags: rancher
+  when: rancher_install_platform

@@ -23,7 +23,7 @@
     comment: "{{ item.comment }}"
   loop: "{{ ufw_rules_controllers }}"
   notify: Reload UFW
-  when: 
+  when:
     - inventory_hostname in groups['controllers']
     - "'ufw' in ansible_facts.packages"
   become: true

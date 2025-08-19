@@ -13,8 +13,6 @@ metallb_path: /home/{{ ansible_user }}/metallb
 # Options:
 
 rke2_install_dir: "/usr/local/bin"
-kube_vip_noinstall: false
-metallb_noinstall: false
 disable_networkmanager: true
 rke2_os: "linux"
 
