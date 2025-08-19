@@ -21,7 +21,6 @@ rke2_install_dir: "/usr/local/bin"
 kube_vip_noinstall: false
 metallb_noinstall: false
 disable_networkmanager: true
-firewall: ufw
 rke2_os: "linux"
 
 vip_interface: "eth0"
@@ -30,6 +29,15 @@ management_network: "192.168.100.0/24"
 lb_range: 192.168.100.240-192.168.100.254
 lb_pool_name: first-pool
 ```
+
+## Installation Notes
+
+1. **NetworkManager**: The role automatically removes NetworkManager as recommended by RKE2 documentation (controlled by `disable_networkmanager` variable).
+
+2. **Firewalld**: The role automatically disables firewalld if running, as it can interfere with RKE2 networking.
+
+3. **UFW Firewall**: If UFW is already installed, the role will configure necessary firewall rules and leave UFW in its current state. If no firewall is present, Canal CNI manages network security without installing additional firewall software.
+
 Tags
 ----
 
