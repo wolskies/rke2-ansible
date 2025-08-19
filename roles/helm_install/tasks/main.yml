@@ -47,6 +47,8 @@
     - name: Install Helm
       ansible.builtin.command: >
         bash {{ ansible_env.HOME }}/get-helm-3.sh
+      environment:
+        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
       args:
         creates: /usr/local/bin/helm
 
