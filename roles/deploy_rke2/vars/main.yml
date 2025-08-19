@@ -43,6 +43,7 @@ ufw_rules_controllers:
 # Supported operating systems
 supported_distributions:
   - Ubuntu
+  - Debian
   - Rocky
   - RedHat
   - Oracle
@@ -52,6 +53,7 @@ supported_distributions:
 # Minimum major versions
 min_os_versions:
   Ubuntu: "20"
+  Debian: "11"
   Rocky: "8"
   RedHat: "8"
   Oracle: "8"
