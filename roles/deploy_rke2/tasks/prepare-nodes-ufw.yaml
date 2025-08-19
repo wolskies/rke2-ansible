@@ -3,6 +3,7 @@
 - name: Check if UFW is installed
   ansible.builtin.package_facts:
     manager: auto
+  failed_when: false
 
 - name: Configure common UFW rules for all nodes
   community.general.ufw:
@@ -12,7 +13,9 @@
     comment: "{{ item.comment }}"
   loop: "{{ ufw_rules_common }}"
   notify: Reload UFW
-  when: "'ufw' in ansible_facts.packages"
+  when:
+    - ansible_facts.packages is defined
+    - "'ufw' in ansible_facts.packages"
   become: true
 
 - name: Configure additional UFW rules for controller nodes
@@ -25,5 +28,6 @@
   notify: Reload UFW
   when:
     - inventory_hostname in groups['controllers']
+    - ansible_facts.packages is defined
     - "'ufw' in ansible_facts.packages"
   become: true
