@@ -159,7 +159,9 @@ node_ready_timeout: 300                            # Node ready timeout (seconds
 # Advanced settings for specific use cases
 
 # User Configuration
-ansible_user: "{{ ansible_user_id }}"              # Ansible execution user
+# Note: ansible_user should be set in your inventory file, not here
+# This is just for reference - remove or comment out this line
+# ansible_user: your_ssh_user                      # SSH user for Ansible connections
 
 # =============================================================================
 # CONFIGURATION NOTES
