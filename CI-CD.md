@@ -31,48 +31,39 @@ GitLab Self-Hosted (Primary)     GitHub (Sync)
 ```yaml
 # Fast parallel linting
 - YAML validation (yamllint)
-- Ansible best practices (ansible-lint) 
-- Syntax checking (all roles)
+- Ansible best practices (ansible-lint with custom config)
+- Syntax checking (all 8 roles including rke2_upgrade)
 ```
 
 #### **2. Unit Test Stage**
 ```yaml
-# Quick validation tests
-- Python unit tests
-- Role syntax validation
-- Collection build test
+# Parallel syntax validation
+- Role syntax validation (8 roles in parallel)
+- Molecule testing (Docker-based container testing)
 ```
 
-#### **3. Integration Test Stage** (Manual)
+#### **3. Build Stage**
 ```yaml
-# Resource-intensive tests
-- Molecule testing (Docker)
-- Multi-role integration
-- Full deployment simulation
+# Collection build and verification
+- Collection build test
+- Artifact generation
+- Installation verification
 ```
 
 #### **4. Security Scan Stage**
 ```yaml
 # Security validation
+- Ansible-lint security checks
 - Secret scanning (TruffleHog)
-- Ansible content scanning
 - Dependency vulnerability checks
 ```
 
-#### **5. Sync Stage** (Manual)
+#### **5. Deploy Test Stage** (Manual)
 ```yaml
-# Repository synchronization  
-- Push to GitHub
-- Tag synchronization
-- Force-with-lease safety
-```
-
-#### **6. Deploy Stage** (Manual)
-```yaml
-# Release automation
-- Ansible Galaxy publishing
-- Version tagging
-- Artifact management
+# Deployment testing with Kind
+- Kind cluster deployment
+- Ansible connectivity tests
+- Cluster verification
 ```
 
 ## 📋 GitHub Actions (Secondary)
@@ -131,6 +122,11 @@ variables:
 - **UV**: Fast Python package installation
 - **Shared caches**: Reduced download times
 - **Incremental builds**: Cache virtual environments
+
+### **Ansible-Lint Configuration:**
+- **Custom rules**: Skips `var-naming[no-role-prefix]` and `var-naming[pattern]` 
+- **CF_TOKEN exception**: Allows uppercase variables for CloudFlare API compatibility
+- **Dynamic config**: CI pipeline creates configuration at runtime
 
 ## 🔧 Configuration Variables
 

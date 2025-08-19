@@ -44,6 +44,9 @@ Deploys Rook-Ceph distributed storage system as an alternative to Longhorn. Can 
 
 ## Additional Roles
 
+### rke2_upgrade
+Upgrades RKE2 clusters following the official manual upgrade process. Safely upgrades control plane nodes first, then worker nodes with optional draining.
+
 ### mysql_operator
 Deploys MySQL Operator for Kubernetes to manage MySQL database instances.
 
@@ -55,7 +58,7 @@ Provides complete cleanup and removal of RKE2 clusters and all associated compon
 To install the collection from this repository, refer to [Installing a collection from a Git repository](https://docs.ansible.com/ansible/latest/collections_guide/collections_installing.html).
 
 ```
-ansible-galaxy collection install git+https://github.com/wolskies/rke2-ansible.git
+ansible-galaxy collection install git+https://github.com/wolskinet/rke2-ansible.git
 ```
 
 See the Ansible documentation for more details on using collections.

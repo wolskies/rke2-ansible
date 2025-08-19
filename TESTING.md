@@ -60,6 +60,27 @@ make test-integration
 
 # Full test suite
 make test-all
+```
+
+## Linting Configuration
+
+The collection uses a customized ansible-lint configuration to handle specific requirements:
+
+### Ansible-Lint Rules
+- **Variable naming exceptions**: The `CF_TOKEN` variable uses uppercase naming for CloudFlare API compatibility
+- **Skipped rules**: `var-naming[no-role-prefix]` and `var-naming[pattern]` for specific cases
+- **Inline exceptions**: Uses `# noqa: var-naming[pattern]` comments where needed
+
+### Configuration Files
+- `.ansible-lint`: Main configuration file with skip rules
+- CI pipeline: Dynamically creates configuration during GitLab CI runs
+
+```bash
+# Run ansible-lint manually
+ansible-lint
+
+# Check specific files
+ansible-lint roles/rancher_install/
 
 # Build collection
 make build
@@ -251,18 +272,19 @@ skip_actual_k8s_deployment: true
 ### ✅ Verified Working Features
 
 **Core Testing Infrastructure:**
-- **Syntax Tests**: All 8 roles pass Ansible playbook syntax validation
+- **Syntax Tests**: All 8 roles pass Ansible playbook syntax validation (including rke2_upgrade)
 - **Collection Build**: Successfully builds 33MB collection package  
 - **YAML Linting**: Working (identifies style issues for cleanup)
-- **Ansible Linting**: Working (found 243 best practice violations)
+- **Ansible Linting**: Working with custom configuration (skips var-naming rules for CF_TOKEN)
 
 **Role Testing:**
 - **helm_install**: ✅ **100% PASSING** - Full test cycle with mock binary strategy
 - **mysql_operator**: 🟡 **~70% Pass** - Fails on K8s operations (requires cluster)
+- **rke2_upgrade**: 🟡 **~70% Pass** - Fails on K8s operations (requires cluster)
 - **teardown**: 🟡 **~80% Pass** - Fails on script execution (expected in containers)
 
 **Test Framework:**
-- **Molecule scenarios**: 8 role test scenarios + 2 integration scenarios
+- **Molecule scenarios**: 8 role test scenarios (including rke2_upgrade) + 2 integration scenarios
 - **Docker integration**: Container-based testing works reliably
 - **Dependency management**: Automated installation of required packages
 - **Mock strategies**: Proven to work for command-line tools

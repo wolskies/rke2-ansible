@@ -124,6 +124,7 @@ celerybeat.pid
 .env
 .venv
 env/
+venv/
 ENV/
 env.bak/
 venv.bak/
@@ -165,5 +166,52 @@ cython_debug/
 # Ansible
 .ansible/
 
+# Claude Code
 .claude/
 CLAUDE.md
+
+# Ansible specific additions
+*.retry
+ansible.log
+*.tar.gz
+wolskinet-rke2_ansible-*.tar.gz
+
+# Molecule
+.molecule/
+molecule/*/junit.xml
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Security - never commit real secrets
+**/secrets.yml
+**/vault.yml
+**/password.yml
+**/*_encrypted.yml
+!playbooks/group_vars/secrets.yaml  # Exception for the template file
+
+# Test artifacts
+test-results/
+*.test-results
+ansible-lint-report.json
+security-report.json
+secrets-scan.json
+
+# Cache directories
+.cache/
+*.cache
+
+# Local testing
+local-test/
+local-inventory.ini

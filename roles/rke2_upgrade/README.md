@@ -81,4 +81,4 @@ GPL-3.0-or-later
 
 ## Author Information
 
-Ed Swallow - WolskiNet
+Ed Wolski / wolskinet

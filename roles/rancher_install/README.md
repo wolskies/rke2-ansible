@@ -1,5 +1,4 @@
-Role Name
-=========
+# Rancher Install Role
 
 This role deploys Rancher on an existing RKE2 cluster. Rancher is installed with Cert Manager for ACME TLS certificates and Traefik for ingress. Storage must be provided separately (see longhorn_install or rook_install roles).
 
@@ -76,7 +75,10 @@ Example Playbook
       become: false
 ```
 
-License
--------
+## License
 
 GPL-3.0-or-later
+
+## Author Information
+
+Ed Wolski / wolskinet

@@ -1,5 +1,4 @@
-Role Name
-=========
+# Deploy RKE2 Role
 
 Role to install and start a bare metal RKE2 cluster with kube-vip and Metallb.
 
@@ -74,7 +73,10 @@ Example Playbook
     - name: wolskinet.rke2_ansible.deploy_rke2
       become: true
 ```
-License
--------
+## License
 
 GPL-3.0-or-later
+
+## Author Information
+
+Ed Wolski / wolskinet
