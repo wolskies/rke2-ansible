@@ -342,7 +342,8 @@ Feel free to fork, modify, and improve this collection for your own needs. Pull 
 
 **Testing Status**:
 - ✅ **Fully tested**: Debian/Ubuntu on both ARM64/aarch64 and AMD64 platforms
-- ⚠️ **Limited testing**: RHEL-based distributions (Rocky Linux, Oracle Linux, RHEL)
+- ⚠️ **Known issues**: Rocky Linux (officially supported by RKE2 but deployment hangs at API server readiness)
+- ❓ **Limited testing**: Other RHEL-based distributions (Oracle Linux, RHEL)
 - ❓ **Prototype status**: OpenSUSE/SLES support (functionality added but untested)
 
 
