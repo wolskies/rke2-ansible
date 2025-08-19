@@ -19,7 +19,6 @@
     ansible_facts.services['firewalld.service'].state == 'running'
   become: true
 
-- name: Configure UFW rules
+- name: Check for UFW and configure rules if present
   ansible.builtin.include_tasks:
     file: prepare-nodes-ufw.yaml
-  when: firewall == 'ufw'

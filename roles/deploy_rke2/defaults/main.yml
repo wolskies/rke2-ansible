@@ -16,8 +16,6 @@ rke2_install_dir: "/usr/local/bin"
 kube_vip_noinstall: false
 metallb_noinstall: false
 disable_networkmanager: true
-# Options are 'ufw' or 'calico'
-firewall: ufw
 rke2_os: "linux"
 
 # Networking:

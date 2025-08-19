@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-- name: Ensure UFW is installed
-  ansible.builtin.package:
-    name: ufw
-    state: present
-  become: true
+- name: Check if UFW is installed
+  ansible.builtin.package_facts:
+    manager: auto
 
 - name: Configure common UFW rules for all nodes
   community.general.ufw:
@@ -14,6 +12,7 @@
     comment: "{{ item.comment }}"
   loop: "{{ ufw_rules_common }}"
   notify: Reload UFW
+  when: "'ufw' in ansible_facts.packages"
   become: true
 
 - name: Configure additional UFW rules for controller nodes
@@ -24,5 +23,7 @@
     comment: "{{ item.comment }}"
   loop: "{{ ufw_rules_controllers }}"
   notify: Reload UFW
-  when: inventory_hostname in groups['controllers']
+  when: 
+    - inventory_hostname in groups['controllers']
+    - "'ufw' in ansible_facts.packages"
   become: true
