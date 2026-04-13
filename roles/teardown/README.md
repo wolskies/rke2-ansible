@@ -1,133 +1,37 @@
-# Teardown Role
+# teardown
 
-This role provides a complete teardown and cleanup of RKE2 clusters and associated components. It safely removes RKE2 installations, configuration files, and firewall rules while preserving data when needed.
+Remove RKE2 and every component this collection installs from a set of hosts. Destructive and irreversible — run `--check` first if in doubt.
 
-## Requirements
+## What it does
 
-- Ansible 2.12 or later
-- Running RKE2 cluster to be removed
-- Appropriate sudo/root access on target nodes
+- Downloads the RKE2 install script and runs it; this puts the `rke2-uninstall.sh` helper in place on hosts where it is missing.
+- Stops and disables `rke2-server` and `rke2-agent` services.
+- Runs `/usr/local/bin/rke2-uninstall.sh`.
+- Deletes RKE2 state, systemd units, containerd data, and kubelet directories.
+- Removes per-component working directories under `$HOME` (`metallb/`, `cert-manager/`, `traefik/`, `rancher/`, `longhorn/`, kubectl config).
+- Deletes UFW rules added by `deploy_rke2` (controller rules on controllers, common rules everywhere).
+- Reboots the host at the end.
 
-## Role Variables
+## Usage
 
-### General Configuration
 ```yaml
-home_path: /home/{{ ansible_user }}
-```
-
-### RKE2 Configuration
-```yaml
-rke2_install_dir: "/usr/local/bin"
-rke2_version: "v1.31.11+rke2r1"
-```
-
-### Component Paths
-```yaml
-kubectl_config: "{{ home_path }}/.kube/config"
-metallb_path: "{{ home_path }}/metallb"
-cert_manager_path: "{{ home_path }}/cert-manager"
-traefik_path: "{{ home_path }}/traefik"
-rancher_path: "{{ home_path }}/rancher"
-longhorn_path: "{{ home_path }}/longhorn"
+- hosts: rke2
+  roles:
+    - role: wolskinet.rke2_ansible.teardown
+      become: true
 ```
 
 ## Tags
 
-The role provides the following tags for selective cleanup:
+- `cleanup-rke2` — stop services, run uninstaller, remove RKE2 artifacts (runs by default via `always`)
+- `cleanup-config` — delete per-component `$HOME` directories (runs by default via `always`)
+- `cleanup-storage` — clean containerd data, `/var/lib/kubelet`, CNI and run dirs
+- `cleanup-firewall` — gather package facts (prerequisite for UFW removal)
 
-- `cleanup-rke2` - Remove RKE2 cluster and binaries
-- `cleanup-config` - Remove configuration files and directories
-- `cleanup-storage` - Remove storage-related components (DirectPV, etc.)
-- `always` - Tasks that always run (RKE2 and config cleanup)
+## Variables
 
-## Dependencies
+Reads path variables (`kubectl_config`, `metallb_path`, `cert_manager_path`, `traefik_path`, `rancher_path`, `longhorn_path`) and UFW rule lists (`ufw_rules_common`, `ufw_rules_controllers`) from `playbooks/group_vars/all.yaml` and role `vars/`. See [`docs/variables.md`](../../docs/variables.md).
 
-None - this role is designed to clean up after other roles.
+## Known issue
 
-## Example Playbook
-
-```yaml
----
-- name: Complete RKE2 Teardown
-  hosts: rke2
-  become: true
-  roles:
-    - name: wolskinet.rke2_ansible.teardown
-```
-
-### Selective Cleanup Examples
-
-```bash
-# Complete teardown (everything)
-ansible-playbook teardown.yaml
-
-# Remove only configuration files, keep RKE2 cluster running
-ansible-playbook teardown.yaml --tags "cleanup-config" --skip-tags "cleanup-rke2"
-
-# Remove only storage components
-ansible-playbook teardown.yaml --tags "cleanup-storage"
-
-# Remove everything except storage data
-ansible-playbook teardown.yaml --skip-tags "cleanup-storage"
-```
-
-## What Gets Removed
-
-### RKE2 Cluster Components (`cleanup-rke2`)
-- RKE2 services and containers
-- RKE2 binary files
-- RKE2 system configurations
-- Container runtime data
-
-### Configuration Files (`cleanup-config`)
-- kubectl configuration
-- Component configuration directories:
-  - MetalLB configurations
-  - cert-manager configurations  
-  - Traefik configurations
-  - Rancher configurations
-  - Longhorn configurations
-  - MySQL operator configurations
-
-### Storage Components (`cleanup-storage`)
-- Storage driver configurations
-
-### Firewall Rules
-- UFW rules for RKE2 controllers
-- UFW rules for RKE2 agents
-- Network policies (if configured)
-
-## Safety Considerations
-
-⚠️ **WARNING**: This role performs destructive operations that cannot be undone.
-
-### Before Running Teardown:
-1. **Backup important data** - Especially persistent volumes and databases
-2. **Export important configurations** - Save any custom Kubernetes resources
-3. **Verify inventory** - Ensure you're targeting the correct hosts
-4. **Test with `--check`** - Run in check mode first to see what would be removed
-
-### What is NOT Removed:
-- User data in persistent volumes (unless the storage backend is removed)
-- External resources created outside the cluster
-- DNS records or external load balancers
-- Certificates stored outside the cluster
-
-## Recovery
-
-After teardown, you can redeploy using the same playbooks:
-
-```bash
-# After teardown, redeploy fresh cluster
-ansible-playbook deploy-rke2.yaml
-ansible-playbook rancher-install.yaml  # if needed
-```
-
-## License
-
-GPL-3.0-or-later
-
-## Author Information
-
-Ed Wolski  
-wolskinet
+UFW cleanup is gated on `firewall == 'ufw'`, but the `firewall` variable is not defined anywhere in this collection. As a result, UFW rules silently fail to be removed on a default teardown.

@@ -196,10 +196,12 @@ molecule/*/junit.xml
 
 # Security - never commit real secrets
 **/secrets.yml
+**/secrets.yaml
 **/vault.yml
+**/vault.yaml
 **/password.yml
 **/*_encrypted.yml
-!playbooks/group_vars/secrets.yaml  # Exception for the template file
+!**/secrets.yaml.example
 
 # Test artifacts
 test-results/

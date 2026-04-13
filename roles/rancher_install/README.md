@@ -1,84 +1,43 @@
-# Rancher Install Role
+# rancher_install
 
-This role deploys Rancher on an existing RKE2 cluster. Rancher is installed with Cert Manager for ACME TLS certificates and Traefik for ingress. Storage must be provided separately (see longhorn_install or rook_install roles).
+Install cert-manager, Traefik, and Rancher on an existing RKE2 cluster. Cert-manager issues Let's Encrypt wildcard certificates via the Cloudflare DNS-01 challenge.
 
-Requirements
-------------
+## What it does
 
-* Ansible 2.9.17 or later
-* Kubernetes.core ansible collection
-* Running RKE2 cluster (see `wolskinet.rke2_ansible.deploy_rke2`)
+- **cert-manager** (tag `cert-manager`, runs when `rke2_install_certbot: true`): adds the Jetstack Helm repo, installs cert-manager with CRDs, applies a `ClusterIssuer` for Cloudflare DNS-01 in either `staging` or `production`.
+- **Traefik** (tag `traefik`, runs when `rke2_install_traefik: true`): installs Traefik from its Helm chart and applies a wildcard `Certificate` via cert-manager.
+- **Rancher** (tag `rancher`): installs the Rancher `rancher-stable` Helm chart into the `cattle-system` namespace.
 
-Role Variables
---------------
-```
-home_path: /home/{{ ansible_user }}
-traefik_domain: example
+Should run on the first controller only.
 
-kubectl_config: "{{ home_path }}/.kube/config"
+## Requirements
 
-helm_version: v3.18.4
+- Running RKE2 cluster (see `deploy_rke2`).
+- Helm and `kubernetes.core` dependencies (see `helm_install`).
+- Cloudflare API token with `Zone:Zone:Read` and `Zone:DNS:Edit`, passed as the vault variable `CF_TOKEN`. The role maps it to `cf_token` for the ClusterIssuer template.
 
-cert_manager_chart_ref: jetstack/cert-manager
-cert_manager_chart_version: v1.18.2
-cert_manager_path: "{{ home_path }}/cert-manager"
-cert_manager_email: your_email@your_domain.com
+Store the token in an ansible-vault file:
 
-traefik_chart_ref: traefik/traefik
-traefik_chart_version: 37.0.0
-traefik_path: "{{ home_path }}/traefik"
-
-rancher_chart_ref: rancher-stable/rancher
-rancher_chart_version: 2.11.3
-rancher_path: "{{ home_path }}/rancher"
-
-longhorn_chart_ref: longhorn/longhorn
-longhorn_chart_version: 1.9.1
-longhorn_path: "{{ home_path }}/longhorn"
-
-# Cloudflare API Token for Let's Encrypt DNS-01 challenge
-cf_token: "{{ CF_TOKEN }}"
-```
-
-## Required Secrets
-
-This role requires a Cloudflare API token for Let's Encrypt certificate generation. Store this in an encrypted ansible-vault file:
-
-**secrets.yaml** (encrypt with `ansible-vault create secrets.yaml`):
 ```yaml
----
-CF_TOKEN: "your_cloudflare_api_token_here"
+# inventory/group_vars/secrets.yaml  (encrypted with ansible-vault)
+CF_TOKEN: "your_cloudflare_token"
 ```
 
-The role maps `CF_TOKEN` from your vault file to the `cf_token` variable used in templates.
+## Usage
 
-Dependencies
-------------
-
-None
-
-Example Playbook
-----------------
-```
----
-- name: Deploy RKE2 Cluster
-  hosts:
-    - rke2
+```yaml
+- hosts: rke2
   vars_files:
-    - /home/user/Ansible/inventory/group_vars/secrets.yaml
-  become: false
+    - inventory/group_vars/secrets.yaml
   roles:
-    - name: wolskinet.rke2_ansible.deploy_rke2
-      become: true
-    - name: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname == (groups['controllers'] | first)
-      become: false
+    - role: wolskinet.rke2_ansible.rancher_install
+      when: inventory_hostname == groups['controllers'][0]
 ```
 
-## License
+## Tags
 
-GPL-3.0-or-later
+`cert-manager`, `traefik`, `rancher`.
 
-## Author Information
+## Variables
 
-Ed Wolski / wolskinet
+See [`docs/variables.md`](../../docs/variables.md). Key settings: `traefik_domain`, `letsencrypt_env`, `cert_manager_email`, `cf_token`, `rancher_chart_version`.

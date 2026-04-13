@@ -1,84 +1,44 @@
-# RKE2 Upgrade Role
+# rke2_upgrade
 
-This role performs manual upgrades of RKE2 clusters following the official upgrade process.
+In-place RKE2 cluster upgrade following the [manual upgrade process](https://docs.rke2.io/upgrades/manual_upgrade).
+
+## What it does
+
+- Asserts the host OS is in the supported list (skip with `--skip-tags version-check`).
+- Upgrades control-plane nodes one at a time: download binary → stop RKE2 → replace binary → start RKE2 → wait for Ready.
+- Upgrades worker nodes one at a time: optional cordon + drain → download → stop → replace → start → wait for Ready → uncordon.
+
+Runs against hosts in the `controllers` and `workers` inventory groups.
+
+> **Group-name mismatch**: `deploy_rke2` expects the worker group to be named `agents`; `rke2_upgrade` expects `workers`. Either rename your inventory group between lifecycle stages or add workers to both groups.
 
 ## Requirements
 
-- An existing RKE2 cluster deployed with the `deploy_rke2` role
-- Ansible 2.15 or higher
-- SSH access to all cluster nodes
-- kubectl configured with cluster access
+- Existing RKE2 cluster deployed with `deploy_rke2`.
+- `kubernetes.core` and `python3-kubernetes` (installed by `helm_install`) for drain/uncordon.
 
-## Role Variables
+## Usage
 
 ```yaml
-# Target RKE2 version to upgrade to
-rke2_version: "v1.31.11+rke2r1"
-
-# RKE2 installation directory (same as deploy_rke2)
-rke2_install_dir: "/usr/local/bin"
-
-# Operating system (linux)
-rke2_os: "linux"
-
-# User configuration
-ansible_user: "{{ ansible_user_id }}"
-
-# Upgrade strategy
-upgrade_drain_nodes: true
-upgrade_drain_timeout: 300
-upgrade_drain_grace_period: 30
-upgrade_drain_delete_emptydir_data: true
-```
-
-## Dependencies
-
-- **helm_install**: Required for python3-kubernetes package needed by node drain/uncordon operations
-
-## Example Playbook
-
-```yaml
----
-- name: Upgrade RKE2 cluster
-  hosts: all
+- hosts: all
   become: true
-  gather_facts: true
-  vars:
-    rke2_version: "v1.31.11+rke2r1"
   roles:
     - wolskinet.rke2_ansible.rke2_upgrade
 ```
 
-## Upgrade Process
+Or use the bundled playbook, which also prints cluster status before and after:
 
-The role follows the official RKE2 manual upgrade process:
-
-1. Upgrades control plane nodes one at a time:
-   - Downloads new RKE2 binary
-   - Stops RKE2 service
-   - Replaces binary
-   - Starts RKE2 service
-   - Waits for node to be ready
-
-2. Upgrades worker nodes one at a time:
-   - Optionally drains the node
-   - Downloads new RKE2 binary
-   - Stops RKE2 service
-   - Replaces binary
-   - Starts RKE2 service
-   - Waits for node to be ready
-   - Uncordons the node if it was drained
+```bash
+ansible-playbook -i inventory playbooks/upgrade-rke2.yml
+```
 
 ## Tags
 
-- `rke2-upgrade`: Run the complete upgrade process
-- `rke2-upgrade-controllers`: Upgrade only control plane nodes
-- `rke2-upgrade-workers`: Upgrade only worker nodes
+- `rke2-upgrade` — run the full upgrade
+- `rke2-upgrade-controllers` — control-plane only
+- `rke2-upgrade-workers` — workers only
+- `version-check` — OS/arch validation only
 
-## License
+## Variables
 
-GPL-3.0-or-later
-
-## Author Information
-
-Ed Wolski / wolskinet
+See [`docs/variables.md`](../../docs/variables.md). Key settings: `rke2_version` (target), `upgrade_drain_nodes`, `upgrade_drain_timeout`, `upgrade_drain_grace_period`, `node_ready_timeout`.

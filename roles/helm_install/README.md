@@ -1,50 +1,30 @@
-# Helm Install Role
+# helm_install
 
-A straightforward role to install Helm package manager via the `get-helm-3.sh` script, helm-diff plugin, and the python3-kubernetes library required by other roles that use kubernetes.core modules. The python3-kubernetes library is only installed on controller nodes to optimize deployment efficiency.
+Install Helm 3, the helm-diff plugin, and the `python3-kubernetes` library required by `kubernetes.core` modules.
 
-## Requirements
+## What it does
 
-See https://helm.sh/docs/helm/helm_install/
+- Installs `curl` and `git` via the distro package manager (APT, DNF, or Zypper).
+- Downloads and runs the official `get-helm-3` installer; Helm ends up at `/usr/local/bin/helm`.
+- Installs the helm-diff plugin if missing.
+- On controller nodes only, installs `python3-kubernetes` via the distro package manager (Debian/Ubuntu, SUSE) or pip (RHEL, fallback).
 
-While the role itself doesn't require the python3-kubernetes package, using the role later requires it to be installed. Therefore the role installs that package also.
-
-## Role Variables
-
-There are no configurable variables for this role. The following variables are used internally:
-
-- `ansible_user_id` - used to set ownership of files
-- `ansible_user_dir` - used to set location of `.local/share` file paths
-
-The role uses the following default versions:
+## Usage
 
 ```yaml
-helm_version: "v3.18.4"
-```
-
-## Dependencies
-
-None
-
-## Example Playbook
-
-```yaml
----
-- name: Install Helm package manager
-  hosts: controllers
-  become: true
-  gather_facts: true
+- hosts: rke2
   roles:
     - wolskinet.rke2_ansible.helm_install
 ```
 
+`deploy_rke2` already depends on this role; call it directly only if you want Helm without RKE2.
+
 ## Tags
 
-- `helm`: Run the complete helm installation
+- `helm` — Helm binary install
+- `helm-diff` — helm-diff plugin install
+- `python3-kubernetes` — controller-only Python library install
 
-## License
+## Variables
 
-GPL-3.0-or-later
-
-## Author Information
-
-Ed Wolski / wolskinet
+`helm_version` (default `v3.18.4`) lives in `playbooks/group_vars/all.yaml`. See [`docs/variables.md`](../../docs/variables.md).

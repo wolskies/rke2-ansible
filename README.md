@@ -1,352 +1,108 @@
-## Ansible Collection: rke2_ansible
+# wolskinet.rke2_ansible
 
-[![GitLab CI](https://img.shields.io/badge/GitLab%20CI-passed-brightgreen?logo=gitlab)](https://your-gitlab-instance.com/your-group/rke2-ansible/-/pipelines)
+Ansible collection for deploying and managing a bare-metal RKE2 Kubernetes cluster with Rancher.
 
-This collection includes a number of roles for the creation and management of an RKE2 cluster of bare-metal systems.
+The core workflow is `helm_install` → `deploy_rke2` → `rancher_install`. Once Rancher is up, additional applications (monitoring, extra storage, etc.) are typically installed through the Rancher GUI. Storage can also be deployed directly via `longhorn_install` or `rook_install`.
 
-> **Note**: This is a synced repository. Primary development and CI/CD occurs on GitLab self-hosted. See [CI-CD.md](CI-CD.md) for details.
+## Supported platforms
 
-## Description
+- Ubuntu Server 20.04, 22.04, 24.04
+- Debian 11, 12
+- Rocky / RHEL / Oracle Linux 8, 9
+- SUSE Linux Enterprise Server 15 SP3+
+- Amazon Linux 2, 2023
 
-This collection automates the deployment and management of a bare-metal RKE2 cluster with Rancher for comprehensive cluster management through a web interface. The core workflow consists of three primary roles: `deploy_rke2` for cluster setup, `helm_install` for package management, and `rancher_install` for the management platform. Once Rancher is installed, additional charts and features are typically managed through the Rancher GUI.
+Both `amd64` and `arm64` are supported. Primary testing is on Debian/Ubuntu; other distributions are best-effort (Rocky currently hangs at API server readiness).
 
-For added convenience, optional storage roles (`longhorn_install` and `rook_install`) are included if you prefer automated storage deployment over managing through Rancher.
+## Requirements
 
-While it can be adapted to other distributions, it is currently tested and optimized for Ubuntu Server 20.04+, RHEL/Rocky/Oracle Linux 8.7+, SLES 15 SP3+, and Amazon Linux 2/2023. Both AMD64 and ARM64 architectures are supported.
-
-## Core Roles
-
-### deploy_rke2
-Deploys RKE2 on a bare-metal cluster. Alongside RKE2 this role will configure a virtual IP with `kube-vip` and a load balancer with `MetalLB`. This forms the foundation of your Kubernetes cluster.
-
-### helm_install
-Installs Helm package manager and required dependencies for managing Kubernetes applications. Essential for Rancher installation and managing other Kubernetes workloads.
-
-### rancher_install
-Deploys Rancher for cluster management, along with the required tooling (Cert Manager and Traefik) for cluster ingress and ACME TLS certificates. Once installed, you'll manage additional charts and cluster features through the Rancher web interface.
-
-The default setup uses Cloudflare's DNS-01 challenge, but can be modified for your provider. **Recommend storing the Cloudflare API Token in an ansible vault file (`ansible-vault create secrets.yaml`):
-```yaml
----
-CF_TOKEN: "your_cloudflare_token_here"
-```
-Place the encrypted token file in the `group_vars` in your inventory folder. The role automatically maps `CF_TOKEN` to `cf_token` for template usage.
-
-## Optional Convenience Roles
-
-These roles are provided for automated deployment, but you can also manage these components through the Rancher GUI after the core setup is complete:
-
-### longhorn_install
-Deploys Longhorn distributed block storage system for persistent volumes. Can alternatively be installed via Rancher's Apps & Marketplace.
-
-### rook_install  
-Deploys Rook-Ceph distributed storage system as an alternative to Longhorn. Can alternatively be installed via Rancher's Apps & Marketplace.
-
-## Additional Roles
-
-### rke2_upgrade
-Upgrades RKE2 clusters following the official manual upgrade process. Safely upgrades control plane nodes first, then worker nodes with optional draining.
-
-
-### teardown
-Provides complete cleanup and removal of RKE2 clusters and all associated components.
+- Ansible core 2.15+
+- Python 3.7+ on managed hosts
+- Collections declared in `requirements.yml` (`community.docker`, `kubernetes.core`, `community.general`)
+- Hosts must meet the [RKE2 requirements](https://docs.rke2.io/install/requirements)
 
 ## Installation
 
-To install the collection from this repository, refer to [Installing a collection from a Git repository](https://docs.ansible.com/ansible/latest/collections_guide/collections_installing.html).
-
-```
-ansible-galaxy collection install git+https://github.com/wolskinet/rke2-ansible.git
-```
-
-See the Ansible documentation for more details on using collections.
-
-### Basic Requirements
-
-#### Hardware/Software
-
-Host systems must meet the basic hardware/software requirements for RKE2 as outlined [here](https://docs.rke2.io/install/requirements). This collection is tested on both `amd64` and `arm64/aarch64` architectures. It is not intended to support Windows.
-
-**Python Requirements:**
-- Target systems must have Python 3.7+ installed (Python 3.6 is not supported due to syntax requirements)
-- For older distributions like OpenSUSE Leap 15.x, install a newer Python version: `sudo zypper install python39`
-
-**Supported Operating Systems** (per [official RKE2 support matrix](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/)):
-- Ubuntu Server 20.04, 22.04, 24.04, 25.04
-- Rocky Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-- Red Hat Enterprise Linux (RHEL) 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-- Oracle Linux 8.7, 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.5
-- SUSE Linux Enterprise Server 15 SP3, SP4, SP5, SP6
-- Amazon Linux 2, Amazon Linux 2023
-
-#### Component Versions
-
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| RKE2 | v1.31.11+rke2r1 | Kubernetes distribution |
-| Helm | v3.18.4 | Package manager |
-| Kube-VIP | v0.9.1 | Virtual IP for HA |
-| MetalLB | v0.15.2 | Load balancer |
-| Cert-Manager | v1.18.2 | Certificate management |
-| Traefik | v37.0.0 | Ingress controller |
-| Rancher | v2.11.3 | Cluster management |
-| Longhorn | v1.9.1 | Block storage |
-| Rook-Ceph | v1.17.7 | Distributed storage |
-| MySQL Operator | v8.4.3 | Database management |
-
-#### Network Configuration
-
-**Default Network Ranges** (customizable via variables):
-- **Management Network**: `192.168.100.0/24`
-- **Virtual IP (VIP)**: `192.168.100.30`
-- **Load Balancer Range**: `192.168.100.240-192.168.100.254`
-- **Primary Interface**: `eth0` (auto-detected if not found)
-
-**Required Ports** (automatically configured via UFW):
-- **6443**: Kubernetes API server
-- **9345**: RKE2 supervisor API
-- **10250**: Kubelet API
-- **2379-2381**: etcd client/peer communication
-- **30000-32767**: NodePort services range
-
-#### Kube VIP Interface Configuration
-
-Kube VIP needs to know the name of the primary ethernet interface. The role defaults to `eth0` but **automatically detects the correct interface** if `eth0` doesn't exist. This is particularly useful on RHEL-based systems (Alma Linux, Rocky Linux, etc.) where interfaces are typically named `ens160`, `enp0s3`, etc.
-
-**Auto-Detection Behavior:**
-- If `eth0` exists → uses `eth0`
-- If `eth0` doesn't exist → automatically uses the default route interface
-- Manual override → set `vip_interface: your_interface_name` in your variables
-
-**Optional: Rename Interface to eth0**
-If you prefer consistency across all systems, you can rename your interface to `eth0`. In Ubuntu via `/etc/netplan/50-cloud-init.yaml`:
-```
-network:
-  version: 2
-  ethernets:
-    eth0:
-      dhcp4: true
-      match:
-        macaddress: <insert mac address of primary ethernet interface>
-      set-name: eth0
+```bash
+git clone https://github.com/wolskinet/rke2-ansible.git
+cd rke2-ansible
+ansible-galaxy collection install -r requirements.yml
+ansible-galaxy collection install . --force
 ```
 
-#### Installation Notes
-* Note 1:  The `deploy_rke2` role will fail if the host OS is not one of [RKE2's officially supported variants](https://www.suse.com/suse-rke2/support-matrix/all-supported-versions/rke2-v1-32/).  This behavior can be skipped by running the playbook with the `--skip-tags version-check` option.
+## Quick start
 
-* Note 2: **The RKE2 deploy role will remove NetworkManager if it is installed**.  There is a way to configure NetworkManager to coexist with Canal (default CNI), but I don't need it for my purposes. This behavior can be skipped using default vars, or by skipping the `config-firewall` tag.
+Copy the secrets template into your inventory, encrypt it, and set the Cloudflare API token (used by cert-manager for Let's Encrypt DNS-01):
 
-* Note 3: **The RKE2 role will disable `firewalld` if it is installed**.  For the "why" see [RKE2 requirements](https://docs.rke2.io/install/requirements).  If UFW is already installed, the role will configure necessary firewall rules and leave UFW in its current state. If no firewall is present, Canal CNI manages network security without installing additional firewall software.  This behavior can be skipped by running the playbook with the `--skip-tags config-firewall` option.
-
-* Note 4: **SELinux Handling on RHEL-based systems**: The role automatically handles SELinux on RHEL/CentOS/Alma Linux systems by:
-  - Installing the `container-selinux` package for proper container policies
-  - Setting SELinux to permissive mode temporarily during installation
-  - Configuring proper file contexts for RKE2 directories
-  - This prevents kube-vip and RKE2 networking issues on SELinux-enforcing systems
-
-* Note 5: **ARM64 Version Compatibility**: When deploying on ARM64/aarch64 systems, verify that the specified RKE2 version has ARM64 container images available. If you encounter "image not found" errors during deployment, you can check image availability using:
-  ```bash
-  curl -s "https://registry.hub.docker.com/v2/repositories/rancher/rke2-runtime/tags/?page_size=100" | grep "v1.32.8"
-  ```
-  Look for entries containing "linux-arm64". If ARM64 images aren't available for your desired version, use a stable release like `v1.32.7+rke2r1` or `v1.31.11+rke2r1` which have confirmed ARM64 support.
-
-#### Inventory
-
-Create the ansible inventory as you would normally do.  The controller nodes must be in the group "controllers" while the worker nodes must be in "agents".  The playbook should be relatively insensitive to host names, but I recommend a top-level group (I use `rke2`) to kick it off.  My typical inventory setup is:
+```bash
+cp playbooks/group_vars/secrets.yaml.example inventory/group_vars/secrets.yaml
+ansible-vault encrypt inventory/group_vars/secrets.yaml
 ```
+
+Inventory must define `controllers` and `agents` groups, typically under a top-level `rke2` group:
+
+```yaml
 rke2:
-    children:
-        controllers:
-        agents:
-
+  children:
+    controllers:
+    agents:
 controllers:
-    hosts:
-        kcontrol01:
-            ansible_host: 192.168.100.11
-        kcontrol02:
-            ansible_host: 192.168.100.12
-        kcontrol03:
-            ansible_host: 192.168.100.13
+  hosts:
+    kcontrol01: { ansible_host: 192.168.100.11 }
+    kcontrol02: { ansible_host: 192.168.100.12 }
+    kcontrol03: { ansible_host: 192.168.100.13 }
 agents:
-    hosts:
-        kworker01:
-            ansible_host: 192.168.100.14
-        kworker02:
-            ansible_host: 192.168.100.15
+  hosts:
+    kworker01: { ansible_host: 192.168.100.14 }
 ```
 
-## Security Considerations
+Deploy:
 
-⚠️ **Important**: This collection includes default credentials that **MUST** be changed for production deployments:
-
-- **Cloudflare API Token**: Store in ansible vault file (see rancher_install role documentation)
-
-**Best Practices:**
-1. Use `ansible-vault` to encrypt sensitive variables
-2. Change all default passwords before production deployment
-3. Review and customize network ranges for your environment
-4. Ensure proper firewall rules are configured (automatically handled via UFW)
-5. Use strong TLS certificates (Let's Encrypt integration included)
-
-## Usage
-
-The collection contains a sample playbook in the `playbooks` directory along with sample `group_vars` to customize role defaults. 
-
-### Recommended Workflow: Core Deployment with Rancher Management
-
-This is the recommended approach - deploy the core infrastructure and then manage additional components through Rancher's GUI:
-
-```yaml
----
-- name: Deploy RKE2 Cluster with Rancher Management
-  hosts: rke2
-  vars_files:
-    - /home/user/Ansible/inventory/group_vars/secrets.yaml
-  become: false
-  roles:
-    # Install Helm on all nodes
-    - role: wolskinet.rke2_ansible.helm_install
-      become: false
-
-    # Install RKE2 cluster on all nodes
-    - role: wolskinet.rke2_ansible.deploy_rke2
-      become: true
-
-    # Install Rancher management platform (first controller only)
-    - role: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname == (groups['controllers'] | first)
-      become: false
-      tags: rancher
+```bash
+ansible-playbook -i inventory playbooks/deploy-rke2.yaml --ask-vault-pass
 ```
 
-After deployment, access Rancher at `https://rancher.yourdomain.com` and use the **Apps & Marketplace** to install:
-- Longhorn (Storage)
-- Prometheus + Grafana (Monitoring)
-- Additional applications as needed
+## Roles
 
-### Alternative: Full Automated Deployment
+### Cluster deployment
 
-If you prefer to deploy storage automatically via Ansible (instead of through Rancher GUI):
+- [`deploy_rke2`](roles/deploy_rke2/README.md) — install RKE2 on controllers and agents; configure kube-vip (HA virtual IP) and MetalLB (load balancer).
+- [`helm_install`](roles/helm_install/README.md) — install Helm, the helm-diff plugin, and the `python3-kubernetes` library needed by `kubernetes.core` modules. Pulled in automatically by `deploy_rke2`.
+- [`rancher_install`](roles/rancher_install/README.md) — install cert-manager, Traefik, and Rancher. Uses Cloudflare DNS-01 for Let's Encrypt certificates.
 
-```yaml
----
-- name: Deploy RKE2 Cluster with Automated Storage
-  hosts: rke2
-  vars_files:
-    - /home/user/Ansible/inventory/group_vars/secrets.yaml
-  become: false
-  roles:
-    # Core components
-    - role: wolskinet.rke2_ansible.helm_install
-      become: false
-    - role: wolskinet.rke2_ansible.deploy_rke2
-      become: true
-    - role: wolskinet.rke2_ansible.rancher_install
-      when: inventory_hostname == (groups['controllers'] | first)
-      become: false
-      tags: rancher
+### Storage (optional)
 
-    # Optional: Automated storage deployment (choose ONE)
-    # Longhorn - distributed block storage
-    - role: wolskinet.rke2_ansible.longhorn_install
-      when: inventory_hostname == (groups['controllers'] | first)
-      become: false
-      tags: longhorn
-      
-    # OR Rook/Ceph - distributed storage alternative
-    # - role: wolskinet.rke2_ansible.rook_install
-    #   when: inventory_hostname == (groups['controllers'] | first)
-    #   become: false
-    #   tags: rook
+Pick one; do not install both.
+
+- [`longhorn_install`](roles/longhorn_install/README.md) — Longhorn distributed block storage.
+- [`rook_install`](roles/rook_install/README.md) — Rook-Ceph block, filesystem, and object storage.
+
+### Lifecycle
+
+- [`rke2_upgrade`](roles/rke2_upgrade/README.md) — upgrade RKE2 in place following the manual upgrade process (controllers first, then workers, with optional drain).
+- [`teardown`](roles/teardown/README.md) — remove RKE2 and all components this collection installs, including UFW rules.
+
+## Variables
+
+All user-facing variables live in `playbooks/group_vars/all.yaml`. For a flat alphabetical listing, see [`docs/variables.md`](docs/variables.md). Regenerate after edits with:
+
+```bash
+python3 scripts/gen_docs.py
 ```
 
-### Minimal Deployment (RKE2 only)
-```yaml
----
-- name: Deploy Minimal RKE2 Cluster
-  hosts: rke2
-  become: false
-  roles:
-    - role: wolskinet.rke2_ansible.helm_install
-    - role: wolskinet.rke2_ansible.deploy_rke2
-      become: true
-```
+## Notes
 
-## Troubleshooting
+- **OS check**: `deploy_rke2` aborts on unsupported distributions. Skip with `--skip-tags version-check`.
+- **NetworkManager**: `deploy_rke2` removes NetworkManager because RKE2's default CNI (Canal) conflicts with it. Disable with `disable_networkmanager: false` or skip via `--skip-tags config-firewall`.
+- **firewalld**: disabled if present. UFW rules are configured automatically when UFW is already installed.
+- **SELinux** (RHEL/Rocky/Oracle): the role installs `container-selinux` and sets SELinux to permissive during install to avoid kube-vip networking issues.
+- **ARM64**: verify your chosen RKE2 version has arm64 container images published before deploying. `v1.31.11+rke2r1` and `v1.32.7+rke2r1` are known to have arm64 images.
+- **Interface name**: `vip_interface` defaults to `eth0` and auto-detects the default-route interface when `eth0` is absent.
 
-### Common Issues
+## Acknowledgments
 
-**Network Configuration:**
-- Ensure VIP (`192.168.100.30`) is not already in use
-- Network interface is auto-detected if `eth0` doesn't exist (common on RHEL/Alma Linux)
-- Check that load balancer range doesn't conflict with existing IPs
-
-**Firewall Issues:**
-- UFW rules are automatically configured, but verify no conflicting rules exist
-- If using a different firewall, disable it or configure RKE2 ports manually
-- NetworkManager conflicts with Canal CNI - role removes it by default
-
-**Storage Problems:**
-- Only deploy one storage solution (Longhorn OR Rook for block storage)
-- Ensure nodes have sufficient disk space (Rook requires 5Ti minimum device capacity)
-- Verify storage classes are created properly after deployment
-
-**Certificate Issues:**
-- Cloudflare API token must be valid and have DNS edit permissions
-- Check cert-manager logs if certificates fail to issue
-- Verify domain configuration matches `traefik_domain` variable
-
-
-### Getting Help
-
-- Check role-specific README files for detailed configuration options
-- Review logs: `kubectl logs -n <namespace> <pod-name>`
-- For RKE2 issues, see [official documentation](https://docs.rke2.io)
-- For component-specific issues (Rancher, Traefik, etc.), refer to their official documentation
-
-## Support
-
-Happy to help with the collection. For component-specific issues (Rancher, Traefik, etc.), I recommend referring to their official documentation. Links to useful information are provided where available.
-
-## Roadmap
-
-### Current Features ✅
-- ✅ RKE2 cluster deployment with HA
-- ✅ Multiple storage solutions (Longhorn, Rook/Ceph)
-- ✅ MySQL Operator for database management
-- ✅ Rancher management platform
-- ✅ Complete teardown capabilities
-
-### Future Enhancements 🚧
-- **Additional Database Operators**: PostgreSQL, MongoDB operators
-- **Monitoring Stack**: Prometheus, Grafana, AlertManager
-- **Service Mesh**: Istio or Linkerd integration  
-- **Backup Solutions**: Velero for cluster backups
-- **Security Enhancements**: Pod Security Standards, Network Policies
-- **Additional CNI Options**: Cilium, Calico support
-- **GitOps Integration**: ArgoCD or Flux deployment
-
-## Authors and acknowledgment
-
-It goes without saying that in the open-source community we all stand on the shoulders of giants.  This collection is both inspired by and leverages the great work of the following giants:
-- James Turland (Jim's Garage) [RKE2](https://github.com/JamesTurland/JimsGarage/tree/main/Ansible/Playbooks/RKE2)
-- Isaac Blum (Space Terran) [Automate Your RKE2 Cluster with Ansible: Helm, Cert-Manager, Traefik, and Rancher Setup Made Easy](https://github.com/SpaceTerran/ansible-rancher-traefik-ssl)
+This collection draws on earlier Ansible work by James Turland ([Jim's Garage](https://github.com/JamesTurland/JimsGarage/tree/main/Ansible/Playbooks/RKE2)) and Isaac Blum ([Space Terran](https://github.com/SpaceTerran/ansible-rancher-traefik-ssl)).
 
 ## License
-GPL-3
 
-## Project status
-
-This collection was created for personal use and is provided as-is. While it's functional and tested in my environment, it's not under active development or commercial support.
-
-**Community Contributions Welcome** 🤝  
-Feel free to fork, modify, and improve this collection for your own needs. Pull requests with enhancements are appreciated, but please note that I may not be able to provide ongoing support or troubleshooting assistance.
-
-**Testing Status**:
-- ✅ **Fully tested**: Debian/Ubuntu on both ARM64/aarch64 and AMD64 platforms
-- ⚠️ **Known issues**: Rocky Linux (officially supported by RKE2 but deployment hangs at API server readiness)
-- ❓ **Limited testing**: Other RHEL-based distributions (Oracle Linux, RHEL)
-- ❓ **Prototype status**: OpenSUSE/SLES support (functionality added but untested)
-
-
-**Current Status**: Stable for Debian/Ubuntu environments, experimental for other distributions
+GPL-3.0-or-later — see [`LICENSE`](LICENSE).

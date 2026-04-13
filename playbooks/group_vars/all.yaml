@@ -1,120 +1,77 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 ---
-# =============================================================================
-# RKE2 Ansible Collection - User Configuration Variables
-# =============================================================================
-# This file contains all user-configurable variables for the RKE2 Ansible
-# collection. Modify these values according to your environment requirements.
-# =============================================================================
+# User-configurable variables for the wolskinet.rke2_ansible collection.
+# For a generated reference, see docs/variables.md.
 
-# =============================================================================
-# COMPONENT VERSIONS
-# =============================================================================
-# Pin specific versions for reproducible deployments
+# Component versions — pin for reproducibility
+rke2_version: "v1.31.11+rke2r1"            # RKE2 release
+helm_version: "v3.18.4"                    # Helm release
+kube_vip_version: "v0.9.1"                 # kube-vip release
+metallb_version: "v0.15.2"                 # MetalLB release
 
-# Core RKE2 Components
-rke2_version: "v1.31.11+rke2r1"         # RKE2 Kubernetes distribution version
-helm_version: "v3.18.4"                 # Helm package manager version
-kube_vip_version: "v0.9.1"              # Kube-VIP virtual IP version
-metallb_version: "v0.15.2"              # MetalLB load balancer version
+cert_manager_chart_version: "v1.18.2"      # cert-manager chart
+traefik_chart_version: "37.0.0"            # Traefik chart
+rancher_chart_version: "2.11.3"            # Rancher chart
 
-# Rancher Management Components
-cert_manager_chart_version: "v1.18.2"   # Cert-Manager TLS certificate management
-traefik_chart_version: "37.0.0"         # Traefik ingress controller
-rancher_chart_version: "2.11.3"         # Rancher management platform
+longhorn_chart_version: "1.9.1"            # Longhorn chart
+rook_ceph_operator_chart_version: "1.17.7" # Rook operator chart
+rook_ceph_version: "v18.2.2"               # Ceph container image
 
-# Storage Systems
-longhorn_chart_version: "1.9.1"         # Longhorn distributed block storage
-rook_ceph_operator_chart_version: "1.17.7" # Rook-Ceph operator version
-rook_ceph_version: "v18.2.2"            # Ceph distributed storage version
+# System and network
+rke2_install_dir: "/usr/local/bin"         # RKE2 binary install directory
+disable_networkmanager: true               # Remove NetworkManager (Canal CNI conflicts with it)
 
-# =============================================================================
-# SYSTEM CONFIGURATION
-# =============================================================================
-# Operating system and service configuration
+vip: "192.168.100.50"                      # kube-vip virtual IP for the control plane
+vip_interface: "eth0"                      # Interface for the VIP; auto-detected if eth0 is absent
+management_network: "192.168.100.0/24"     # Node management CIDR
+lb_range: "192.168.100.240-192.168.100.254"  # MetalLB address pool
+lb_pool_name: "first-pool"                 # MetalLB pool name
 
-# System Settings
-rke2_install_dir: "/usr/local/bin"       # RKE2 binary installation directory
-disable_networkmanager: true            # Disable NetworkManager service
+# Feature toggles
+rke2_install_kubevip: true                 # Install kube-vip
+rke2_install_metallb: true                 # Install MetalLB
+rke2_install_certbot: true                 # Install cert-manager
+rke2_install_traefik: true                 # Install Traefik
 
-# =============================================================================
-# NETWORK CONFIGURATION
-# =============================================================================
-# Network settings for cluster communication and services
+# Rancher / TLS
+traefik_domain: "example"                  # Base domain for ingress resources
+letsencrypt_env: "production"              # "production" or "staging"
+cert_manager_email: "your_email@your_domain.com"  # ACME registration email
+traefik_dashboard_expose: false            # Expose the Traefik dashboard
 
-# Virtual IP and Load Balancer Settings
-vip: "192.168.100.50"                   # Virtual IP address for HA clusters
-vip_interface: "eth0"                   # Network interface for VIP binding (auto-detected if eth0 not found)
-management_network: "192.168.100.0/24"  # Management network CIDR block
-lb_range: "192.168.100.240-192.168.100.254" # MetalLB load balancer IP range
-lb_pool_name: "first-pool"              # MetalLB pool name
+# Cloudflare API token, sourced from the vault variable CF_TOKEN
+cf_token: "{{ CF_TOKEN | default('') }}"   # Maps from the vault variable CF_TOKEN
 
-# =============================================================================
-# COMPONENT FEATURE TOGGLES
-# =============================================================================
-# Control which components get installed in your cluster
+# Longhorn
+longhorn_namespace: "longhorn-system"      # Namespace for Longhorn
+longhorn_install_system: true              # Deploy the Longhorn chart
+longhorn_create_default_storage_class: true  # Create the default StorageClass
+longhorn_storage_class_name: "longhorn"    # StorageClass name
+longhorn_replica_count: 3                  # Replicas per volume
 
-# Core RKE2 Components
-rke2_install_kubevip: true              # Install kube-vip for HA virtual IP
-rke2_install_metallb: true              # Install MetalLB load balancer
+# Rook-Ceph
+rook_ceph_namespace: "rook-ceph"           # Namespace for Rook-Ceph
+rook_ceph_min_device_capacity: "50Mi"      # Test-only; production should be >= 100Gi
+rook_ceph_mon_count: 3                     # Ceph monitor daemons
+rook_ceph_replica_size: 1                  # No redundancy; raise for production
+rook_ceph_pool_name: "replicapool"         # Ceph RBD pool name
+rook_ceph_storage_class_name: "rook-ceph-block"  # RBD StorageClass name
+rook_ceph_make_storage_class_default: true  # Make RBD the default StorageClass
 
-# Rancher Management Components
-rke2_install_certbot: true              # Install Cert-Manager for TLS certificates
-rke2_install_traefik: true              # Install Traefik ingress controller
+rook_install_operator: true                # Install the Rook operator
+rook_install_cluster: true                 # Install the CephCluster and RBD StorageClass
+rook_ceph_enable_filesystem: false         # Install CephFilesystem + StorageClass
+rook_ceph_enable_objectstore: false        # Install CephObjectStore + StorageClass
 
-# =============================================================================
-# SECURITY AND DOMAIN CONFIGURATION
-# =============================================================================
-# Domain, certificate, and security settings
+rook_ceph_filesystem_name: "cephfs"        # CephFilesystem name
+rook_ceph_fs_storage_class: "rook-cephfs"  # CephFS StorageClass name
+rook_ceph_fs_make_default: false           # Make CephFS the default StorageClass
+rook_ceph_objectstore_name: "ceph-objectstore"   # CephObjectStore name
+rook_ceph_objectstore_storage_class: "rook-ceph-bucket"  # Object store StorageClass name
+rook_ceph_objectstore_gateway_port: 80     # RGW gateway port
+rook_ceph_objectstore_replicas: 1          # RGW gateway replicas
 
-# Domain Configuration
-traefik_domain: "example"               # Base domain for ingress resources
-letsencrypt_env: "production"           # Let's Encrypt environment (staging/production)
-cert_manager_email: "your_email@your_domain.com" # Email for Let's Encrypt certificates
-traefik_dashboard_expose: false         # Expose Traefik dashboard (security consideration)
-
-# Cloudflare API Token for Let's Encrypt DNS-01 challenge
-# Set this in your secrets.yaml file
-cf_token: "{{ CF_TOKEN | default('') }}" # Maps from vault variable CF_TOKEN
-
-# =============================================================================
-# STORAGE CONFIGURATION
-# =============================================================================
-# Persistent storage system configuration
-
-# Longhorn Configuration
-longhorn_namespace: "longhorn-system"   # Kubernetes namespace for Longhorn
-longhorn_install_system: true           # Install Longhorn storage system
-longhorn_create_default_storage_class: true # Create default storage class
-longhorn_storage_class_name: "longhorn" # Name of Longhorn storage class
-longhorn_replica_count: 3               # Number of replicas for data
-
-# Rook-Ceph Configuration
-rook_ceph_namespace: "rook-ceph"         # Kubernetes namespace for Rook-Ceph
-rook_ceph_min_device_capacity: "50Mi"   # Minimum storage device capacity (testing: 50MB, production: increase)
-rook_ceph_mon_count: 3                  # Number of Ceph monitor daemons
-rook_ceph_replica_size: 1               # Data replication factor
-rook_ceph_pool_name: "replicapool"      # Ceph storage pool name
-rook_ceph_storage_class_name: "rook-ceph-block" # Storage class name
-rook_ceph_make_storage_class_default: true # Make this the default storage class
-
-# Rook-Ceph Feature Toggles
-rook_install_operator: true             # Install Rook-Ceph operator
-rook_install_cluster: true              # Install Rook-Ceph cluster
-rook_ceph_enable_filesystem: false      # Enable CephFS filesystem (optional)
-rook_ceph_enable_objectstore: false     # Enable Ceph object storage (optional)
-
-# Additional Rook-Ceph Configuration (Advanced)
-rook_ceph_filesystem_name: "cephfs"     # CephFS filesystem name
-rook_ceph_fs_storage_class: "rook-cephfs" # CephFS storage class name
-rook_ceph_fs_make_default: false        # Make CephFS the default storage class
-rook_ceph_objectstore_name: "ceph-objectstore" # Object store name
-rook_ceph_objectstore_storage_class: "rook-ceph-bucket" # Object store storage class
-rook_ceph_objectstore_gateway_port: 80  # Object store gateway port
-rook_ceph_objectstore_replicas: 1       # Object store gateway replicas
-
-# Rook-Ceph Operator Configuration
-rook_ceph_operator_values:
+rook_ceph_operator_values:                 # Values passed to the Rook operator chart
   crds:
     enabled: true
   csi:
@@ -123,45 +80,10 @@ rook_ceph_operator_values:
   monitoring:
     enabled: false
 
-# =============================================================================
-# CLUSTER UPGRADE CONFIGURATION
-# =============================================================================
-# Settings for RKE2 cluster upgrades
-
-# Upgrade Strategy
-upgrade_drain_nodes: true               # Drain nodes before upgrade
-upgrade_drain_timeout: 300              # Timeout for node drain (seconds)
-upgrade_drain_grace_period: 30          # Grace period for pod termination (seconds)
-upgrade_drain_delete_emptydir_data: true # Delete emptyDir data during drain
-
-# Upgrade Timing
-service_restart_delay: 30               # Delay between service operations (seconds)
-node_ready_timeout: 300                 # Timeout waiting for nodes to become ready (seconds)
-
-# =============================================================================
-# MAINTENANCE AND PATHS
-# =============================================================================
-# Configuration for maintenance operations
-
-# Note: ansible_user should be set in your inventory file, not here
-# Example inventory setting: ansible_user=myuser
-
-# =============================================================================
-# ADVANCED CONFIGURATION
-# =============================================================================
-# Advanced settings - modify with caution
-
-# 1. Network Configuration: The management_network should match your actual
-#    network infrastructure. Update vip and lb_range to unused IPs in your network.
-
-# 2. Storage Configuration: For production deployments, increase
-#    rook_ceph_min_device_capacity to appropriate values (e.g., "100Gi" or higher).
-
-# 3. Security: Always use production Let's Encrypt environment for real deployments.
-#    Set letsencrypt_env: "staging" only for testing to avoid rate limits.
-
-# 4. Resource Planning: Monitor cluster resources and adjust replica counts
-#    and storage allocations based on your workload requirements.
-
-# 5. Component Installation: Disable unnecessary components by setting their
-#    installation flags to false to reduce resource consumption.
+# Upgrade behavior
+upgrade_drain_nodes: true                  # Drain workers before upgrade
+upgrade_drain_timeout: 300                 # Drain timeout (seconds)
+upgrade_drain_grace_period: 30             # Pod termination grace period (seconds)
+upgrade_drain_delete_emptydir_data: true   # Pass --delete-emptydir-data to drain
+service_restart_delay: 30                  # Delay between service operations (seconds)
+node_ready_timeout: 300                    # Wait for Ready after restart (seconds)

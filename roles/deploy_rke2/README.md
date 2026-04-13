@@ -1,90 +1,42 @@
-# Deploy RKE2 Role
+# deploy_rke2
 
-Role to install and start a bare metal RKE2 cluster with kube-vip and Metallb.
+Install and start an RKE2 cluster on bare-metal hosts. Configures kube-vip (HA virtual IP) and MetalLB (load balancer).
 
-Requirements
-------------
+## What it does
 
-* Ansible 2.9.17 or later
-* Kubernetes.core ansible collection
+- Asserts the host OS is in the supported list (skip with `--skip-tags version-check`).
+- Removes NetworkManager unless `disable_networkmanager: false` — Canal CNI conflicts with it.
+- Disables firewalld; configures UFW rules if UFW is installed.
+- On RHEL / Rocky / Oracle: installs `container-selinux` and sets SELinux permissive during install.
+- Downloads the RKE2 binary for the host's architecture (amd64 or arm64).
+- Bootstraps the first controller, joins additional controllers, then joins agents.
+- Installs kube-vip as a static pod when `rke2_install_kubevip: true`.
+- Installs MetalLB from the first controller when `rke2_install_metallb: true`.
 
-Role Variables
---------------
+## Requirements
 
-The following variables, with their defaults are settable in the defaults folder:
-```
-kube_vip_version: "v0.9.1"
-rke2_version: "v1.31.11+rke2r1"
-metallb_version: v0.15.2
+- Inventory groups `controllers` and `agents`.
+- Ansible 2.15+; collections `kubernetes.core`, `community.general`.
+- Pulls `helm_install` in as a role dependency.
 
-rke2_install_dir: "/usr/local/bin"
-rke2_install_kubevip: true
-rke2_install_metallb: true
-disable_networkmanager: true
-rke2_os: "linux"
+## Usage
 
-vip_interface: "eth0"
-vip: 192.168.100.30
-management_network: "192.168.100.0/24"
-lb_range: 192.168.100.240-192.168.100.254
-lb_pool_name: first-pool
-```
-
-## Installation Notes
-
-1. **NetworkManager**: The role automatically removes NetworkManager as recommended by RKE2 documentation (controlled by `disable_networkmanager` variable).
-
-2. **Firewalld**: The role automatically disables firewalld if running, as it can interfere with RKE2 networking.
-
-3. **UFW Firewall**: If UFW is already installed, the role will configure necessary firewall rules and leave UFW in its current state. If no firewall is present, Canal CNI manages network security without installing additional firewall software.
-
-Tags
-----
-
-The role provides the following tags to control execution:
-
-**Core Tags:**
-- `version-check` - OS and architecture validation
-- `config-firewall` - Firewall and network preparation  
-- `rke2` - RKE2 binary installation and core cluster setup
-- `rke2-bootstrap` - Initial cluster bootstrap (first controller only)
-- `rke2-servers` - Additional controller node setup
-- `rke2-agents` - Agent/worker node setup
-
-**Network Components:**
-- `rke2-network` - All networking components
-- `kube-vip` - Virtual IP configuration for HA
-- `metallb` - Load balancer installation
-
-**Usage Examples:**
-```bash
-# Install only RKE2 core without networking
-ansible-playbook deploy-rke2.yaml --tags "rke2" --skip-tags "rke2-network"
-
-# Skip firewall configuration
-ansible-playbook deploy-rke2.yaml --skip-tags "config-firewall"
-
-# Only bootstrap the first controller
-ansible-playbook deploy-rke2.yaml --tags "rke2-bootstrap" --limit "controllers[0]"
-```
-
-Example Playbook
-----------------
-```
-- name: Deploy RKE2 Cluster
-  hosts:
-    - rke2
-  vars_files:
-    - /home/{{ ansible_user }}/Ansible/inventory/group_vars/secrets.yaml
+```yaml
+- hosts: rke2
   become: false
   roles:
-    - name: wolskinet.rke2_ansible.deploy_rke2
+    - role: wolskinet.rke2_ansible.deploy_rke2
       become: true
 ```
-## License
 
-GPL-3.0-or-later
+## Tags
 
-## Author Information
+- `version-check` — OS / arch validation only
+- `config-firewall` — NetworkManager / firewalld / UFW setup
+- `rke2` — binary install and cluster configuration
+- `rke2-bootstrap`, `rke2-servers`, `rke2-agents` — per-phase
+- `kube-vip`, `metallb`, `rke2-network` — networking components
 
-Ed Wolski / wolskinet
+## Variables
+
+See [`docs/variables.md`](../../docs/variables.md) for the full list. Defaults live in `playbooks/group_vars/all.yaml`.
